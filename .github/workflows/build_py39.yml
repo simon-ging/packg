@@ -133,7 +133,7 @@ jobs:
 #
     - name: Run pytest
       run: |
-        python -m pytest tests tests_py39 --cov
+        python -m pytest --cov
 #
     - name: Run pylint
       continue-on-error: true
