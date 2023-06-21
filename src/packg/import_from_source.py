@@ -158,7 +158,7 @@ def _apply_visitor(module: str, visitor: NodeVisitor) -> None:
     assert module_spec is not None
     assert module_spec.origin is not None
 
-    with open(module_spec.origin, "r") as source_file:
+    with open(module_spec.origin, "r", encoding="utf-8") as source_file:
         ast = parse(source=source_file.read(), filename=module_spec.origin)
 
     visitor.visit(ast)

@@ -18,8 +18,8 @@ Collection of utilities used in other python projects.
 ## Features
 
 * `caching`: Cache objects to disk / to memory
-* `Const`: Class for defining constants, as alternative to `enum.Enum` 
-* `typext` Type definitions and other utilities
+* `Const`: Base class for defining constants, as alternative to `enum.Enum` 
+* `typext`: Type definitions
 * etc
 
 ## Install
@@ -37,14 +37,9 @@ Clone repository and cd into, then:
 ~~~bash
 pip install -e .
 pip install pytest pytest-cov pylint pytest-lazy-fixture
-pylint gpack
+pylint packg
 
-# run tests for python>=3.7
+# run tests
 python -m pytest --cov
 pylint tests
-
-# run tests for python>=3.9
-python -m pytest tests tests_py39 --cov
-pylint tests 
-pylint tests_py39
 ~~~
