@@ -30,7 +30,7 @@ def describe_stats(arr: TensorType,
     arr = ensure_numpy(arr)
     out_strs = []
     if table_sep is not None:
-        fmt_str = (table_sep.join([format_str] * 5))
+        fmt_str = table_sep.join([format_str] * 5)
         out_strs.append(f"{name}{table_sep}{len(arr)}{table_sep}")
     else:
         fmt_str = ("Range: " + format_str + " to " + format_str + ", mean: " + format_str +
