@@ -3,3 +3,5 @@ numpy
 joblib
 importlib_resources
 loguru
+natsort
+typedparser

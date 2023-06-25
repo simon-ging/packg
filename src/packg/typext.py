@@ -7,6 +7,7 @@ from importlib_resources.abc import Traversable
 
 TensorType = Any
 PathType = Union[str, Path, Traversable]
+OptionalPathType = Union[str, Path, Traversable, None]
 PathOrIO = Union[PathType, IOBase]
 
 # Subscripted generics cannot be used with class and instance check
