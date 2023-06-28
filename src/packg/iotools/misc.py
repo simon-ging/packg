@@ -1,11 +1,10 @@
 import os
-from _operator import itemgetter
 from contextlib import contextmanager
+from operator import itemgetter
 from pathlib import Path
 from typing import Union, Iterable, TextIO, List
 
 import natsort
-
 from packg.typext import PathOrIO, PathTypeCls, PathType
 
 

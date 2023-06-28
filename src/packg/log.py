@@ -35,6 +35,9 @@ BRIGHTBG_FORMAT = (
     "<green>{time:YYYYMMDD HH:mm:ss}</green> <level>{level: <4.4}</level> "
     "<blue>{name}</blue>:<blue>{function}</blue>:<blue>{line}</blue> "
     "<level>{message}</level>")
+TIMELESS_FORMAT = (
+    "<level>{level: <4.4}</level> "
+    "<level>{message}</level>")
 
 
 def configure_logger(

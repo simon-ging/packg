@@ -5,3 +5,4 @@ importlib_resources
 loguru
 natsort
 typedparser
+pyyaml

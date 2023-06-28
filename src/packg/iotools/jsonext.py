@@ -122,7 +122,7 @@ def dumps_jsonl(data: Iterable[Any]) -> str:
 def load_json_xz(file: PathType, verbose: bool = False, encoding: str = "utf-8") -> Any:
     start_timer = timer()
     file = Path(file)
-    data_str = load_xz(file)
+    data_str = load_xz(file, encoding=encoding)
     try:
         obj = loads_json(data_str)
     except Exception as e:
