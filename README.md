@@ -37,9 +37,9 @@ Clone repository and cd into, then:
 ~~~bash
 pip install -e .
 pip install pytest pytest-cov pylint pytest-lazy-fixture
-pylint packg
 
-# run tests
 python -m pytest --cov
+
+pylint packg
 pylint tests
 ~~~
