@@ -6,3 +6,4 @@ loguru
 natsort
 typedparser
 pyyaml
+python-dotenv
