@@ -7,3 +7,4 @@ natsort
 typedparser
 pyyaml
 python-dotenv
+pathspec
