@@ -1,6 +1,7 @@
 """
 Wrapper functions for YAML I/O.
 """
+import os
 import sys
 from collections import abc
 from pathlib import Path
@@ -23,12 +24,14 @@ def loads_yaml(yaml_str: str) -> Any:
 
 
 def dump_yaml(obj: Any, file_or_io: PathOrIO, standard_format: bool = True,
-              check_roundtrip: bool = True, **kwargs) -> None:
+              check_roundtrip: bool = True, create_parent=False, **kwargs) -> None:
     """
     convert python object to yaml string and write to file. see dumps_yaml for details.
     """
     s = dumps_yaml(obj, standard_format=standard_format, check_roundtrip=check_roundtrip, **kwargs)
     if isinstance(file_or_io, PathTypeCls):
+        if create_parent:
+            os.makedirs(Path(file_or_io).parent, exist_ok=True)
         Path(file_or_io).write_text(s, encoding="utf8")
         return
     file_or_io.write(s)

@@ -69,11 +69,11 @@ def get_from_environ(env_k: str):
     return os.environ[env_k]
 
 
-def print_all_environment_variables():
+def print_all_environment_variables(print_fn=print):
     setup_environ()
-    print(f"Path definitions:")
+    print_fn(f"Path definitions:")
     for env_k in EnvKeys.values():
-        print(f"    {env_k}={os.environ[env_k]}")
+        print_fn(f"    {env_k}={os.environ[env_k]}")
 
 
 def get_data_dir(overwrite_dir: OptionalPathType = None) -> Path:
