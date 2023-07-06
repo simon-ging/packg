@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from typedparser.objects import is_any_mapping, is_any_iterable
 
 from packg.iotools.misc import read_text_from_file_or_io
-from typedparser.objects import is_any_mapping, is_any_iterable
 from packg.typext import PathOrIO, PathTypeCls
 
 
@@ -69,7 +69,7 @@ def dumps_yaml(obj: Any, standard_format: bool = True, check_roundtrip: bool = T
             print(f"---------- Original object:\n{obj}\n", file=sys.stderr)
             print(f"---------- Reconstructed object:\n{re_obj}\n", file=sys.stderr)
             raise RuntimeError(
-                    "roundtrip failed (original object cannot be reconstructed from yaml, see stderr)")
+                "roundtrip failed (original object cannot be reconstructed from yaml, see stderr)")
     return yaml_str
 
 
@@ -86,7 +86,7 @@ def _dumps_yaml_recursive(
     if isinstance(obj, (bool, int, float, type(None))):
         # by yaml standard, if there is only a single objects in the file, append "..." (eod)
         return _convert_single_object_to_yaml_str(
-                obj, remove_eod=_indent_level > 0 or _is_inside_list)
+            obj, remove_eod=_indent_level > 0 or _is_inside_list)
     if isinstance(obj, str):
         # put quotes around strings
         return f"\"{obj}\""
@@ -108,8 +108,8 @@ def _dumps_yaml_recursive(
         for k, v in obj.items():
             kv_sep = "\n" if isinstance(v, abc.Mapping) else " "
             recursive_result = _dumps_yaml_recursive(
-                    v, _indent_level=_indent_level + 1,
-                    _is_inside_list=_is_inside_list)
+                v, _indent_level=_indent_level + 1,
+                _is_inside_list=_is_inside_list)
             ret_list.append(f"{indent}{k}:{kv_sep}{recursive_result}")
         return "\n".join(ret_list)
     if is_any_iterable(obj):

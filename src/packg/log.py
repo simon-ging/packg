@@ -43,12 +43,12 @@ TIMELESS_FORMAT = (
 def configure_logger(
         level: LevelType = "DEBUG",
         sink=sys.stderr,
-        format=SHORTEST_FORMAT,  # noqa
+        format=SHORTEST_FORMAT,  # noqa # pylint: disable=redefined-builtin
         colorize=True,
         add_sinks: Optional[List[Any]] = None,
         kwargs_handler: Optional[Dict[str, Any]] = None,
         **kwargs: Any
-) -> None:
+) -> Dict[str, Any]:
     """
     Configure the loguru logger. For more complex usages, use logger.configure() directly.
 
@@ -64,6 +64,9 @@ def configure_logger(
     References:
         https://loguru.readthedocs.io/en/stable/api/logger.html
         from loguru import _colorizer  # color code reference
+
+    Returns:
+        Configuration passed to logger.configure()
 
     """
     add_sinks = add_sinks if add_sinks is not None else []
@@ -84,7 +87,37 @@ def configure_logger(
     if (colorize and os.name == "nt" and os.environ.get("CONEMUANSI") == "ON"
             and sink in (sys.stderr, sys.stdout)):
         print("\r", end="")  # the invisible print here magically fixes the color
-    logger.configure(handlers=handlers, **kwargs)
+
+    logger_config = {"handlers": handlers, **kwargs}
+    logger.configure(**logger_config)
+    return logger_config
+
+
+def reroute_logger(logger_config, new_sink, handler_num: int = 0) -> None:
+    """
+    Reroute a sink from one target to another. Useful for proper logging inside
+    a tqdm progressbar without having to recreate the entire logger.
+
+    Args:
+        logger_config: config created by configure_logger() function above.
+        new_sink: new target
+        handler_num: index of the handler of which to change the sink
+
+    Usage:
+        logger_config = configure_logger(...)
+        pbar = tqdm(...)
+        reroute_logger(logger_config, lambda msg: pbar.write(msg, end=""))
+        # use tqdm progressbar and logger together here
+        pbar.close()
+        reroute_logger(logger_config, sys.stderr)
+
+    Notes:
+        The config is modified inplace so does not need to be returned here.
+        It cannot be deepcopy-ed here because sink is not pickle-able.
+    """
+    logger_config["handlers"][handler_num]["sink"] = new_sink
+    logger.configure(**logger_config)
+    return logger_config
 
 
 def get_level_as_str(level: LevelType):

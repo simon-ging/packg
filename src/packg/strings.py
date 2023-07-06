@@ -96,7 +96,7 @@ def create_nested_abbreviations(input_strings: List[str], sep_dir=".") -> Dict[s
         """
         if len(keys) == 0:
             return []
-        longest_len = max([len(key) for key in keys])
+        longest_len = max(len(key) for key in keys)
         remaining_keys = deepcopy(keys)
         done_keys = []
         for k in range(1, longest_len + 1):
@@ -108,11 +108,11 @@ def create_nested_abbreviations(input_strings: List[str], sep_dir=".") -> Dict[s
 
             # buckets with size 1 are done, for other buckets the cutoff needs to increase
             remaining_keys = []
-            for short_key, keys in cut_keys.items():
-                if len(keys) == 1:
-                    done_keys.append((short_key, keys[0]))
+            for short_key, t_keys in cut_keys.items():
+                if len(t_keys) == 1:
+                    done_keys.append((short_key, t_keys[0]))
                 else:
-                    remaining_keys.extend(keys)
+                    remaining_keys.extend(t_keys)
 
             if len(remaining_keys) == 0:
                 break

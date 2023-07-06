@@ -3,13 +3,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from typedparser.objects import modify_nested_object
 
 from packg.iotools import (
     load_json, loads_json, load_jsonl, dump_json, dumps_json, dump_jsonl, dumps_jsonl, loads_jsonl,
     load_json_xz, dump_json_xz)
 from packg.iotools.compressed import load_xz
 from packg.iotools.jsonext import CustomJSONEncoder
-from typedparser.objects import modify_nested_object
 
 
 # ---------- define input data for the tests

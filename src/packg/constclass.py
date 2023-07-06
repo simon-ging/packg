@@ -9,19 +9,19 @@ class InstanceToClassDelegator(ABCMeta):
     __str__(MyClass) will call MyClass._class_str()."""
 
     def __str__(cls):
-        return cls._class_str()
+        return cls._class_str()  # noqa  # pylint: disable=no-value-for-parameter
 
     def __repr__(cls):
-        return cls._class_repr()
+        return cls._class_repr()  # noqa  # pylint: disable=no-value-for-parameter
 
     def __iter__(cls):
-        return cls._class_iter()
+        return cls._class_iter()  # noqa  # pylint: disable=no-value-for-parameter
 
     def __len__(cls):
-        return cls._class_len()
+        return cls._class_len()  # noqa  # pylint: disable=no-value-for-parameter
 
     def __instancecheck__(cls, instance):
-        return cls._class_instancecheck()
+        return cls._class_instancecheck()  # noqa  # pylint: disable=no-value-for-parameter
 
     @abstractmethod
     def _class_str(cls):

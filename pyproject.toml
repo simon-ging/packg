@@ -59,7 +59,8 @@ jobs = 1
 enable = "all"
 
 disable = [
-    'suppressed-message', 'locally-disabled', 'line-too-long', 'missing-module-docstring',
+    'suppressed-message', 'locally-disabled', 'file-ignored',
+    'line-too-long', 'missing-module-docstring',
     'missing-class-docstring', 'missing-function-docstring', 'fixme',
     'f-string-without-interpolation', 'invalid-name',
     'logging-fstring-interpolation', 'consider-iterating-dictionary',

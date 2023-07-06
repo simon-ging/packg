@@ -27,5 +27,5 @@ def test_create_nested_abbrevations():
 
 
 def _assert_abbrevs(candidate_dict, reference_abbrevs, input_script_names):
-    ref_both = {a: s for a, s in zip(reference_abbrevs, input_script_names)}
+    ref_both = dict(zip(reference_abbrevs, input_script_names))
     assert candidate_dict == ref_both
