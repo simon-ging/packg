@@ -28,6 +28,14 @@ Usage:
         print(f"Importing: {module}")
         apply_visitor(module=module, visitor=ImportFromSourceChecker(module))
 
+Notes:
+    - Currently does not respect try/except blocks around the imports and throws errors anyway
+        - This functionality looks difficult to implement
+        - Workaround: pass the list of false positives like this:
+          ImportFromSourceChecker(module, module_list_to_ignore_not_found=["module.submodule"])
+          Then all ModuleNotFoundErrors where the module name starts with a module in this list
+          will be ignored.
+
 
 """
 import logging
@@ -36,7 +44,7 @@ from importlib import util as import_util, import_module
 from importlib.machinery import ModuleSpec
 from os import path
 from pkgutil import iter_modules
-from typing import Any, List, Iterator
+from typing import Any, List, Iterator, Optional
 
 
 def _is_test_module(module_name: str) -> bool:
@@ -71,7 +79,7 @@ def _recurse_modules(module_name: str, ignore_tests: bool, packages_only: bool) 
 
 
 class _ImportFromSourceChecker(NodeVisitor):
-    def __init__(self, module: str):
+    def __init__(self, module: str, module_list_to_ignore_not_found: Optional[List] = None):
         module_spec = import_util.find_spec(module)
         is_pkg = (module_spec is not None
                   and module_spec.origin is not None
@@ -79,6 +87,7 @@ class _ImportFromSourceChecker(NodeVisitor):
 
         self._module = module if is_pkg else ".".join(module.split(".")[:-1])
         self._top_level_module = self._module.split(".")[0]
+        self._module_list_to_ignore_not_found = module_list_to_ignore_not_found
 
     def visit_ImportFrom(self, node: ImportFrom) -> Any:
         # Check that there are no relative imports that attempt to read from a parent module. We've found that there
@@ -106,7 +115,16 @@ class _ImportFromSourceChecker(NodeVisitor):
             return
 
         # Actually import the module and iterate through all the objects potentially exported by it.
-        module = import_module(module_to_import)
+        print(f"    Importing module: {module_to_import}")
+        try:
+            module = import_module(module_to_import)
+        except ModuleNotFoundError as e:
+            if self._module_list_to_ignore_not_found is not None:
+                for module_to_ignore_not_found in self._module_list_to_ignore_not_found:
+                    if module_to_import.startswith(module_to_ignore_not_found):
+                        print(f"        Ignore missing module: {module_to_import}")
+                        return
+            raise e
         for alias in node.names:
             # assert hasattr(module, alias.name), f"Imported {alias.name} from {module_to_import}, but this object does not exist. in {module}"
             if not hasattr(module, alias.name):
