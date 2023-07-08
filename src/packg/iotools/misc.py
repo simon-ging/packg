@@ -62,13 +62,32 @@ def read_bytes_from_file_or_io(file_or_io: PathOrIO) -> bytes:
     return file_or_io.read()
 
 
-def yield_nonempty_stripped_lines(lines_obj: Union[Iterable, str, TextIO]) -> Iterable[str]:
+def yield_chunked_bytes(file_or_io: PathOrIO, chunk_size=1024 * 1024) -> Iterable[bytes]:
+    """
+
+    Args:
+        file_or_io: file name or open file-like object
+        chunk_size: chunk size in bytes, default 1MB
+
+    Returns:
+        bytes content
+    """
+    with open_file_or_io(file_or_io, mode="rb") as fh:
+        while True:
+            data = fh.read(chunk_size)
+            if len(data) == 0:
+                break
+            yield data
+
+
+def yield_nonempty_stripped_lines(lines_obj: Union[PathOrIO, Iterable[str]]) -> Iterable[str]:
     """
     Read lines from input, strip whitespaces, skip empty lines, yield lines.
 
     Args:
-        lines_obj: Can be an iterable of str (list, opened file) or
-            a str that will be split at newlines.
+        lines_obj: Can be any of:
+            - iterable of str (list, opened file)
+            - filepath str or Path
 
     Returns:
         Generator of stripped lines
@@ -79,18 +98,12 @@ def yield_nonempty_stripped_lines(lines_obj: Union[Iterable, str, TextIO]) -> It
     """
     if isinstance(lines_obj, str):
         lines_obj = lines_obj.splitlines()
-    for line in lines_obj:
-        line = line.strip()
-        if line == "":
-            continue
-        yield line
-
-
-def yield_nonempty_stripped_lines_from_file(
-        file_path: PathType, encoding: str = "utf-8") -> Iterable[str]:
-    """Same as above, but for filenames."""
-    with Path(file_path).open("r", encoding=encoding) as fh:
-        yield from yield_nonempty_stripped_lines(fh)
+    with open_file_or_io(lines_obj) as fh:
+        for line in fh:
+            line = line.strip()
+            if line == "":
+                continue
+            yield line
 
 
 def sort_file_paths_with_dirs_separated(

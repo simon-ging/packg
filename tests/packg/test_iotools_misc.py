@@ -2,9 +2,9 @@ import io
 
 import pytest
 
-from packg.iotools.misc import read_text_from_file_or_io, read_bytes_from_file_or_io,\
-    yield_nonempty_stripped_lines, yield_nonempty_stripped_lines_from_file,\
-    sort_file_paths_with_dirs_separated
+from packg.iotools.misc import (
+    read_text_from_file_or_io, read_bytes_from_file_or_io, yield_nonempty_stripped_lines,
+    sort_file_paths_with_dirs_separated)
 
 _ref = ["a", "b", "c"]
 _inp_str = "\na\n    b\n    c\n\n"
@@ -26,7 +26,7 @@ def test_read_bytes_from_file_or_io(tmp_path):
 
 
 @pytest.mark.parametrize("inp, ref", [
-    (_inp_str, _ref),
+    (_inp_str.splitlines(), _ref),
     (io.StringIO(_inp_str), _ref),
     ([" a  ", "  ", "  b  ", "c", "  "], _ref,)
 ], ids=["str", "io", "list"])
@@ -38,7 +38,7 @@ def test_yield_nonempty_stripped_lines(inp, ref):
 def test_yield_nonempty_stripped_lines_from_file(tmp_path):
     file = tmp_path / "example.txt"
     file.write_text(_inp_str, encoding="utf-8")
-    cand = list(yield_nonempty_stripped_lines_from_file(file))
+    cand = list(yield_nonempty_stripped_lines(file))
     assert cand == _ref
 
 
