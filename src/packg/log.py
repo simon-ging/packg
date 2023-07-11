@@ -40,6 +40,9 @@ TIMELESS_FORMAT = (
     "<level>{message}</level>")
 
 
+global_logger_config = None
+
+
 def configure_logger(
         level: LevelType = "DEBUG",
         sink=sys.stderr,
@@ -90,17 +93,20 @@ def configure_logger(
 
     logger_config = {"handlers": handlers, **kwargs}
     logger.configure(**logger_config)
+    global global_logger_config
+    global_logger_config = logger_config
     return logger_config
 
 
-def reroute_logger(logger_config, new_sink, handler_num: int = 0) -> None:
+def reroute_logger(new_sink, logger_config=None,  handler_num: int = 0) -> None:
     """
     Reroute a sink from one target to another. Useful for proper logging inside
     a tqdm progressbar without having to recreate the entire logger.
 
     Args:
-        logger_config: config created by configure_logger() function above.
         new_sink: new target
+        logger_config: config created by configure_logger() function above.
+            If None, use the global config.
         handler_num: index of the handler of which to change the sink
 
     Usage:
@@ -115,6 +121,9 @@ def reroute_logger(logger_config, new_sink, handler_num: int = 0) -> None:
         The config is modified inplace so does not need to be returned here.
         It cannot be deepcopy-ed here because sink is not pickle-able.
     """
+    if logger_config is None:
+        global global_logger_config
+        logger_config = global_logger_config
     logger_config["handlers"][handler_num]["sink"] = new_sink
     logger.configure(**logger_config)
     return logger_config
@@ -126,6 +135,13 @@ def get_level_as_str(level: LevelType):
     if isinstance(level, int):
         return getLevelName(level).upper()
     raise TypeError(f"Level must be str or int, not {type(level)}")
+
+
+def get_level_as_int(level: str):
+    if isinstance(level, int):
+        return level
+    level_int = int(getLevelName(level.upper()))
+    return level_int
 
 
 def get_logger_level_from_args(args) -> str:
