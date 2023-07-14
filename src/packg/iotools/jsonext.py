@@ -24,7 +24,9 @@ from packg.iotools.misc import open_file_or_io, read_text_from_file_or_io
 from packg.typext import PathOrIO, PathType
 
 
-def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8") -> Any:
+def load_json(
+    file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8"
+) -> Any:
     """Load data from json file or file object"""
     start_timer = timer()
     data_str = read_text_from_file_or_io(file_or_io, encoding=encoding)
@@ -53,7 +55,9 @@ def load_jsonl(file_or_io: PathOrIO, encoding: str = "utf-8") -> List[Any]:
     try:
         data = loads_jsonl(data_str)
     except Exception as e:
-        raise RuntimeError(f"Error loading json file {file_or_io} (see reraised error)") from e
+        raise RuntimeError(
+            f"Error loading json file {file_or_io} (see reraised error)"
+        ) from e
     return data
 
 
@@ -67,37 +71,71 @@ def loads_jsonl(s: str) -> List[Any]:
     return data
 
 
-def dump_json(obj: Any, file_or_io: PathOrIO, ensure_ascii: bool = False,
-              check_circular: bool = False, allow_nan=False, indent=None, separators=None,
-              sort_keys=False, verbose: bool = True, create_parent=False,
-              float_precision=None) -> None:
+def dump_json(
+    obj: Any,
+    file_or_io: PathOrIO,
+    ensure_ascii: bool = False,
+    check_circular: bool = False,
+    allow_nan=False,
+    indent=None,
+    separators=None,
+    sort_keys=False,
+    verbose: bool = True,
+    create_parent=False,
+    float_precision=None,
+) -> None:
     """Write data to json file or file object using the custom json encoder"""
     start_timer = timer()
-    with open_file_or_io(file_or_io, "wt", encoding="utf8", create_parent=create_parent) as fh:
+    with open_file_or_io(
+        file_or_io, "wt", encoding="utf8", create_parent=create_parent
+    ) as fh:
         if indent is None and separators is None:
             separators = (",", ":")
 
-        json.dump(obj, fh, cls=CustomJSONEncoder, ensure_ascii=ensure_ascii,
-                  check_circular=check_circular,
-                  allow_nan=allow_nan, indent=indent, separators=separators, sort_keys=sort_keys,
-                  float_precision=float_precision)
+        json.dump(
+            obj,
+            fh,
+            cls=CustomJSONEncoder,
+            ensure_ascii=ensure_ascii,
+            check_circular=check_circular,
+            allow_nan=allow_nan,
+            indent=indent,
+            separators=separators,
+            sort_keys=sort_keys,
+            float_precision=float_precision,
+        )
 
     if verbose:
         print(f"Wrote json file {file_or_io} in {timer() - start_timer:.3f} seconds")
 
 
-def dumps_json(obj: Any, ensure_ascii: bool = False,
-               check_circular: bool = False, allow_nan=False, indent=None, separators=None,
-               sort_keys=False, float_precision=None) -> str:
+def dumps_json(
+    obj: Any,
+    ensure_ascii: bool = False,
+    check_circular: bool = False,
+    allow_nan=False,
+    indent=None,
+    separators=None,
+    sort_keys=False,
+    float_precision=None,
+) -> str:
     """Write data to json string using the custom json encoder"""
-    return json.dumps(obj, cls=CustomJSONEncoder, ensure_ascii=ensure_ascii,
-                      check_circular=check_circular,
-                      allow_nan=allow_nan, indent=indent, separators=separators,
-                      sort_keys=sort_keys, float_precision=float_precision)
+    return json.dumps(
+        obj,
+        cls=CustomJSONEncoder,
+        ensure_ascii=ensure_ascii,
+        check_circular=check_circular,
+        allow_nan=allow_nan,
+        indent=indent,
+        separators=separators,
+        sort_keys=sort_keys,
+        float_precision=float_precision,
+    )
 
 
-def dump_jsonl(data: Iterable[Any], file_or_io: PathOrIO, verbose: bool = True,
-               create_parent=False) -> None:
+def dump_jsonl(
+    data: Iterable[Any], file_or_io: PathOrIO, verbose: bool = True, create_parent=False
+) -> None:
     """Write lines of data to jsonl (list of json strings) file or file object
     using the custom json encoder"""
     start_timer = timer()
@@ -105,7 +143,9 @@ def dump_jsonl(data: Iterable[Any], file_or_io: PathOrIO, verbose: bool = True,
     assert not isinstance(data, str), err_msg
     assert isinstance(data, Sequence), err_msg
 
-    with open_file_or_io(file_or_io, "wt", encoding="utf8", create_parent=create_parent) as fh:
+    with open_file_or_io(
+        file_or_io, "wt", encoding="utf8", create_parent=create_parent
+    ) as fh:
         for d in data:
             fh.write(f"{dumps_json(d)}\n")
 
@@ -132,22 +172,38 @@ def load_json_xz(file: PathType, verbose: bool = False, encoding: str = "utf-8")
     return obj
 
 
-def dump_json_xz(obj: Any, file: PathType, ensure_ascii: bool = False,
-                 check_circular: bool = False, allow_nan=False, indent=None, separators=None,
-                 sort_keys=False, verbose: bool = True, create_parent=False,
-                 float_precision=None) -> None:
+def dump_json_xz(
+    obj: Any,
+    file: PathType,
+    ensure_ascii: bool = False,
+    check_circular: bool = False,
+    allow_nan=False,
+    indent=None,
+    separators=None,
+    sort_keys=False,
+    verbose: bool = True,
+    create_parent=False,
+    float_precision=None,
+) -> None:
     start_timer = timer()
     file = Path(file)
     if create_parent:
         os.makedirs(file.parent, exist_ok=True)
     with lzma.open(file, "wt", encoding="utf8") as fh:
         try:
-            dump_json(obj, fh, ensure_ascii=ensure_ascii,
-                      check_circular=check_circular,
-                      allow_nan=allow_nan, indent=indent, separators=separators,
-                      sort_keys=sort_keys,
-                      verbose=verbose, create_parent=create_parent,
-                      float_precision=float_precision)
+            dump_json(
+                obj,
+                fh,
+                ensure_ascii=ensure_ascii,
+                check_circular=check_circular,
+                allow_nan=allow_nan,
+                indent=indent,
+                separators=separators,
+                sort_keys=sort_keys,
+                verbose=verbose,
+                create_parent=create_parent,
+                float_precision=float_precision,
+            )
         except Exception as e:
             raise RuntimeError(f"Error dumping json xz file {file}") from e
 

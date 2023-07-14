@@ -1,5 +1,10 @@
 from packg.paths import (
-    get_data_dir, get_result_dir, get_anno_dir, get_code_dir, get_cache_dir)
+    get_data_dir,
+    get_result_dir,
+    get_anno_dir,
+    get_code_dir,
+    get_cache_dir,
+)
 
 
 def test_paths():

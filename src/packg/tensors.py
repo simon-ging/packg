@@ -12,11 +12,12 @@ def ensure_numpy(inp: TensorType) -> np.ndarray:
     return np.array(inp)
 
 
-def describe_stats(arr: TensorType,
-                   name: str = "",
-                   format_str: str = "{:.2f}",
-                   table_sep: Optional[str] = None,
-                   ) -> str:
+def describe_stats(
+    arr: TensorType,
+    name: str = "",
+    format_str: str = "{:.2f}",
+    table_sep: Optional[str] = None,
+) -> str:
     """
     See also lovely-tensors package for things like this
 
@@ -33,9 +34,22 @@ def describe_stats(arr: TensorType,
         fmt_str = table_sep.join([format_str] * 5)
         out_strs.append(f"{name}{table_sep}{len(arr)}{table_sep}")
     else:
-        fmt_str = ("Range: " + format_str + " to " + format_str + ", mean: " + format_str +
-                   ", std: " + format_str + ", median: " + format_str)
+        fmt_str = (
+            "Range: "
+            + format_str
+            + " to "
+            + format_str
+            + ", mean: "
+            + format_str
+            + ", std: "
+            + format_str
+            + ", median: "
+            + format_str
+        )
         out_strs.append(f"{name}: #{len(arr)}, ")
     out_strs.append(
-        fmt_str.format(np.min(arr), np.max(arr), np.mean(arr), np.std(arr), np.median(arr)))
+        fmt_str.format(
+            np.min(arr), np.max(arr), np.mean(arr), np.std(arr), np.median(arr)
+        )
+    )
     return "".join(out_strs)

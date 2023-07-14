@@ -57,7 +57,9 @@ def _is_package(module_spec: ModuleSpec) -> bool:
     return module_spec.origin is not None and module_spec.origin.endswith("__init__.py")
 
 
-def _recurse_modules(module_name: str, ignore_tests: bool, packages_only: bool) -> Iterator[str]:
+def _recurse_modules(
+    module_name: str, ignore_tests: bool, packages_only: bool
+) -> Iterator[str]:
     if ignore_tests and _is_test_module(module_name):
         return
 
@@ -79,11 +81,15 @@ def _recurse_modules(module_name: str, ignore_tests: bool, packages_only: bool) 
 
 
 class _ImportFromSourceChecker(NodeVisitor):
-    def __init__(self, module: str, module_list_to_ignore_not_found: Optional[List] = None):
+    def __init__(
+        self, module: str, module_list_to_ignore_not_found: Optional[List] = None
+    ):
         module_spec = import_util.find_spec(module)
-        is_pkg = (module_spec is not None
-                  and module_spec.origin is not None
-                  and module_spec.origin.endswith("__init__.py"))
+        is_pkg = (
+            module_spec is not None
+            and module_spec.origin is not None
+            and module_spec.origin.endswith("__init__.py")
+        )
 
         self._module = module if is_pkg else ".".join(module.split(".")[:-1])
         self._top_level_module = self._module.split(".")[0]
@@ -144,7 +150,9 @@ class _ImportFromSourceChecker(NodeVisitor):
 
             # Figure out where we should be importing this class from, and assert that the *actual* import we found
             # matches the place we *should* import from.
-            should_import_from = self._get_module_should_import(module_to_import=attribute_module)
+            should_import_from = self._get_module_should_import(
+                module_to_import=attribute_module
+            )
             if module_to_import != should_import_from:
                 logging.warning(
                     f"(Potential false positive) "
@@ -164,7 +172,9 @@ class _ImportFromSourceChecker(NodeVisitor):
         result: List[str] = []
 
         for component in module_components:
-            if component.startswith("_") and not self._module.startswith(".".join(result)):
+            if component.startswith("_") and not self._module.startswith(
+                ".".join(result)
+            ):
                 break
             result.append(component)
 

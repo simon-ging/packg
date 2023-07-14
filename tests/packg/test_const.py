@@ -7,7 +7,6 @@ def test_const():
     class TestConst(Const):
         FIELD = "value"
 
-
     assert TestConst.FIELD == "value"
     assert dict(TestConst) == {"FIELD": "value"}
     assert list(TestConst) == ["FIELD"]
@@ -30,21 +29,21 @@ def test_const_allowed_types():
     class _C1(Const, allowed_types=str):
         FIELD = "value"
 
-
     with pytest.raises(TypeError):
+
         class _C2(Const, allowed_types=str):
             FIELD = 42
-
 
     class _C3(Const, allowed_types=(str, int)):
         FIELD = "value"
         FOO = 42
 
-
     with pytest.raises(TypeError):
+
         class _C4(Const, allowed_types=(str, float)):
             BAR = 42
 
     with pytest.raises(TypeError):
+
         class _C5(Const, allowed_types=str):
             BAR = True

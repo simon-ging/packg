@@ -23,11 +23,13 @@ def quote_with_urlparse(sentence: str, prefix="q") -> str:
 
 
 def unquote_with_urlparse(sentence: str, prefix="q") -> str:
-    sentence_no_prefix = sentence[len(prefix):]
+    sentence_no_prefix = sentence[len(prefix) :]
     return urllib.parse.unquote(sentence_no_prefix)
 
 
-def create_unique_abbreviations(input_strings: List[str], seps=("_", ".")) -> Dict[str, str]:
+def create_unique_abbreviations(
+    input_strings: List[str], seps=("_", ".")
+) -> Dict[str, str]:
     """
 
     Old version, splits input strings at "_" and "." and takes first letter of each word.
@@ -64,7 +66,9 @@ def create_unique_abbreviations(input_strings: List[str], seps=("_", ".")) -> Di
     return abbreviations
 
 
-def create_nested_abbreviations(input_strings: List[str], sep_dir=".") -> Dict[str, str]:
+def create_nested_abbreviations(
+    input_strings: List[str], sep_dir="."
+) -> Dict[str, str]:
     """
     New version, keep the directory nesting and use minimal amount of letters
 
@@ -145,7 +149,9 @@ def create_nested_abbreviations(input_strings: List[str], sep_dir=".") -> Dict[s
                 return_strs.append((sub_stem_short, sub_stem_long))
                 continue
             # non-leaf node, recurse
-            sub_strs = _recursive_shortcuts(dct_in[long_key], sub_stem_short, sub_stem_long)
+            sub_strs = _recursive_shortcuts(
+                dct_in[long_key], sub_stem_short, sub_stem_long
+            )
             return_strs.extend(sub_strs)
         return return_strs
 

@@ -1,7 +1,17 @@
 import inspect
 from abc import ABCMeta, abstractmethod
 from typing import (
-    Iterator, Optional, List, ItemsView, KeysView, ValuesView, Any, Dict, Tuple, Union)
+    Iterator,
+    Optional,
+    List,
+    ItemsView,
+    KeysView,
+    ValuesView,
+    Any,
+    Dict,
+    Tuple,
+    Union,
+)
 
 
 class InstanceToClassDelegator(ABCMeta):
@@ -21,7 +31,9 @@ class InstanceToClassDelegator(ABCMeta):
         return cls._class_len()  # noqa  # pylint: disable=no-value-for-parameter
 
     def __instancecheck__(cls, instance):
-        return cls._class_instancecheck()  # noqa  # pylint: disable=no-value-for-parameter
+        return (
+            cls._class_instancecheck()
+        )  # noqa  # pylint: disable=no-value-for-parameter
 
     @abstractmethod
     def _class_str(cls):
@@ -138,7 +150,7 @@ class Const(metaclass=InstanceToClassDelegator):
 
     @classmethod
     def __init_subclass__(
-            cls, allowed_types: Optional[Union[type, List[type], Tuple[type, ...]]] = None
+        cls, allowed_types: Optional[Union[type, List[type], Tuple[type, ...]]] = None
     ) -> None:
         """
         Setup properties for the public interface when this class is inherited.
@@ -179,10 +191,13 @@ class Const(metaclass=InstanceToClassDelegator):
                     allowed_types = tuple(allowed_types)
                 if not isinstance(value, allowed_types):
                     raise TypeError(
-                        f"Constant: {key} in class: {cls.__name__} must be of type {allowed_types}")
+                        f"Constant: {key} in class: {cls.__name__} must be of type {allowed_types}"
+                    )
 
             # update class properties
             cls._dict[cls.__name__][key] = value
 
     def __init__(self) -> None:
-        raise RuntimeError(f"Do not instance this class, it's a Const: {type(self).__name__}")
+        raise RuntimeError(
+            f"Do not instance this class, it's a Const: {type(self).__name__}"
+        )

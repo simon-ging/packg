@@ -10,8 +10,7 @@ from packg.typext import PathOrIO, PathTypeCls, PathType
 
 @contextmanager
 def set_working_directory(path: Path):
-    """Change directory temporarily within in the context manager.
-    """
+    """Change directory temporarily within in the context manager."""
     origin = Path(os.getcwd()).absolute()
     os.chdir(path)
     yield
@@ -19,7 +18,12 @@ def set_working_directory(path: Path):
 
 
 @contextmanager
-def open_file_or_io(file_or_io: PathOrIO, mode="r", encoding="utf-8", create_parent=False, ):
+def open_file_or_io(
+    file_or_io: PathOrIO,
+    mode="r",
+    encoding="utf-8",
+    create_parent=False,
+):
     should_close = False
     if isinstance(file_or_io, (str, PathTypeCls)):
         file_or_io = Path(file_or_io)
@@ -62,7 +66,9 @@ def read_bytes_from_file_or_io(file_or_io: PathOrIO) -> bytes:
     return file_or_io.read()
 
 
-def yield_chunked_bytes(file_or_io: PathOrIO, chunk_size=1024 * 1024) -> Iterable[bytes]:
+def yield_chunked_bytes(
+    file_or_io: PathOrIO, chunk_size=1024 * 1024
+) -> Iterable[bytes]:
     """
 
     Args:
@@ -80,7 +86,9 @@ def yield_chunked_bytes(file_or_io: PathOrIO, chunk_size=1024 * 1024) -> Iterabl
             yield data
 
 
-def yield_nonempty_stripped_lines(lines_obj: Union[PathOrIO, Iterable[str]]) -> Iterable[str]:
+def yield_nonempty_stripped_lines(
+    lines_obj: Union[PathOrIO, Iterable[str]]
+) -> Iterable[str]:
     """
     Read lines from input, strip whitespaces, skip empty lines, yield lines.
 
@@ -107,8 +115,8 @@ def yield_nonempty_stripped_lines(lines_obj: Union[PathOrIO, Iterable[str]]) -> 
 
 
 def sort_file_paths_with_dirs_separated(
-        file_paths: List[PathType], natsorted: bool = False,
-        dirs_first: bool = True) -> List[Path]:
+    file_paths: List[PathType], natsorted: bool = False, dirs_first: bool = True
+) -> List[Path]:
     """
     Sort a list of file paths, separating files inside subdirectories from files in the root.
 

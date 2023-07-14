@@ -18,7 +18,7 @@ def systemcall(call: str, verbose: bool = False) -> Tuple[str, str, int]:
     with subprocess.Popen(call, stdout=pipe, stderr=pipe, shell=True) as process:
         out, err = process.communicate()
         retcode = process.poll()
-    charset = 'utf-8'
+    charset = "utf-8"
     out = out.decode(charset)
     err = err.decode(charset)
     if verbose:
@@ -27,7 +27,8 @@ def systemcall(call: str, verbose: bool = False) -> Tuple[str, str, int]:
 
 
 def assert_command_worked(
-        errmsg: str, cmd: str, out: str, err: str, retcode: int) -> None:
+    errmsg: str, cmd: str, out: str, err: str, retcode: int
+) -> None:
     """Process the output of a systemcall and assert that the command worked.
 
     Args:
@@ -44,11 +45,13 @@ def assert_command_worked(
     assert retcode == 0, (
         f"command failed: {cmd}\nout: {out}\nerr: {err}\n"
         f"retcode: {retcode}\n"
-        f"additional error info: {errmsg}")
+        f"additional error info: {errmsg}"
+    )
 
 
-def systemcall_with_assert(call: str, errmsg: str = "none", verbose: bool = False
-                           ) -> Tuple[str, str, int]:
+def systemcall_with_assert(
+    call: str, errmsg: str = "none", verbose: bool = False
+) -> Tuple[str, str, int]:
     """Run a command and assert it worked
 
     Args:

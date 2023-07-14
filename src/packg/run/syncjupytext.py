@@ -21,11 +21,14 @@ import time
 @define
 class Args(VerboseQuietArgs):
     base_dir: Optional[Path] = add_argument(
-        shortcut="-b", type=str, help="Source base dir", default=".")
+        shortcut="-b", type=str, help="Source base dir", default="."
+    )
     continuous: bool = add_argument(
-        shortcut="-c", action="store_true", help="Continuous mode")
+        shortcut="-c", action="store_true", help="Continuous mode"
+    )
     notebooks: bool = add_argument(
-        shortcut="-n", action="store_true", help="Create notebooks from scripts")
+        shortcut="-n", action="store_true", help="Create notebooks from scripts"
+    )
 
 
 def main():
@@ -71,7 +74,10 @@ def main():
             current_timedelta_str = time.strftime("%H:%M:%S", time.gmtime(time_delta))
             tstr = f"{current_time_str} running for {current_timedelta_str} (round {n_rounds:4d})"
             if len(files_to_update) == 0:
-                print(f"{tstr}: Nothing to update.", end="\n" if n_rounds % 100 == 0 else "\r")
+                print(
+                    f"{tstr}: Nothing to update.",
+                    end="\n" if n_rounds % 100 == 0 else "\r",
+                )
             else:
                 print()
                 for file in files_to_update:
@@ -89,7 +95,9 @@ def main():
             time.sleep(sleep)
 
         except (KeyboardInterrupt, AssertionError) as e:
-            logger.warning(f"\nInterrupted by user or file changes: {format_exception(e)}")
+            logger.warning(
+                f"\nInterrupted by user or file changes: {format_exception(e)}"
+            )
             break
 
 

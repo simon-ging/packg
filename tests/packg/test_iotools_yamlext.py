@@ -2,12 +2,17 @@ import pytest
 
 from packg.iotools.yamlext import dumps_yaml, loads_yaml, dump_yaml, load_yaml
 
-_python_obj = {"sub": {"str_val": "value"}, "int_vals": [1, 2], "float_val": 1.3,
-               "bool_val": True, "none_val": None,
-               "param_overrides": [
-                       [["^scratch."], {"lr_mult": 10}],
-                       [["^frozen."], [["lr_mult", 1e-11]]],
-               ]}
+_python_obj = {
+    "sub": {"str_val": "value"},
+    "int_vals": [1, 2],
+    "float_val": 1.3,
+    "bool_val": True,
+    "none_val": None,
+    "param_overrides": [
+        [["^scratch."], {"lr_mult": 10}],
+        [["^frozen."], [["lr_mult", 1e-11]]],
+    ],
+}
 _yaml_str_nonstandard = """sub:
     str_val: "value"
 int_vals: [1, 2]
@@ -33,10 +38,15 @@ sub:
 
 # test parameters: input object, ref string (custom format), optional ref string (standard format)
 @pytest.fixture(
-        params=[pytest.param((_python_obj, _yaml_str_nonstandard, _yaml_str_standard), id="nested"),
-                pytest.param(({"a1": "value"}, "a1: \"value\"", "a1: value"), id="flat"),
-                pytest.param((1e-7, "1.0e-07\n...", None), id="scientific_float_1"),
-                pytest.param((1e-1, "0.1\n...", None), id="scientific_float_2"), ])
+    params=[
+        pytest.param(
+            (_python_obj, _yaml_str_nonstandard, _yaml_str_standard), id="nested"
+        ),
+        pytest.param(({"a1": "value"}, 'a1: "value"', "a1: value"), id="flat"),
+        pytest.param((1e-7, "1.0e-07\n...", None), id="scientific_float_1"),
+        pytest.param((1e-1, "0.1\n...", None), id="scientific_float_2"),
+    ]
+)
 def input_object_fixture(request):
     input_dict, ref_nonstandard, ref_standard = request.param
     if ref_standard is None:

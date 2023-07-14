@@ -23,34 +23,36 @@ LevelType = Union[str, int]  # either "DEBUG" or 10
 DEFAULT_LOGURU_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | "
     "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-    "<level>{message}</level>")
+    "<level>{message}</level>"
+)
 SHORTER_FORMAT = (
     "<green>{time:YYYYMMDD HH:mm:ss}</green> <level>{level: <4.4}</level> "
     "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> "
-    "<level>{message}</level>")
+    "<level>{message}</level>"
+)
 SHORTEST_FORMAT = (
     "<green>{time:YYYYMMDD HH:mm:ss}</green> <level>{level: <4.4}</level> "
-    "<level>{message}</level>")
+    "<level>{message}</level>"
+)
 BRIGHTBG_FORMAT = (
     "<green>{time:YYYYMMDD HH:mm:ss}</green> <level>{level: <4.4}</level> "
     "<blue>{name}</blue>:<blue>{function}</blue>:<blue>{line}</blue> "
-    "<level>{message}</level>")
-TIMELESS_FORMAT = (
-    "<level>{level: <4.4}</level> "
-    "<level>{message}</level>")
+    "<level>{message}</level>"
+)
+TIMELESS_FORMAT = "<level>{level: <4.4}</level> " "<level>{message}</level>"
 
 
 global_logger_config = None
 
 
 def configure_logger(
-        level: LevelType = "DEBUG",
-        sink=sys.stderr,
-        format=SHORTEST_FORMAT,  # noqa # pylint: disable=redefined-builtin
-        colorize=True,
-        add_sinks: Optional[List[Any]] = None,
-        kwargs_handler: Optional[Dict[str, Any]] = None,
-        **kwargs: Any
+    level: LevelType = "DEBUG",
+    sink=sys.stderr,
+    format=SHORTEST_FORMAT,  # noqa # pylint: disable=redefined-builtin
+    colorize=True,
+    add_sinks: Optional[List[Any]] = None,
+    kwargs_handler: Optional[Dict[str, Any]] = None,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Configure the loguru logger. For more complex usages, use logger.configure() directly.
@@ -77,8 +79,12 @@ def configure_logger(
     sinks = [sink] + add_sinks
     handlers = []
     for lsink in sinks:
-        params = {"sink": lsink, "format": format, "colorize": colorize,
-                  "level": get_level_as_str(level)}
+        params = {
+            "sink": lsink,
+            "format": format,
+            "colorize": colorize,
+            "level": get_level_as_str(level),
+        }
         assert "sink" not in kwargs_handler, f"sink is a reserved key, got {params}"
         params.update(deepcopy(kwargs_handler))
         if isinstance(lsink, str):
@@ -87,8 +93,12 @@ def configure_logger(
         handlers.append(params)
 
     # fix bug when combining colorama and loguru in conemu console on windows
-    if (colorize and os.name == "nt" and os.environ.get("CONEMUANSI") == "ON"
-            and sink in (sys.stderr, sys.stdout)):
+    if (
+        colorize
+        and os.name == "nt"
+        and os.environ.get("CONEMUANSI") == "ON"
+        and sink in (sys.stderr, sys.stdout)
+    ):
         print("\r", end="")  # the invisible print here magically fixes the color
 
     logger_config = {"handlers": handlers, **kwargs}
@@ -98,7 +108,7 @@ def configure_logger(
     return logger_config
 
 
-def reroute_logger(new_sink, logger_config=None,  handler_num: int = 0) -> None:
+def reroute_logger(new_sink, logger_config=None, handler_num: int = 0) -> None:
     """
     Reroute a sink from one target to another. Useful for proper logging inside
     a tqdm progressbar without having to recreate the entire logger.
@@ -158,6 +168,7 @@ def get_terminal_size() -> int:
     except OSError:
         n_cols = 80
     return n_cols
+
 
 # # catch logs - code below will raise exceptions for logs. helpful for debugging where
 # # random logs are coming from

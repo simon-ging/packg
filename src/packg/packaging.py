@@ -27,12 +27,15 @@ def run_package(main_file, run_dir="run", recursive=True):
     package_name = package_dir.name
     package_scripts_dir = package_dir / run_dir
     glob_str = "**/*.py" if recursive else "*.py"
-    package_scripts = [f.relative_to(package_scripts_dir)
-                       for f in package_scripts_dir.glob(glob_str)
-                       if not f.name.startswith("__")]
-    sorted_scripts = sort_file_paths_with_dirs_separated(package_scripts, dirs_first=False)
-    package_scripts = [f.as_posix()[:-3].replace("/", ".")
-                       for f in sorted_scripts]
+    package_scripts = [
+        f.relative_to(package_scripts_dir)
+        for f in package_scripts_dir.glob(glob_str)
+        if not f.name.startswith("__")
+    ]
+    sorted_scripts = sort_file_paths_with_dirs_separated(
+        package_scripts, dirs_first=False
+    )
+    package_scripts = [f.as_posix()[:-3].replace("/", ".") for f in sorted_scripts]
     abbrevs = create_nested_abbreviations(package_scripts)
 
     args = sys.argv[1:]
@@ -71,4 +74,3 @@ def run_script(target, args):
     main = getattr(module, "main")
     sys.argv = [sys.argv[0]] + args[1:]
     main()
-

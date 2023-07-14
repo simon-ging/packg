@@ -11,6 +11,7 @@ class StoreNoNumpy(FileSystemStoreBackend):
     Backend for joblib with pickle instead of numpy_pickle.
     Faster than the original backend for non-numpy objects (e.g. dicts).
     """
+
     NAME = "no_numpy"
 
     def load_item(self, path, verbose=1, msg=None):
@@ -18,17 +19,18 @@ class StoreNoNumpy(FileSystemStoreBackend):
 
         if verbose > 1:
             if verbose < 10:
-                print(f'{msg}...')
+                print(f"{msg}...")
             else:
-                print(f'{msg} from {full_path}')
+                print(f"{msg} from {full_path}")
 
-        mmap_mode = (None if not hasattr(self, 'mmap_mode')
-                     else self.mmap_mode)
+        mmap_mode = None if not hasattr(self, "mmap_mode") else self.mmap_mode
 
-        filename = os.path.join(full_path, 'output.pkl')
+        filename = os.path.join(full_path, "output.pkl")
         if not self._item_exists(filename):
-            raise KeyError(f"Non-existing item (may have been cleared).\n"
-                           f"File {filename} does not exist")
+            raise KeyError(
+                f"Non-existing item (may have been cleared).\n"
+                f"File {filename} does not exist"
+            )
 
         assert mmap_mode is None, "Standard pickle does not support mmap_mode"
         with self._open_item(filename, "rb") as fh:
@@ -39,7 +41,9 @@ class StoreNoNumpy(FileSystemStoreBackend):
 register_store_backend(StoreNoNumpy.NAME, StoreNoNumpy)
 
 
-def get_joblib_memory(location="cache_joblib", verbose=1, numpy_capable=False) -> joblib.Memory:
+def get_joblib_memory(
+    location="cache_joblib", verbose=1, numpy_capable=False
+) -> joblib.Memory:
     """
     Wrapper for joblib.Memory which uses the StoreNoNumpy backend by default.
 
@@ -72,8 +76,7 @@ class SimpleMemoryCache:
     def __init__(self):
         self._cache_dict = {}
 
-    def apply_memory_caching(
-            self, cache_key, func, *args, **kwargs):
+    def apply_memory_caching(self, cache_key, func, *args, **kwargs):
         cache_dict = self._cache_dict
         if cache_key is None:
             cache_key = joblib.hash((args, kwargs))
