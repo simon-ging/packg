@@ -39,4 +39,5 @@ __all__ = [
     "dump_yaml",
     "dumps_yaml",
     "make_git_pathspec",
+    "make_index",
 ]
