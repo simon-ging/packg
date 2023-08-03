@@ -108,7 +108,7 @@ def configure_logger(
     return logger_config
 
 
-def reroute_logger(new_sink, logger_config=None, handler_num: int = 0) -> None:
+def reroute_logger(new_sink=sys.stderr, logger_config=None, handler_num: int = 0) -> None:
     """
     Reroute a sink from one target to another. Useful for proper logging inside
     a tqdm progressbar without having to recreate the entire logger.
