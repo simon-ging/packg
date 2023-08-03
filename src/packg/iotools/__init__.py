@@ -18,6 +18,7 @@ from .jsonext import (
 
 from .yamlext import load_yaml, loads_yaml, dump_yaml, dumps_yaml
 from .gitmatcher import make_git_pathspec
+from .file_indexer import make_index
 
 __all__ = [
     "set_working_directory",
