@@ -122,10 +122,10 @@ def reroute_logger(new_sink=sys.stderr, logger_config=None, handler_num: int = 0
     Usage:
         logger_config = configure_logger(...)
         pbar = tqdm(...)
-        reroute_logger(logger_config, lambda msg: pbar.write(msg, end=""))
+        reroute_logger(lambda msg: pbar.write(msg, end=""), logger_config)
         # use tqdm progressbar and logger together here
         pbar.close()
-        reroute_logger(logger_config, sys.stderr)
+        reroute_logger(sys.stderr, logger_config)
 
     Notes:
         The config is modified inplace so does not need to be returned here.
