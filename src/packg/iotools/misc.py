@@ -5,7 +5,11 @@ from pathlib import Path
 from typing import Union, Iterable, TextIO, List
 
 import natsort
+from packg.strings import b64_encode_from_bytes
+
 from packg.typext import PathOrIO, PathTypeCls, PathType
+
+
 
 
 @contextmanager
@@ -66,9 +70,7 @@ def read_bytes_from_file_or_io(file_or_io: PathOrIO) -> bytes:
     return file_or_io.read()
 
 
-def yield_chunked_bytes(
-    file_or_io: PathOrIO, chunk_size=1024 * 1024
-) -> Iterable[bytes]:
+def yield_chunked_bytes(file_or_io: PathOrIO, chunk_size=1024 * 1024) -> Iterable[bytes]:
     """
 
     Args:
@@ -86,9 +88,7 @@ def yield_chunked_bytes(
             yield data
 
 
-def yield_nonempty_stripped_lines(
-    lines_obj: Union[PathOrIO, Iterable[str]]
-) -> Iterable[str]:
+def yield_nonempty_stripped_lines(lines_obj: Union[PathOrIO, Iterable[str]]) -> Iterable[str]:
     """
     Read lines from input, strip whitespaces, skip empty lines, yield lines.
 
@@ -135,8 +135,7 @@ def sort_file_paths_with_dirs_separated(
     sort_index_dir = 0 if dirs_first else 2
     # split path into its parts, then create a list of (sort_index, part) tuple for the path
     key_paths = [
-        [(sort_index_dir, part) for part in path.parts[:-1]] + [(1, path.name)]
-        for path in paths
+        [(sort_index_dir, part) for part in path.parts[:-1]] + [(1, path.name)] for path in paths
     ]
     sort_fn = natsort.natsorted if natsorted else sorted
     sorted_tuples = sort_fn(zip(paths, key_paths), key=itemgetter(1))
