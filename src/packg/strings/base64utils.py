@@ -17,20 +17,27 @@ def _b64_ensure_unsafe(b64str: str):
     return b64str.replace("-", "+").replace("_", "/")
 
 
-def b64_encode_from_bytes(bytes_in: bytes, url_safe: bool = True) -> str:
+def b64_encode_from_bytes(
+    bytes_in: bytes, url_safe: bool = True, strip_equals: bool = False
+) -> str:
     """Encode bytes with base64.
 
     Args:
         bytes_in: input bytes to encode
         url_safe: replace "+" with "-" and "/" with "_" to become path/url
             safe, default True
+        strip_equals: strip trailing "=" characters
 
     Returns:
         path-safe base64 string
     """
     if url_safe:
-        return str(base64.urlsafe_b64encode(bytes_in), "ascii")
-    return str(base64.b64encode(bytes_in), "ascii")
+        out_str = str(base64.urlsafe_b64encode(bytes_in), "ascii")
+    else:
+        out_str = str(base64.b64encode(bytes_in), "ascii")
+    if strip_equals:
+        out_str = out_str.rstrip("=")
+    return out_str
 
 
 def b64_decode_to_bytes(b64str: str) -> bytes:
