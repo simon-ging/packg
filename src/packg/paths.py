@@ -53,12 +53,12 @@ _DEFAULTS = {
 _setup_environ_done = False
 
 
-def setup_environ():
+def setup_environ(verbose=True, override=True):
     global _setup_environ_done
     if _setup_environ_done:
         return
     _setup_environ_done = True
-    load_dotenv(verbose=True)
+    load_dotenv(verbose=verbose, override=override)
     for env_k, v in _DEFAULTS.items():
         if env_k not in os.environ:
             os.environ[env_k] = v
