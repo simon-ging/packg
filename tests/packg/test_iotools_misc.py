@@ -1,12 +1,13 @@
 import io
+from pathlib import Path
 
 import pytest
-
 from packg.iotools.misc import (
     read_text_from_file_or_io,
     read_bytes_from_file_or_io,
     yield_nonempty_stripped_lines,
     sort_file_paths_with_dirs_separated,
+    find_git_root,
 )
 
 _ref = ["a", "b", "c"]
@@ -86,12 +87,14 @@ _inp_paths = ["foo/bar", "foo/baz", "zfoo/bar", "foo1", "foo10", "foo2"]
     ids=["default", "natsorted", "dirs_first", "natsorted_dirs_first"],
 )
 def test_sort_paths_with_dirs_separated(inp, natsorted, dirs_first, ref):
-    cand = sort_file_paths_with_dirs_separated(
-        inp, natsorted=natsorted, dirs_first=dirs_first
-    )
+    cand = sort_file_paths_with_dirs_separated(inp, natsorted=natsorted, dirs_first=dirs_first)
     cand_str = [p.as_posix() for p in cand]
     print(f"natsorted={natsorted}, dirs_first={dirs_first}")
     print(f"ref={ref}")
     print(f"cand={cand_str}")
     print()
     assert cand_str == ref
+
+
+def test_find_git_root():
+    assert Path(find_git_root()).is_dir()

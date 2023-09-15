@@ -29,6 +29,15 @@ def load_json(
 ) -> Any:
     """Load data from json file or file object"""
     start_timer = timer()
+    if verbose:
+        try:
+            file_len = f"{Path(file_or_io).stat().st_size / 1024 ** 2:.1f} MB"
+        except Exception:
+            try:
+                file_len = f"{len(file_or_io) / 1024 ** 2:.1f} M chars"
+            except Exception:
+                file_len = f"unknown"
+        print(f"Load json file {file_or_io} with size {file_len}.")
     data_str = read_text_from_file_or_io(file_or_io, encoding=encoding)
     try:
         obj = loads_json(data_str)

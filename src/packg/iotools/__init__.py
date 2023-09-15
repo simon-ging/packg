@@ -1,8 +1,5 @@
-from .misc import (
-    set_working_directory,
-    yield_chunked_bytes,
-    yield_nonempty_stripped_lines,
-)
+from .file_indexer import make_index
+from .gitmatcher import make_git_pathspec
 from .jsonext import (
     load_json,
     loads_json,
@@ -15,10 +12,14 @@ from .jsonext import (
     load_json_xz,
     dump_json_xz,
 )
-
+from .misc import (
+    set_working_directory,
+    yield_chunked_bytes,
+    yield_nonempty_stripped_lines,
+    find_git_root,
+    navigate_to_git_root,
+)
 from .yamlext import load_yaml, loads_yaml, dump_yaml, dumps_yaml
-from .gitmatcher import make_git_pathspec
-from .file_indexer import make_index
 
 __all__ = [
     "set_working_directory",
@@ -40,4 +41,6 @@ __all__ = [
     "dumps_yaml",
     "make_git_pathspec",
     "make_index",
+    "find_git_root",
+    "navigate_to_git_root",
 ]
