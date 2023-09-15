@@ -1,4 +1,6 @@
 """
+Note: dotenv.load_dotenv doesnt work. Use dotenv_values instead.
+
 Global path definitions for projects.
 
 Resolution is as follows:
@@ -26,7 +28,7 @@ import os
 from getpass import getuser
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 from packg.constclass import Const
 from packg.typext import OptionalPathType
@@ -56,9 +58,15 @@ _setup_environ_done = False
 def setup_environ(verbose=True, override=True):
     global _setup_environ_done
     if _setup_environ_done:
+        if verbose:
+            print("setup_environ already done")
         return
     _setup_environ_done = True
-    load_dotenv(verbose=verbose, override=override)
+    values = dotenv_values(".env", verbose=verbose)
+    for k, v in values.items():
+        if override or k not in os.environ:
+            os.environ[k] = v
+
     for env_k, v in _DEFAULTS.items():
         if env_k not in os.environ:
             os.environ[env_k] = v
