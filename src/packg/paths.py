@@ -1,5 +1,6 @@
 """
 Note: dotenv.load_dotenv doesnt work. Use dotenv_values instead.
+todo write a unit test for these functions here
 
 Global path definitions for projects.
 
@@ -55,7 +56,7 @@ _DEFAULTS = {
 _setup_environ_done = False
 
 
-def setup_environ(verbose=True, override=True):
+def setup_environ(verbose=False, override=True):
     global _setup_environ_done
     if _setup_environ_done:
         if verbose:
@@ -65,10 +66,14 @@ def setup_environ(verbose=True, override=True):
     values = dotenv_values(".env", verbose=verbose)
     for k, v in values.items():
         if override or k not in os.environ:
+            if verbose:
+                print(f"From .env write: {k}={v}")
             os.environ[k] = v
 
     for env_k, v in _DEFAULTS.items():
         if env_k not in os.environ:
+            if verbose:
+                print(f"From packg.paths defaults write: {env_k}={v}")
             os.environ[env_k] = v
 
 
@@ -78,7 +83,7 @@ def get_from_environ(env_k: str):
 
 
 def print_all_environment_variables(print_fn=print):
-    setup_environ()
+    setup_environ(verbose=True)
     print_fn(f"Path definitions:")
     for env_k in EnvKeys.values():
         print_fn(f"    {env_k}={os.environ[env_k]}")
