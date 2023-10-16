@@ -14,3 +14,9 @@ PathOrIO = Union[PathType, IOBase]
 # i.e. to use isinstance(obj, the_type) they need to be defined as a tuple
 PathTypeCls = (str, Path, Traversable)
 PathOrIOCls = (str, Path, Traversable, IOBase)
+
+try:
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)
+

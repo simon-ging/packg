@@ -6,4 +6,5 @@ from .base64utils import (
     b64_decode_to_bytes,
 )
 from .create_strings import get_random_b64_string
+from .hasher import hash_object
 from .quote_urlparse import quote_with_urlparse, unquote_with_urlparse
