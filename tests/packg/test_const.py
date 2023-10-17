@@ -26,24 +26,24 @@ def test_const():
 
 
 def test_const_allowed_types():
-    class _C1(Const, allowed_types=str):
+    class _C1(Const, allowed_types=str):  # noqa
         FIELD = "value"
 
     with pytest.raises(TypeError):
 
-        class _C2(Const, allowed_types=str):
+        class _C2(Const, allowed_types=str):  # noqa
             FIELD = 42
 
-    class _C3(Const, allowed_types=(str, int)):
+    class _C3(Const, allowed_types=(str, int)):  # noqa
         FIELD = "value"
         FOO = 42
 
     with pytest.raises(TypeError):
 
-        class _C4(Const, allowed_types=(str, float)):
+        class _C4(Const, allowed_types=(str, float)):  # noqa
             BAR = 42
 
     with pytest.raises(TypeError):
 
-        class _C5(Const, allowed_types=str):
+        class _C5(Const, allowed_types=str):  # noqa
             BAR = True

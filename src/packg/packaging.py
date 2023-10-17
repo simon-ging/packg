@@ -5,7 +5,7 @@ import importlib
 import sys
 from pathlib import Path
 
-from packg.iotools.misc import sort_file_paths_with_dirs_separated
+from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.strings import create_nested_abbreviations
 
 
@@ -32,9 +32,7 @@ def run_package(main_file, run_dir="run", recursive=True):
         for f in package_scripts_dir.glob(glob_str)
         if not f.name.startswith("__")
     ]
-    sorted_scripts = sort_file_paths_with_dirs_separated(
-        package_scripts, dirs_first=False
-    )
+    sorted_scripts = sort_file_paths_with_dirs_separated(package_scripts, dirs_first=False)
     package_scripts = [f.as_posix()[:-3].replace("/", ".") for f in sorted_scripts]
     abbrevs = create_nested_abbreviations(package_scripts)
 

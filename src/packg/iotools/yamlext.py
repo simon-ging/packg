@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from typedparser.objects import is_any_mapping, is_any_iterable
 
-from packg.iotools.misc import read_text_from_file_or_io
+from packg.iotools.file_reader import read_text_from_file_or_io
 from packg.typext import PathOrIO, PathTypeCls
+from typedparser.objects import is_any_mapping, is_any_iterable
 
 
 def load_yaml(file_or_io: PathOrIO) -> Any:
@@ -34,9 +34,7 @@ def dump_yaml(
     """
     convert python object to yaml string and write to file. see dumps_yaml for details.
     """
-    s = dumps_yaml(
-        obj, standard_format=standard_format, check_roundtrip=check_roundtrip, **kwargs
-    )
+    s = dumps_yaml(obj, standard_format=standard_format, check_roundtrip=check_roundtrip, **kwargs)
     if isinstance(file_or_io, PathTypeCls):
         if create_parent:
             os.makedirs(Path(file_or_io).parent, exist_ok=True)
@@ -109,8 +107,7 @@ def _dumps_yaml_recursive(
             dct_strs = ["{"]
             for sub_key, sub_val in obj.items():
                 dct_strs.append(
-                    f"{sub_key}: "
-                    f"{_dumps_yaml_recursive(sub_val, _is_inside_list=True)}"
+                    f"{sub_key}: " f"{_dumps_yaml_recursive(sub_val, _is_inside_list=True)}"
                 )
                 dct_strs.append(", ")
             dct_strs.pop()

@@ -2,12 +2,13 @@ import io
 from pathlib import Path
 
 import pytest
-from packg.iotools.misc import (
+
+from packg.iotools import (
     read_text_from_file_or_io,
     read_bytes_from_file_or_io,
     yield_nonempty_stripped_lines,
-    sort_file_paths_with_dirs_separated,
     find_git_root,
+    sort_file_paths_with_dirs_separated,
 )
 
 _ref = ["a", "b", "c"]

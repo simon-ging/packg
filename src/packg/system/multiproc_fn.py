@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import random
 import time
 from multiprocessing import Process, Queue

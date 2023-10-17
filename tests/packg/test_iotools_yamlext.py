@@ -39,9 +39,7 @@ sub:
 # test parameters: input object, ref string (custom format), optional ref string (standard format)
 @pytest.fixture(
     params=[
-        pytest.param(
-            (_python_obj, _yaml_str_nonstandard, _yaml_str_standard), id="nested"
-        ),
+        pytest.param((_python_obj, _yaml_str_nonstandard, _yaml_str_standard), id="nested"),
         pytest.param(({"a1": "value"}, 'a1: "value"', "a1: value"), id="flat"),
         pytest.param((1e-7, "1.0e-07\n...", None), id="scientific_float_1"),
         pytest.param((1e-1, "0.1\n...", None), id="scientific_float_2"),

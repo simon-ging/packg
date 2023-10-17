@@ -13,12 +13,12 @@
 </a>
 </p>
 
-Collection of utilities used in other python projects. 
+Collection of utilities used in other python projects.
 
 ## Features
 
 * `caching`: Cache objects to disk / to memory
-* `Const`: Base class for defining constants, as alternative to `enum.Enum` 
+* `Const`: Base class for defining constants, as alternative to `enum.Enum`
 * `typext`: Type definitions
 * etc
 
@@ -43,3 +43,11 @@ python -m pytest --cov
 pylint packg
 pylint tests
 ~~~
+
+## Version history
+
+- 0.3: Now support python>=3.9 only, to use new syntax:
+    - 3.8: Self-documenting f-strings: `python -c 'expr = 1; print(f"{expr=}")'` prints `'expr=1'`
+    - 3.9: Typing with generics `x: list[str] = ["hi"]`.
+      (requires `from __future__ import annotations` in 3.7/3.8)
+- 0.2: Last version to support python 3.7

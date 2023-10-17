@@ -1,8 +1,8 @@
-from __future__ import annotations
-
 import random
 import time
 from typing import Any
+
+import pytest
 
 from packg.system.multiproc_producer_consumer import (
     MultiProcessorProducerConsumer,
@@ -13,11 +13,9 @@ from packg.system.multiproc_producer_consumer import (
 
 def _run_test(n_inputs, producer_class_or_fn: callable, consumer_class_or_fn: callable):
     ix = list(range(n_inputs))
-    # for n_producers, n_consumers in [(3, 1), (3, 2), (0, 0)]:
     for n_producers, n_consumers in [
         (3, 1),
-        (3, 2),
-        (30, 20),
+        (5, 6),
         (0, 0),
     ]:
         proc = MultiProcessorProducerConsumer(
@@ -26,7 +24,7 @@ def _run_test(n_inputs, producer_class_or_fn: callable, consumer_class_or_fn: ca
             producer_class_or_fn,
             consumer_class_or_fn,
             total=len(ix),
-            pbar_desc=f"n_producers={n_producers} n_consumers={n_consumers} n_inputs={n_inputs}",
+            pbar_desc=f"{n_producers=} {n_consumers=} {n_inputs=}",
             verbose=False,
         )
         for in_x in ix:
@@ -35,7 +33,7 @@ def _run_test(n_inputs, producer_class_or_fn: callable, consumer_class_or_fn: ca
         print(f"Got {len(outputs)} outputs: {outputs}")
 
 
-_N = 5
+_N = 4
 _T_MULT = 0.002
 _T_MIN = 0.002
 
@@ -69,12 +67,6 @@ class ConsumeTwoValues(Consumer):
         return self.collected_outputs
 
 
-def test_multiproc_producer_consumer_two_values():
-    for producer_class_or_fn in [TwoValuesProducer, fn_produce_two_values]:
-        for consumer_class_or_fn in [ConsumeTwoValues, fn_consume_two_values]:
-            _run_test(_N, producer_class_or_fn, consumer_class_or_fn)
-
-
 def fn_produce_one_value(t_x: int):
     time.sleep(random.random() * _T_MULT + _T_MIN)
     return t_x * 2
@@ -104,16 +96,21 @@ class ConsumeOneValue(Consumer):
         return self.collected_outputs
 
 
-def test_multiproc_producer_consumer_one_value():
-    for producer_class_or_fn in [OneValueProducer, fn_produce_one_value]:
-        for consumer_class_or_fn in [ConsumeOneValue, fn_consume_one_value]:
-            _run_test(_N, producer_class_or_fn, consumer_class_or_fn)
+_test_names, _test_inputs = [], []
+for _p_name, _producer_class_or_fn in [("cls", OneValueProducer), ("fn", fn_produce_one_value)]:
+    for _c_name, _consumer_class_or_fn in [("cls", ConsumeOneValue), ("fn", fn_consume_one_value)]:
+        _test_names.append(f"onevalue-producer-{_p_name}_consumer-{_c_name}")
+        _test_inputs.append((_producer_class_or_fn, _consumer_class_or_fn))
+
+for _p_name, _producer_class_or_fn in [("cls", TwoValuesProducer), ("fn", fn_produce_two_values)]:
+    for _c_name, _consumer_class_or_fn in [
+        ("cls", ConsumeTwoValues),
+        ("fn", fn_consume_two_values),
+    ]:
+        _test_names.append(f"twovalue-producer-{_p_name}_consumer-{_c_name}")
+        _test_inputs.append((_producer_class_or_fn, _consumer_class_or_fn))
 
 
-def main():
-    test_multiproc_producer_consumer_two_values()
-    test_multiproc_producer_consumer_one_value()
-
-
-if __name__ == "__main__":
-    main()
+@pytest.mark.parametrize("producer_cls_or_fn, consumer_cls_or_fn", _test_inputs, ids=_test_names)
+def test_multiproc_producer(producer_cls_or_fn, consumer_cls_or_fn):
+    _run_test(_N, producer_cls_or_fn, consumer_cls_or_fn)

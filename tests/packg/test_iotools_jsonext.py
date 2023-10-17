@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from typedparser.objects import modify_nested_object
 
 from packg.iotools import (
     load_json,
@@ -19,6 +18,7 @@ from packg.iotools import (
 )
 from packg.iotools.compressed import load_xz
 from packg.iotools.jsonext import CustomJSONEncoder
+from typedparser.objects import modify_nested_object
 
 
 # ---------- define input data for the tests
@@ -108,9 +108,7 @@ def json_data_fixture(request):
 
 def test_json_encoder(json_data_fixture):
     data_python, data_json = json_data_fixture
-    data_json_encoded = json.dumps(
-        data_python, cls=CustomJSONEncoder, indent=2, ensure_ascii=False
-    )
+    data_json_encoded = json.dumps(data_python, cls=CustomJSONEncoder, indent=2, ensure_ascii=False)
     # make the comparison more readable by replacing spaces
     _compare_json_strings(data_json_encoded, data_json)
 
@@ -184,9 +182,7 @@ def test_dump_with_float_precision():
     num_inp = 0.010972334
     inp = {"mydata": num_inp}
     assert dumps_json(inp) == "{" f'"mydata": {num_inp}' "}"
-    assert (
-        dumps_json(inp, float_precision=3) == "{" f'"mydata": {round(num_inp, 3)}' "}"
-    )
+    assert dumps_json(inp, float_precision=3) == "{" f'"mydata": {round(num_inp, 3)}' "}"
     assert dumps_json(inp, float_precision=0) == "{" f'"mydata": {round(num_inp)}' "}"
 
 

@@ -2,9 +2,9 @@
 # pylint: skip-file
 import json
 from json.encoder import (
-    c_make_encoder,
-    encode_basestring_ascii,
-    encode_basestring,
+    c_make_encoder,  # noqa
+    encode_basestring_ascii,  # noqa
+    encode_basestring,  # noqa
     INFINITY,
 )
 from pathlib import Path
@@ -13,7 +13,7 @@ import numpy as np
 
 
 class CustomJSONEncoder(json.JSONEncoder):
-    def __init__(
+    def __init__(  # noqa
         self,
         *,
         skipkeys=False,
@@ -84,11 +84,9 @@ class CustomJSONEncoder(json.JSONEncoder):
             elif self.float_precision is not None:
                 return f"{obj:.{self.float_precision}f}"
             else:
-                return _repr(obj)
+                return _repr(obj)  # noqa
             if not allow_nan:
-                raise ValueError(
-                    "Out of range float values are not JSON compliant: " + repr(obj)
-                )
+                raise ValueError("Out of range float values are not JSON compliant: " + repr(obj))
 
             return text
 
@@ -138,15 +136,15 @@ def _make_custom_iterencode(
     _skipkeys,
     _one_shot,
     # HACK: hand-optimized bytecode; turn globals into locals
-    ValueError=ValueError,
-    dict=dict,
-    float=float,
-    id=id,
-    int=int,
-    isinstance=isinstance,
-    list=list,
-    str=str,
-    tuple=tuple,
+    ValueError=ValueError,  # noqa
+    dict=dict,  # noqa
+    float=float,  # noqa
+    id=id,  # noqa
+    int=int,  # noqa
+    isinstance=isinstance,  # noqa
+    list=list,  # noqa
+    str=str,  # noqa
+    tuple=tuple,  # noqa
     _intstr=int.__repr__,
     indent_list: bool = False,
 ):
@@ -193,7 +191,7 @@ def _make_custom_iterencode(
                 # Subclasses of int/float may override __repr__, but we still
                 # want to encode them as integers/floats in JSON. One example
                 # within the standard library is IntEnum.
-                yield buf + _intstr(value)
+                yield buf + _intstr(value)  # noqa
             elif isinstance(value, float):
                 # see comment above for int
                 yield buf + _floatstr(value)
@@ -211,7 +209,7 @@ def _make_custom_iterencode(
             yield "\n" + _indent * _current_indent_level
         yield "]"
         if markers is not None:
-            del markers[markerid]
+            del markers[markerid]  # noqa
 
     def _iterencode_dict(dct, _current_indent_level):
         if not dct:
@@ -252,13 +250,12 @@ def _make_custom_iterencode(
                 key = "null"
             elif isinstance(key, int):
                 # see comment for int/float in _make_iterencode
-                key = _intstr(key)
+                key = _intstr(key)  # noqa
             elif _skipkeys:
                 continue
             else:
                 raise TypeError(
-                    f"keys must be str, int, float, bool or None, "
-                    f"not {key.__class__.__name__}"
+                    f"keys must be str, int, float, bool or None, " f"not {key.__class__.__name__}"
                 )
             if first:
                 first = False
@@ -276,7 +273,7 @@ def _make_custom_iterencode(
                 yield "false"
             elif isinstance(value, int):
                 # see comment for int/float in _make_iterencode
-                yield _intstr(value)
+                yield _intstr(value)  # noqa
             elif isinstance(value, float):
                 # see comment for int/float in _make_iterencode
                 yield _floatstr(value)
@@ -293,7 +290,7 @@ def _make_custom_iterencode(
             yield "\n" + _indent * _current_indent_level
         yield "}"
         if markers is not None:
-            del markers[markerid]
+            del markers[markerid]  # noqa
 
     def _iterencode(o, _current_indent_level):
         if isinstance(o, str):
@@ -306,7 +303,7 @@ def _make_custom_iterencode(
             yield "false"
         elif isinstance(o, int):
             # see comment for int/float in _make_iterencode
-            yield _intstr(o)
+            yield _intstr(o)  # noqa
         elif isinstance(o, float):
             # see comment for int/float in _make_iterencode
             yield _floatstr(o)
@@ -323,6 +320,6 @@ def _make_custom_iterencode(
             o = _default(o)
             yield from _iterencode(o, _current_indent_level)
             if markers is not None:
-                del markers[markerid]
+                del markers[markerid]  # noqa
 
     return _iterencode
