@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from packg.system.multiproc_producer_consumer import (
+from packg.multiproc.multiproc_producer_consumer import (
     MultiProcessorProducerConsumer,
     Consumer,
     Producer,

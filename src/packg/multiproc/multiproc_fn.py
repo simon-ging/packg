@@ -6,10 +6,10 @@ from typing import Optional
 
 from attr import define, field
 from loguru import logger
-from tqdm import tqdm
 
 from packg.dtime import format_seconds_adaptive
 from packg.log import configure_logger
+from packg.tqdmu import tqdm_max_ncols
 from packg.typext import NoneType
 
 
@@ -50,7 +50,7 @@ class FnMultiProcessor:
     worker_list: list[Process] = field(factory=list, init=False)
     q_in: Queue = field(init=False)
     q_out: Optional[Queue] = field(init=False)
-    pbar: tqdm = field(init=False)
+    pbar: tqdm_max_ncols = field(init=False)
     start_time: int = field(init=False)
     processed: int = field(init=False)
     input_counter: int = field(init=False)
@@ -65,7 +65,7 @@ class FnMultiProcessor:
             w = Process(target=self._get_multi_fn(), args=multi_fn_args)
             w.start()
             self.worker_list.append(w)
-        self.pbar = tqdm(
+        self.pbar = tqdm_max_ncols(
             total=self.total, desc=self.desc, disable=not self.verbose or self.workers == 0
         )
         self.start_time = default_timer()
@@ -150,7 +150,7 @@ def multi_fn_with_output(
     foreground: bool = False,
     desc: str = "Processing",
 ):
-    pbar = tqdm(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
+    pbar = tqdm_max_ncols(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
     while True:
         args = in_q.get()
         if args is None:
@@ -178,7 +178,7 @@ def multi_fn_no_output(
     desc: str = "Processing",
 ):
     assert out_q is None, "out_q must be None"
-    pbar = tqdm(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
+    pbar = tqdm_max_ncols(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
     while True:
         args = in_q.get()
         if args is None:
@@ -199,7 +199,7 @@ def fn_w_out(t_x: int):
     return t_x * 2
 
 
-def fn_wo_out(t_x: int):
+def fn_wo_out(_t_x: int):
     time.sleep(random.random() * 0.2 + 0.2)
     # print(t_x * 3)
 

@@ -12,13 +12,12 @@ from multiprocessing import Process, Queue
 from statistics import mean
 from timeit import default_timer
 from typing import Optional, Any
-
 from attr import define, field
 from loguru import logger
-from tqdm import tqdm
 
 from packg.dtime import format_seconds_adaptive
 from packg.stats import AvgMetric
+from packg.tqdmu import tqdm_max_ncols
 
 
 @define
@@ -36,7 +35,6 @@ class MultiProcessorProducerConsumer:
         - outputs = run()  # list of length n_consumers with the return from complete()
 
     todo
-        Profile producer/consumer speed to find bottlenecks easier
         Improve error handling with error queues if needed
         Improve passing dict of flags / config, instead of one bool for each config item
         Create another example in this file
@@ -66,7 +64,7 @@ class MultiProcessorProducerConsumer:
     q_producer_out: Optional[Queue] = field(init=False, default=None)
     q_consumer_out: Optional[Queue] = field(init=False, default=None)
     q_timer: Optional[Queue] = field(init=False, default=None)
-    pbar: tqdm = field(init=False)
+    pbar: tqdm_max_ncols = field(init=False)
     start_time: int = field(init=False)
     processed: int = field(init=False)
     input_counter: int = field(init=False)
@@ -120,7 +118,7 @@ class MultiProcessorProducerConsumer:
             w.start()
             self.consumer_worker_list.append(w)
 
-        self.pbar = tqdm(total=self.total, desc=self.pbar_desc)
+        self.pbar = tqdm_max_ncols(total=self.total, desc=self.pbar_desc)
         self.start_time = default_timer()
         self.processed = 0
         self.input_counter = 0
@@ -258,12 +256,16 @@ class MultiProcessorProducerConsumer:
 
         time_str = ", ".join([f"{k}: {mean(vs):.1f}s" for k, vs in times.items()])
 
-        self.pbar.write(f"Average wait: main put: {m_wait_put:.2f}s, {time_str}")
         self.pbar.close()
         self.q_in.close()
         self.q_producer_out.close()
         self.q_consumer_out.close()
         self.q_timer.close()
+        total_speed = (default_timer() - self.start_time) / max(self.processed, 1)
+        self.pbar.write(
+            f"Average wait: main put: {m_wait_put:.2f}s, {time_str}. "
+            f"Final speed: {total_speed:.3f}s/it"
+        )
 
         return outputs
 
