@@ -10,3 +10,4 @@ python-dotenv
 pathspec
 zstandard
 tqdm
+requests
