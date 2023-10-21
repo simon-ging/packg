@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import random
 import time
 from typing import Any
@@ -24,7 +26,7 @@ def _run_test(n_inputs, producer_class_or_fn: callable, consumer_class_or_fn: ca
             producer_class_or_fn,
             consumer_class_or_fn,
             total=len(ix),
-            pbar_desc=f"{n_producers=} {n_consumers=} {n_inputs=}",
+            pbar_desc=f"n_producers={n_producers} n_consumers={n_consumers} n_inputs={n_inputs}",
             verbose=False,
         )
         for in_x in ix:

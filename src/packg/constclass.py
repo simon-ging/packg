@@ -31,9 +31,7 @@ class InstanceToClassDelegator(ABCMeta):
         return cls._class_len()  # noqa  # pylint: disable=no-value-for-parameter
 
     def __instancecheck__(cls, instance):
-        return (
-            cls._class_instancecheck()
-        )  # noqa  # pylint: disable=no-value-for-parameter
+        return cls._class_instancecheck()  # noqa  # pylint: disable=no-value-for-parameter
 
     @abstractmethod
     def _class_str(cls):
@@ -198,6 +196,4 @@ class Const(metaclass=InstanceToClassDelegator):
             cls._dict[cls.__name__][key] = value
 
     def __init__(self) -> None:
-        raise RuntimeError(
-            f"Do not instance this class, it's a Const: {type(self).__name__}"
-        )
+        raise RuntimeError(f"Do not instance this class, it's a Const: {type(self).__name__}")

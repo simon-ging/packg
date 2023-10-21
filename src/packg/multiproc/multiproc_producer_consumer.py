@@ -5,6 +5,8 @@ Example:
         return 8
 
 """
+from __future__ import annotations
+
 import time
 import types
 from collections import defaultdict
@@ -72,16 +74,16 @@ class MultiProcessorProducerConsumer:
     wait_times_put: AvgMetric = field(init=False, default=AvgMetric())
 
     def __attrs_post_init__(self):
-        assert self.n_producers >= 0, f"{self.n_producers=} but must be >= 0"
-        assert self.n_consumers >= 0, f"{self.n_consumers=} but must be >= 0"
+        assert self.n_producers >= 0, f"n_producers={self.n_producers} but must be >= 0"
+        assert self.n_consumers >= 0, f"n_consumers={self.n_consumers} but must be >= 0"
 
         self._setup_worker_classes()
         is_foreground_producer = self.n_producers == 0
         is_foreground_consumer = self.n_consumers == 0
         if is_foreground_consumer != is_foreground_producer:
             raise ValueError(
-                f"{self.n_producers=} and {self.n_consumers=} but must be either both 0 (running "
-                f"in foreground) or both > 0 (running in background)."
+                f"n_consumers={self.n_producers} and n_consumers={self.n_consumers} but must be "
+                f"either both 0 (running in foreground) or both > 0 (running in background)."
             )
 
         if is_foreground_producer and is_foreground_consumer:
@@ -126,12 +128,14 @@ class MultiProcessorProducerConsumer:
     def _setup_worker_classes(self):
         if isinstance(self.consumer_class_or_fn, types.FunctionType):
             # detected consumer function
-            assert (
-                len(self.consumer_args) == 0
-            ), f"{self.consumer_args=} but must be empty when using a consumer function."
-            assert (
-                len(self.consumer_kwargs) == 0
-            ), f"{self.consumer_kwargs=} but must be empty when using a consumer function."
+            assert len(self.consumer_args) == 0, (
+                f"{len(self.consumer_args)} consumer_args given but must be empty "
+                f"when using a consumer function."
+            )
+            assert len(self.consumer_kwargs) == 0, (
+                f"{len(self.consumer_kwargs)} consumer_kwargs given but must be empty "
+                f"when using a consumer function."
+            )
             self.consumer_class = SimpleConsumer
             self.consumer_args = (self.consumer_class_or_fn,)
         else:
@@ -140,12 +144,14 @@ class MultiProcessorProducerConsumer:
 
         if isinstance(self.producer_class_or_fn, types.FunctionType):
             # detected producer function
-            assert (
-                len(self.producer_args) == 0
-            ), f"{self.producer_args=} but must be empty when using a producer function."
-            assert (
-                len(self.producer_kwargs) == 0
-            ), f"{self.producer_kwargs=} but must be empty when using a producer function."
+            assert len(self.producer_args) == 0, (
+                f"{len(self.producer_args)} producer_args given but must be empty "
+                f"when using a producer function."
+            )
+            assert len(self.producer_kwargs) == 0, (
+                f"{len(self.producer_kwargs)} producer_kwargs given but must be empty "
+                f"when using a producer function."
+            )
             self.producer_class = SimpleProducer
             self.producer_args = (self.producer_class_or_fn,)
         else:

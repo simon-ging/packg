@@ -2,9 +2,15 @@
 Utilities for python packages.
 """
 import importlib
+import re
+import subprocess
 import sys
 from pathlib import Path
 
+import requests
+from loguru import logger
+
+from packg.import_from_source import recurse_modules
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.strings import create_nested_abbreviations
 
@@ -67,8 +73,130 @@ def run_package(main_file, run_dir="run", recursive=True):
 
 
 def run_script(target, args):
-    print(f"Running {target}")
-    module = importlib.import_module(target)
-    main = getattr(module, "main")
-    sys.argv = [sys.argv[0]] + args[1:]
+    cmd = ["python", "-m", target, *args[1:]]
+    print(f"$ {' '.join(cmd)}")
+
+    subprocess.run(cmd)
+
+    # # run by importing main() function
+    # print(f"Running {target}")
+    # sys.argv = [sys.argv[0]] + args[1:]
+    # module = importlib.import_module(target)
+    # main = getattr(module, "main")
+    # main()
+
+
+def _recurse_modules_remove_root_package(package: str, packages_only: bool = False):
+    for candidate in recurse_modules(package, packages_only=packages_only):
+        if candidate == package:
+            continue
+        candidate = candidate.removeprefix(f"{package}.")
+        if candidate == "__main__":
+            continue
+        yield candidate
+
+
+def create_bash_autocomplete_script(
+    package: str, function_name: str = None, command_name: str = None
+) -> str:
+    """
+    Create a bash script for autocompletion of a python package.
+
+    Workflow where this is useful:
+    - src/packg/__main__.py calls run_package, so `python -m packg run.script` has the same effect
+    as `python -m packg.run.script`
+    - pyproject.toml defines script [project.scripts] packg = "packg.__main__:main"
+    so now `packg run.script` has the same effect.
+    - this function now can be used to create src/packg/autocomplete.sh which, when sourced,
+    provides autocompletion for the `packg` command.
+
+    Args:
+        package: package to create the autocomplete for
+        function_name: default _{package}
+        command_name: default {package}
+
+    Returns:
+
+    """
+    if function_name is None:
+        function_name = f"_{package}"
+    if command_name is None:
+        command_name = package
+    packages_only = set(_recurse_modules_remove_root_package(package, packages_only=True))
+    all_modules = set(_recurse_modules_remove_root_package(package))
+    output_modules = []
+
+    for m in sorted(all_modules):
+        if m in packages_only:
+            if f"{m}.__main__" not in all_modules:
+                logger.info(f"SKIP package: {m}")
+                continue
+            else:
+                logger.info(f"ADD package (has __main__): {m}")
+        if m.endswith("__main__"):
+            logger.info(f"SKIP __main__ file: {m}")
+            continue
+        output_modules.append(m)
+
+    output_modules.sort()
+
+    ob, cb = "{", "}"
+    autocomplete_script = f"""
+{function_name}() {ob}
+    local cur prev words cword
+    _init_completion || return
+    COMPREPLY=( $( compgen -W "{' '.join(output_modules)}" -- "$cur" ) )
+    return 0
+{cb}
+
+complete -F {function_name} {command_name}
+"""
+    return autocomplete_script
+
+
+def _get_raw_shields_io_output(package: str):
+    url = f"https://img.shields.io/pypi/v/{package}"
+    logger.info(f"Finding pypi version via {url}")
+    response = requests.get(url)
+    # somehow make sure it doesnt timeout?
+    return response.text
+
+
+_RE_TEXT = re.compile(r"<text.*?>.*?</text>")
+_RE_TEXT_VERSION = re.compile(r"<text.*?>v([0-9]+.[0-9]+.[0-9]+)</text>")
+
+
+def find_pypi_package_version(package: str):
+    """
+    Find the latest version of a package on pypi.
+
+    pip search was removed. An alternative is to query the shields.io service and parse the
+    output svg.
+    https://img.shields.io/pypi/v/numpy
+
+    Args:
+        package: package name
+
+    Returns:
+        version string
+
+    """
+    raw = _get_raw_shields_io_output(package)
+    # find all occurrences of <text>...</text>
+    matches = _RE_TEXT.findall(raw)
+    # the last one is the displayed version
+    version = matches[-1]
+    # find the version number
+    match = _RE_TEXT_VERSION.search(version)
+    if match:
+        version = match.group(1)
+        return version
+    raise RuntimeError(f"Could not find version for {package} on shields.io")
+
+
+def main():
+    print(_get_raw_shields_io_output("numpy"))
+
+
+if __name__ == "__main__":
     main()

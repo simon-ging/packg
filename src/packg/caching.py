@@ -5,6 +5,8 @@ import joblib
 from joblib import register_store_backend
 from joblib._store_backends import FileSystemStoreBackend  # noqa
 
+from packg.paths import get_cache_dir
+
 
 class StoreNoNumpy(FileSystemStoreBackend):
     """
@@ -28,8 +30,7 @@ class StoreNoNumpy(FileSystemStoreBackend):
         filename = os.path.join(full_path, "output.pkl")
         if not self._item_exists(filename):
             raise KeyError(
-                f"Non-existing item (may have been cleared).\n"
-                f"File {filename} does not exist"
+                f"Non-existing item (may have been cleared).\n" f"File {filename} does not exist"
             )
 
         assert mmap_mode is None, "Standard pickle does not support mmap_mode"
@@ -42,7 +43,7 @@ register_store_backend(StoreNoNumpy.NAME, StoreNoNumpy)
 
 
 def get_joblib_memory(
-    location="cache_joblib", verbose=1, numpy_capable=False
+    location=get_cache_dir() / "joblib", verbose=1, numpy_capable=False
 ) -> joblib.Memory:
     """
     Wrapper for joblib.Memory which uses the StoreNoNumpy backend by default.

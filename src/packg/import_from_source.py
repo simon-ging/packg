@@ -57,8 +57,11 @@ def _is_package(module_spec: ModuleSpec) -> bool:
     return module_spec.origin is not None and module_spec.origin.endswith("__init__.py")
 
 
-def _recurse_modules(
-    module_name: str, ignore_tests: bool, packages_only: bool
+def recurse_modules(
+    module_name: str,
+    ignore_tests: bool = True,
+    packages_only: bool = False,
+    ignore_main: bool = False,
 ) -> Iterator[str]:
     if ignore_tests and _is_test_module(module_name):
         return
@@ -71,19 +74,20 @@ def _recurse_modules(
 
         for child in iter_modules([path.dirname(module_spec.origin)]):
             if child.ispkg:
-                yield from _recurse_modules(
+                yield from recurse_modules(
                     f"{module_name}.{child.name}",
                     ignore_tests=ignore_tests,
                     packages_only=packages_only,
                 )
-            elif not packages_only:
-                yield f"{module_name}.{child.name}"
+            if packages_only:
+                continue
+            if ignore_main and child.name == "__main__":
+                continue
+            yield f"{module_name}.{child.name}"
 
 
-class _ImportFromSourceChecker(NodeVisitor):
-    def __init__(
-        self, module: str, module_list_to_ignore_not_found: Optional[List] = None
-    ):
+class ImportFromSourceChecker(NodeVisitor):
+    def __init__(self, module: str, module_list_to_ignore_not_found: Optional[List] = None):
         module_spec = import_util.find_spec(module)
         is_pkg = (
             module_spec is not None
@@ -150,9 +154,7 @@ class _ImportFromSourceChecker(NodeVisitor):
 
             # Figure out where we should be importing this class from, and assert that the *actual* import we found
             # matches the place we *should* import from.
-            should_import_from = self._get_module_should_import(
-                module_to_import=attribute_module
-            )
+            should_import_from = self._get_module_should_import(module_to_import=attribute_module)
             if module_to_import != should_import_from:
                 logging.warning(
                     f"(Potential false positive) "
@@ -172,16 +174,14 @@ class _ImportFromSourceChecker(NodeVisitor):
         result: List[str] = []
 
         for component in module_components:
-            if component.startswith("_") and not self._module.startswith(
-                ".".join(result)
-            ):
+            if component.startswith("_") and not self._module.startswith(".".join(result)):
                 break
             result.append(component)
 
         return ".".join(result)
 
 
-def _apply_visitor(module: str, visitor: NodeVisitor) -> None:
+def apply_visitor(module: str, visitor: NodeVisitor) -> None:
     module_spec = import_util.find_spec(module)
     assert module_spec is not None
     assert module_spec.origin is not None
@@ -190,9 +190,3 @@ def _apply_visitor(module: str, visitor: NodeVisitor) -> None:
         ast = parse(source=source_file.read(), filename=module_spec.origin)
 
     visitor.visit(ast)
-
-
-# unprivate some stuff
-apply_visitor = _apply_visitor
-ImportFromSourceChecker = _ImportFromSourceChecker
-recurse_modules = _recurse_modules

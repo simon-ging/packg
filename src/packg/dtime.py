@@ -22,7 +22,7 @@ def get_timestamp_for_filename(dtime: Optional[datetime] = None) -> str:
     return ts
 
 
-def format_seconds_adaptive(seconds:float, format_str="{:.1f}{}"):
+def format_seconds_adaptive(seconds: float, format_str="{:.1f}{}"):
     """
     Format seconds to adaptive time format depending on the size of the input.
 

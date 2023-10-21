@@ -8,5 +8,3 @@ def ensure_numpy(inp: TensorType) -> np.ndarray:
     if hasattr(inp, "numpy"):
         return inp.numpy()
     return np.array(inp)
-
-

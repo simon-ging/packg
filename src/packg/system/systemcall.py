@@ -26,9 +26,7 @@ def systemcall(call: str, verbose: bool = False) -> Tuple[str, str, int]:
     return out, err, retcode
 
 
-def assert_command_worked(
-    errmsg: str, cmd: str, out: str, err: str, retcode: int
-) -> None:
+def assert_command_worked(errmsg: str, cmd: str, out: str, err: str, retcode: int) -> None:
     """Process the output of a systemcall and assert that the command worked.
 
     Args:
