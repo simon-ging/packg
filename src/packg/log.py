@@ -39,7 +39,7 @@ BRIGHTBG_FORMAT = (
     "<blue>{name}</blue>:<blue>{function}</blue>:<blue>{line}</blue> "
     "<level>{message}</level>"
 )
-TIMELESS_FORMAT = "<level>{level: <4.4}</level> " "<level>{message}</level>"
+TIMELESS_FORMAT = "<level>{level: <4.4}</level> <level>{message}</level>"
 
 
 global_logger_config = None
@@ -132,7 +132,6 @@ def reroute_logger(new_sink=sys.stderr, logger_config=None, handler_num: int = 0
         It cannot be deepcopy-ed here because sink is not pickle-able.
     """
     if logger_config is None:
-        global global_logger_config
         logger_config = global_logger_config
     logger_config["handlers"][handler_num]["sink"] = new_sink
     logger.configure(**logger_config)

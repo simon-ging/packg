@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from typedparser.objects import is_any_mapping, is_any_iterable
 
 from packg.iotools.file_reader import read_text_from_file_or_io
 from packg.typext import PathOrIO, PathTypeCls
-from typedparser.objects import is_any_mapping, is_any_iterable
 
 
 def load_yaml(file_or_io: PathOrIO) -> Any:

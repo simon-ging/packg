@@ -12,11 +12,15 @@ def find_git_root(starting_dir: Optional[PathType] = None, verbose=False):
     if verbose:
         print(f"Starting dir: {starting_dir}")
     current_dir = Path(starting_dir)
-    for i in range(128):
+    found = False
+    for _ in range(128):
         if (current_dir / ".git").is_dir():
+            found = True
+            break
+        if current_dir == current_dir.parent:
             break
         current_dir = current_dir.parent
-    else:
+    if not found:
         raise RuntimeError("Could not find repo root.")
     if verbose:
         print(f"Final dir:    {current_dir}")

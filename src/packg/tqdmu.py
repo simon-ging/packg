@@ -28,14 +28,3 @@ class tqdm_max_ncols(tqdm):
             return
         if max_ncols is not None and self.ncols is not None:
             self.ncols = min(self.ncols, max_ncols)
-
-
-def main():
-    import time
-
-    for i in tqdm(range(100)):
-        time.sleep(0.1)
-
-
-if __name__ == "__main__":
-    main()

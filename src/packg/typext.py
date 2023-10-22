@@ -16,6 +16,6 @@ PathTypeCls = (str, Path, Traversable)
 PathOrIOCls = (str, Path, Traversable, IOBase)
 
 try:
-    from types import NoneType
+    from types import NoneType  # pylint: disable=unused-import
 except ImportError:
     NoneType = type(None)

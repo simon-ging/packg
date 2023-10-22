@@ -1,10 +1,3 @@
-"""
-
-Example:
-    def fn():
-        return 8
-
-"""
 from __future__ import annotations
 
 import time
@@ -208,7 +201,7 @@ class MultiProcessorProducerConsumer:
             return [self.consumer_object_list[0].complete()]
 
         self._debug_print(f"Add {self.n_producers} term signals for producers to input queue")
-        for n in range(self.n_producers):
+        for _ in range(self.n_producers):
             start_time = default_timer()
             self.q_in.put(None)
             self.wait_times_put.update(default_timer() - start_time)
@@ -234,12 +227,12 @@ class MultiProcessorProducerConsumer:
             time.sleep(delay)
 
         self._debug_print(f"Add {self.n_consumers} term signals for consumers to input queue")
-        for n in range(self.n_consumers):
+        for _ in range(self.n_consumers):
             self.q_producer_out.put(None)
 
         self._debug_print(f"Collect data from consumer output queue")
         outputs = []
-        for n in range(self.n_consumers):
+        for _ in range(self.n_consumers):
             out = self.q_consumer_out.get()
             outputs.append(out)
 
@@ -256,8 +249,8 @@ class MultiProcessorProducerConsumer:
         m_wait_put = self.wait_times_put.avg
 
         times = defaultdict(list)
-        for n in range(self.n_consumers + self.n_producers * 2):
-            time_k, time_i, time_v = self.q_timer.get()
+        for _ in range(self.n_consumers + self.n_producers * 2):
+            time_k, _time_i, time_v = self.q_timer.get()
             times[time_k].append(time_v)
 
         time_str = ", ".join([f"{k}: {mean(vs):.1f}s" for k, vs in times.items()])
@@ -315,8 +308,7 @@ class Producer:
                     logger.error(f"Error in multi_function: {e}")
                     q_producer_out.put(e)
                     continue
-                else:
-                    raise e
+                raise e
             out = _ensure_fn_output_is_tuple(out)
             start_time = default_timer()
             q_producer_out.put(out)

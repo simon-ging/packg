@@ -5,6 +5,7 @@ import importlib
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import requests
@@ -12,6 +13,7 @@ from loguru import logger
 
 from packg.import_from_source import recurse_modules
 from packg.iotools import sort_file_paths_with_dirs_separated
+from packg.misc import format_exception
 from packg.strings import create_nested_abbreviations
 
 
@@ -61,8 +63,7 @@ def run_package(main_file, run_dir="run", recursive=True):
         if found:
             run_script(target, args)
             return
-        else:
-            print(f"Error, script not found: {abbrev_arg}")
+        print(f"Error, script not found: {abbrev_arg}")
 
     print(f"Usage option 1: {package_name} shortcut [args]")
     print(f"Usage option 2: {package_name} path.to.module [args]")
@@ -131,8 +132,7 @@ def create_bash_autocomplete_script(
             if f"{m}.__main__" not in all_modules:
                 logger.info(f"SKIP package: {m}")
                 continue
-            else:
-                logger.info(f"ADD package (has __main__): {m}")
+            logger.info(f"ADD package (has __main__): {m}")
         if m.endswith("__main__"):
             logger.info(f"SKIP __main__ file: {m}")
             continue
@@ -155,10 +155,18 @@ complete -F {function_name} {command_name}
 
 
 def _get_raw_shields_io_output(package: str):
+    # todo wrap this request code into a separate function in packg.web
     url = f"https://img.shields.io/pypi/v/{package}"
     logger.info(f"Finding pypi version via {url}")
-    response = requests.get(url)
-    # somehow make sure it doesnt timeout?
+    counter = 0
+    while True:
+        try:
+            response = requests.get(url, timeout=10)
+            break
+        except Exception as e:
+            logger.warning(f"Error requesting {url}: {format_exception(e)}")
+        counter += 1
+        time.sleep(1)
     return response.text
 
 

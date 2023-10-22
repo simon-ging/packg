@@ -1,3 +1,6 @@
+# pylint: disable=duplicate-code
+# todo either fix duplicate-code or remove this todo comment
+# todo move the main() example outside of this file
 from __future__ import annotations
 
 import random
@@ -63,7 +66,7 @@ class FnMultiProcessor:
         self.q_in = Queue(maxsize=maxsize)
         self.q_out = Queue(maxsize=0) if self.with_output else None
         multi_fn_args = self._get_multi_fn_args()
-        for n in range(self.workers):
+        for _ in range(self.workers):
             w = Process(target=self._get_multi_fn(), args=multi_fn_args)
             w.start()
             self.worker_list.append(w)
@@ -102,7 +105,7 @@ class FnMultiProcessor:
 
     def run(self):
         # add poison pills for workers
-        for n in range(self.workers):
+        for _ in range(self.workers):
             self.q_in.put(None)
 
         if self.workers == 0:
@@ -164,8 +167,7 @@ def multi_fn_with_output(
                 logger.error(f"Error in multi_function: {e}")
                 out_q.put(e)
                 continue
-            else:
-                raise e
+            raise e
         out_q.put(out)
         pbar.update(1)
     pbar.close()
@@ -218,7 +220,7 @@ def main():
             proc.put(in_x)
         proc.run()
         outputs = []
-        for n in range(len(ix)):
+        for _ in range(len(ix)):
             outputs.append(proc.get())
         proc.close()
         print(outputs)

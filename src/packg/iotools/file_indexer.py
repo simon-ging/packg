@@ -10,9 +10,9 @@ from typing import Dict, Tuple, List
 import natsort
 from attr import define
 from tqdm import tqdm
+from typedparser import NamedTupleMixin
 
 from packg.typext import PathType
-from typedparser import NamedTupleMixin
 
 
 def sort_file_paths_with_dirs_separated(
@@ -118,7 +118,7 @@ def _recursive_index(
     Returns:
         list of tuples (filename str, file_size_bytes int, time_last_modified float)
     """
-    global _total_counter, _pbar
+    global _total_counter
     entries = []
     base_root_length = len(base_root.parts)
     # get paths and files
