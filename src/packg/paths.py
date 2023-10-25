@@ -29,7 +29,7 @@ import os
 from getpass import getuser
 from pathlib import Path
 
-from dotenv import dotenv_values
+from dotenv import dotenv_values, find_dotenv
 
 from packg.constclass import Const
 from packg.typext import OptionalPathType
@@ -56,19 +56,46 @@ _DEFAULTS = {
 _setup_environ_done = False
 
 
-def setup_environ(verbose=False, override=True):
+def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=True):
     global _setup_environ_done
     if _setup_environ_done:
         if verbose:
             print("setup_environ already done")
         return
     _setup_environ_done = True
-    values = dotenv_values(".env", verbose=verbose)
-    for k, v in values.items():
-        if override or k not in os.environ:
+
+    if load_env_file:
+        if dotenv_path is not None:
+            dotenv_path = Path(dotenv_path).as_posix()
+            if not Path(dotenv_path).is_file():
+                raise FileNotFoundError(f"dotenv_path provided but not found: {dotenv_path}")
+        else:
+            dotenv_path = ""
             if verbose:
-                print(f"From .env write: {k}={v}")
-            os.environ[k] = v
+                print(f"Searching dotenv file...")
+
+        if dotenv_path == "":
+            # try to find it relative to the current dir
+            dotenv_path = find_dotenv(usecwd=True)
+        if dotenv_path == "":
+            # try to find in home
+            proposal = Path.home() / ".env"
+            if proposal.is_file():
+                dotenv_path = proposal.as_posix()
+
+        if dotenv_path != "":
+            values = dotenv_values(dotenv_path, verbose=verbose)
+            if verbose:
+                print(f"Got from env: {values} found it as {find_dotenv()} from {os.getcwd()}")
+        else:
+            values = {}
+            if verbose:
+                print(f"Dotenv file not found.")
+        for k, v in values.items():
+            if override or k not in os.environ:
+                if verbose:
+                    print(f"From .env write: {k}={v}")
+                os.environ[k] = v
 
     for env_k, v in _DEFAULTS.items():
         if env_k not in os.environ:

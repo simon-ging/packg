@@ -57,13 +57,20 @@ def run_package(main_file, run_dir="run", recursive=True):
         try:
             importlib.import_module(target)
             found = True
-        except ModuleNotFoundError:
-            found = False
-
+        except ModuleNotFoundError as e:
+            # must figure out whether the error is due to the module not existing
+            # or due to some import failing.
+            if f"'{target}'" in str(e):
+                # No module named (the module we are trying to run) -> module not found
+                found = False
+            else:
+                # No module named (some other module) -> module found, but has import error
+                # run it to trigger the error
+                found = True
         if found:
             run_script(target, args)
             return
-        print(f"Error, script not found: {abbrev_arg}")
+        print(f"Error, script not found: {abbrev_arg} and {target}")
 
     print(f"Usage option 1: {package_name} shortcut [args]")
     print(f"Usage option 2: {package_name} path.to.module [args]")
@@ -143,9 +150,16 @@ def create_bash_autocomplete_script(
     ob, cb = "{", "}"
     autocomplete_script = f"""
 {function_name}() {ob}
-    local cur prev words cword
+    local cur prev words cword opt
     _init_completion || return
-    COMPREPLY=( $( compgen -W "{' '.join(output_modules)}" -- "$cur" ) )
+    # complete first argument with script
+    if [ $COMP_CWORD -eq 1 ]; then
+        opts = "{' '.join(output_modules)}"
+        COMPREPLY=( $( compgen -W "${ob}opts{cb}" -- "${ob}cur{cb}") )
+        return 0
+    fi
+    # otherwise complete with filesystem
+    COMPREPLY=( $(compgen -f -- "${ob}cur{cb}") )
     return 0
 {cb}
 

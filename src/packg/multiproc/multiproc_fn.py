@@ -98,8 +98,10 @@ class FnMultiProcessor:
         if sec_per_iter < 1:
             iter_per_sec = 1 / sec_per_iter
             desc_post = f" {iter_per_sec:10.2f} it/s"
-        rem_time = sec_per_iter * (self.total - self.processed)
-        rem_time_fmt = format_seconds_adaptive(rem_time, "{:5.2f}{}")
+        rem_time_fmt = ""
+        if self.total is not None:
+            rem_time = sec_per_iter * (self.total - self.processed)
+            rem_time_fmt = format_seconds_adaptive(rem_time, "{:5.2f}{}")
         self.pbar.set_description(f"{self.desc}{desc_post} {rem_time_fmt}", refresh=False)
         self.pbar.update(amount)
 

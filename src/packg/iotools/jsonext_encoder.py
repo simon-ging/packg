@@ -9,8 +9,6 @@ from json.encoder import (
 )
 from pathlib import Path
 
-import numpy as np
-
 
 class CustomJSONEncoder(json.JSONEncoder):
     def __init__(  # noqa
@@ -44,14 +42,19 @@ class CustomJSONEncoder(json.JSONEncoder):
         # note: intentionally checks for jax/torch tensors without importing these packages
         if isinstance(o, Path):
             return o.as_posix()
-        if isinstance(o, (np.int8, np.int16, np.int32, np.int64)):
+        full_name = f"{o.__class__.__module__}.{o.__class__.__name__}"
+        # if isinstance(o, (np.int8, np.int16, np.int32, np.int64)):
+        if full_name in {"numpy.int8", "numpy.int16", "numpy.int32", "numpy.int64"}:
             return int(o)
-        if isinstance(o, (np.float16, np.float32, np.float64)):
+        # if isinstance(o, (np.float16, np.float32, np.float64)):
+        if full_name in {"numpy.float16", "numpy.float32", "numpy.float64"}:
             return float(o)
-        if isinstance(o, np.ndarray):
+        # if isinstance(o, np.ndarray):
+        if full_name == "numpy.ndarray":
             return o.tolist()
         if hasattr(o, "detach"):  # torch
             return o.detach().cpu().numpy().tolist()
+        # todo update below to use full name check once we have a jax example
         class_name = o.__class__.__name__
         if class_name.lower() == "devicearray":  # jax
             return o.tolist()

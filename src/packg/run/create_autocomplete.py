@@ -1,8 +1,7 @@
 """
 Create a bash autocompletion script for a package or several packages .
 
-Here, it will create the script for the command "packg"
-which is short for "python -m packg"
+Note: If it does not find a module, maybe __init__.py is missing.
 """
 
 from pathlib import Path
