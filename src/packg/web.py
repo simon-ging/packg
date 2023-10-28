@@ -62,16 +62,20 @@ def _open_file_for_download(file: Union[str, Path]) -> Tuple[Dict[str, str], Bin
 
 
 def download_file(
-    file: Union[str, Path], url: str, verbose: bool = False, pbar: bool = True, chunk_size=1024**2
+    file: Union[str, Path], url: str, verbose: bool = False, pbar: bool = True, chunk_size=1024**2,
+        req_header=None
 ) -> int:
     """
     Download file from url.
     """
+    if req_header is None:
+        req_header = {}
     http = urllib3.PoolManager()
     file = Path(file)
 
     # support partial file downloading
     headers, fh = _open_file_for_download(file)
+    headers.update(req_header)
     req: urllib3.HTTPResponse = http.request("GET", url, preload_content=False, headers=headers)
     if verbose:
         pprint(req.headers.items())

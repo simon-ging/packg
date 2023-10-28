@@ -150,11 +150,11 @@ def create_bash_autocomplete_script(
     ob, cb = "{", "}"
     autocomplete_script = f"""
 {function_name}() {ob}
-    local cur prev words cword opt
+    local cur prev opts
     _init_completion || return
     # complete first argument with script
     if [ $COMP_CWORD -eq 1 ]; then
-        opts = "{' '.join(output_modules)}"
+        opts="{' '.join(output_modules)}"
         COMPREPLY=( $( compgen -W "${ob}opts{cb}" -- "${ob}cur{cb}") )
         return 0
     fi

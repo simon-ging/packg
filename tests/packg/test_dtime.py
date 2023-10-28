@@ -1,7 +1,15 @@
 from datetime import datetime
 
 from packg import dtime
-from packg.dtime import format_seconds_adaptive, get_timestamp_for_filename
+from packg.dtime import (
+    format_seconds_adaptive,
+    get_timestamp_for_filename,
+    format_timestamp,
+    get_utc_timezone,
+)
+
+# in order for the test to work everywhere we must fix the timezone
+utc = get_utc_timezone()
 
 
 def test_format_seconds_adaptive_seconds():
@@ -34,7 +42,7 @@ def test_get_timestamp_for_filename_default(monkeypatch):
     datetime_now = datetime(2023, 10, 12, 15, 30, 45)
 
     with monkeypatch.context() as m:
-        m.setattr(dtime, "_datetime_now", lambda: datetime_now)
+        m.setattr(dtime, "_datetime_now", lambda tz: datetime_now)
         assert get_timestamp_for_filename() == "2023_10_12_15_30_45"
 
 
@@ -47,3 +55,24 @@ def test_get_timestamp_for_filename_custom_format():
     custom_datetime = datetime(2021, 7, 21, 18, 45, 12)
     timestamp = get_timestamp_for_filename(custom_datetime)
     assert timestamp == "2021_07_21_18_45_12"
+
+
+def test_format_timestamp_with_given_timestamp():
+    timestamp = 1610123456
+    expected = "2021-01-08 16:30:56"
+    assert format_timestamp(timestamp, tz=utc) == expected
+
+
+def test_format_timestamp_with_custom_format():
+    timestamp = 1610123456
+    format_str = "%Y/%m/%d"
+    expected = "2021/01/08"
+    assert format_timestamp(timestamp, format_str, tz=utc) == expected
+
+
+def test_format_timestamp_without_timestamp(monkeypatch):
+    datetime_now = datetime(2022, 1, 1, 12, 0, 0, tzinfo=utc)
+    with monkeypatch.context() as m:
+        m.setattr(dtime, "_datetime_now", lambda tz: datetime_now)
+        expected = "2022-01-01 12:00:00"
+        assert format_timestamp(tz=utc) == expected

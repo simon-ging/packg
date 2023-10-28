@@ -1,8 +1,8 @@
 """
-Wrapper for loguru package
 
-https://loguru.readthedocs.io/en/stable/overview.html
-https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
+- Utilities for the loguru package
+  https://loguru.readthedocs.io/en/stable/overview.html
+  https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
 
 Usage:
     from loguru import logger
@@ -11,6 +11,7 @@ Usage:
     configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
     logger.info("Hello")
 """
+import logging
 import os
 import sys
 from copy import deepcopy
@@ -18,6 +19,10 @@ from logging import getLevelName
 from typing import Union, Optional, List, Any, Dict
 
 from loguru import logger
+from pathspec import PathSpec
+
+from packg.iotools import make_git_pathspec
+from packg.iotools.git_matcher import make_regex_pathspec
 
 LevelType = Union[str, int]  # either "DEBUG" or 10
 DEFAULT_LOGURU_FORMAT = (
@@ -146,7 +151,7 @@ def get_level_as_str(level: LevelType):
     raise TypeError(f"Level must be str or int, not {type(level)}")
 
 
-def get_level_as_int(level: str):
+def get_level_as_int(level: LevelType):
     if isinstance(level, int):
         return level
     level_int = int(getLevelName(level.upper()))
@@ -167,6 +172,41 @@ def get_terminal_size() -> int:
     except OSError:
         n_cols = 80
     return n_cols
+
+
+def configure_stdlib_base_logger(
+    level: LevelType = "INFO", format="%(levelname)s: %(message)s"  # noqa
+) -> None:
+    """
+    Configure the standard library logger.
+
+    Args:
+        level: minimum level to log
+        format: message formatting
+            (see https://docs.python.org/3/library/logging.html#logrecord-attributes)
+    """
+    level = get_level_as_int(level)
+    logging.basicConfig(level=level, format=format)
+
+
+def silence_stdlib_loggers(
+    search_str: str,
+    regex_mode: bool = False,
+    level: LevelType = logging.ERROR,
+    verbose: bool = False,
+):
+    if regex_mode:
+        spec: PathSpec = make_regex_pathspec([search_str])
+    else:
+        spec: PathSpec = make_git_pathspec([search_str])
+    # print([p.regex for p in spec.patterns])
+    level = get_level_as_int(level)
+    for name in logging.root.manager.loggerDict.keys():
+        loggr = logging.getLogger(name)
+        if spec.match_file(name):
+            loggr.setLevel(level)
+            if verbose:
+                print(f"Set verbosity to {level} for logger '{name}'")
 
 
 # # catch logs - code below will raise exceptions for logs. helpful for debugging where
