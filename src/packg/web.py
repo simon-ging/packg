@@ -62,8 +62,12 @@ def _open_file_for_download(file: Union[str, Path]) -> Tuple[Dict[str, str], Bin
 
 
 def download_file(
-    file: Union[str, Path], url: str, verbose: bool = False, pbar: bool = True, chunk_size=1024**2,
-        req_header=None
+    file: Union[str, Path],
+    url: str,
+    verbose: bool = False,
+    pbar: bool = True,
+    chunk_size=1024**2,
+    req_header=None,
 ) -> int:
     """
     Download file from url.
@@ -115,58 +119,3 @@ def download_file(
     if verbose:
         print(f"Downloaded {num_bytes / 1024 ** 2:.3f}MB from", url)
     return num_bytes
-
-
-# def download_file_from_google_drive(file_id, file, verbose=True):
-#     """File download from google drive"""
-#     file = Path(file)
-#     http = urllib3.PoolManager()
-#     headers, fh = get_remainder_header(file)
-#
-#     url = f"https://drive.google.com/uc?export=download&id={file_id}"
-#     print("-" * 50, f"request1: {url}")
-#     req = http.request('GET', url)  # type: urllib3.HTTPResponse
-#     pprint(req.headers.items())
-#
-#     # check for needs confirmation cookie
-#     def get_token(headers_):
-#         token_key_, token_val_ = None, None
-#         for key, val in headers_.items():
-#             if key == "Set-Cookie":
-#                 cookies = val.split(";")
-#                 for c in cookies:
-#                     c = c.strip()
-#                     csplit = c.split("=")
-#                     if len(csplit) != 2:
-#                         continue
-#                     ckey, cval = csplit
-#                     if ckey.startswith("download_warning"):
-#                         token_key_ = ckey
-#                         token_val_ = cval
-#         return token_key_, token_val_
-#
-#     token_key, token_val = get_token(req.headers)
-#     if token_key is not None:
-#         # needs confirmation
-#         url = f"https://drive.google.com/u/0/uc?export=download"\
-#               f"&confirm={token_key}"\
-#               f"&id={file_id}"
-#
-#         print("-" * 50, f"request2: {url}")
-#
-#         req = http.request('GET', url)  # type: urllib3.HTTPResponse
-#         pprint(req.headers.items())
-#
-#     # read incoming content length
-#     breakpoint()
-#     web_size = int(req.headers['Content-Length'])
-#     print(f"INCOMING {web_size}")
-#     #
-#     # response = session.get(URL, params = { 'id' : file_id }, stream = True)
-#
-#     #
-#     # if token:
-#     #     params = { 'id' : file_id, 'confirm' : token }
-#     #     response = session.get(URL, params = params, stream = True)
-#     #
-#     # save_response_content(response, destination)

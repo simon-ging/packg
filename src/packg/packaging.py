@@ -11,7 +11,7 @@ from pathlib import Path
 import requests
 from loguru import logger
 
-from packg.import_from_source import recurse_modules
+from packg.testing.import_from_source import recurse_modules
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.misc import format_exception
 from packg.strings import create_nested_abbreviations

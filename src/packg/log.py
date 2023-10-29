@@ -1,8 +1,9 @@
 """
 
-- Utilities for the loguru package
+- Utils for the loguru package
   https://loguru.readthedocs.io/en/stable/overview.html
   https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
+- Utils for the standard library logging package
 
 Usage:
     from loguru import logger
@@ -21,8 +22,7 @@ from typing import Union, Optional, List, Any, Dict
 from loguru import logger
 from pathspec import PathSpec
 
-from packg.iotools import make_git_pathspec
-from packg.iotools.git_matcher import make_regex_pathspec
+from packg.iotools.pathspec_matcher import make_pathspec
 
 LevelType = Union[str, int]  # either "DEBUG" or 10
 DEFAULT_LOGURU_FORMAT = (
@@ -195,10 +195,7 @@ def silence_stdlib_loggers(
     level: LevelType = logging.ERROR,
     verbose: bool = False,
 ):
-    if regex_mode:
-        spec: PathSpec = make_regex_pathspec([search_str])
-    else:
-        spec: PathSpec = make_git_pathspec([search_str])
+    spec: PathSpec = make_pathspec([search_str], regex_mode=regex_mode)
     # print([p.regex for p in spec.patterns])
     level = get_level_as_int(level)
     for name in logging.root.manager.loggerDict.keys():
@@ -207,20 +204,3 @@ def silence_stdlib_loggers(
             loggr.setLevel(level)
             if verbose:
                 print(f"Set verbosity to {level} for logger '{name}'")
-
-
-# # catch logs - code below will raise exceptions for logs. helpful for debugging where
-# # random logs are coming from
-# import logging
-#
-#
-# class CustomHandler(logging.Handler):
-#     def __init__(self):
-#         super().__init__()
-#
-#     def emit(self, record):
-#         raise RuntimeError("Caught log message: {}".format(record.getMessage()))
-#
-#
-# err_logger = logging.getLogger()
-# err_logger.addHandler(CustomHandler())

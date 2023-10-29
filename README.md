@@ -16,11 +16,25 @@
 Collection of utilities used in other python projects.
 
 ## Features
-
-* `caching`: Cache objects to disk / to memory
-* `Const`: Base class for defining constants, as alternative to `enum.Enum`
+* 
+* `caching`: Cache objects to disk (using `joblib`) or to memory
+* `constclass.Const`: Base class for defining constants, as alternative to `enum.Enum`
+* `debugging`: Connect to PyCharm debug server
+* `dtime`: Wrappers and formatters for `datetime` and other timing utilities
+* `log`: Wrapper for `loguru`, utilities for stdlib `logging`
+* `iotools`: Index paths, compress and read files, git utilities, wrappers to load json/yaml
+* `magic`: Wrapper around `importlib`
+* `misc`: `format_exception(e)` output the exception as it appears in the stacktrace
+* `multiproc`: Multiprocessing utilities
+* `packaging`: Code to handle creation and running of python packages
+* `paths`: Load paths from the global environment or .env files using `python-dotenv`
+* `stats`: Simple utilities for numpy arrays
+* `strings`: Base64, quote strings, create random strings
+* `system`: Wrapper for `subprocess.Popen`
+* `testing`: Import all modules from a package
+* `tqdmu`: Wrapper for `tqdm` that limits the width by default
 * `typext`: Type definitions
-* etc
+* `web`: Download file and resume a partial download, disable the web access 
 
 ## Install
 

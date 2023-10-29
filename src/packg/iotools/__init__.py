@@ -11,7 +11,6 @@ from .file_reader import (
     read_text_from_file_or_io,
     open_file_or_io,
 )
-from .git_matcher import make_git_pathspec
 from .git_root_finder import find_git_root, navigate_to_git_root
 from .jsonext import (
     load_json,
@@ -28,6 +27,7 @@ from .jsonext import (
 from .misc import (
     set_working_directory,
 )
+from .pathspec_matcher import make_git_pathspec, make_regex_pathspec, make_pathspec, PathSpecWithConversion
 from .yamlext import load_yaml, loads_yaml, dump_yaml, dumps_yaml
 
 __all__ = [

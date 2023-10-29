@@ -113,6 +113,7 @@ for _p_name, _producer_class_or_fn in [("cls", TwoValuesProducer), ("fn", fn_pro
         _test_inputs.append((_producer_class_or_fn, _consumer_class_or_fn))
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("producer_cls_or_fn, consumer_cls_or_fn", _test_inputs, ids=_test_names)
 def test_multiproc_producer(producer_cls_or_fn, consumer_cls_or_fn):
     _run_test(_N, producer_cls_or_fn, consumer_cls_or_fn)

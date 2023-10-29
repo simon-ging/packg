@@ -1,6 +1,6 @@
 import pytest
 
-from packg.import_from_source import (
+from packg.testing import (
     apply_visitor,
     ImportFromSourceChecker,
     recurse_modules,

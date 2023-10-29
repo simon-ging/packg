@@ -1,7 +1,7 @@
 import traceback
 
 
-def format_exception(e, with_traceback=False):
+def format_exception(e, with_traceback=False) -> str:
     error_str, error_name = str(e), type(e).__name__
     if error_str == "":
         out_str = error_name

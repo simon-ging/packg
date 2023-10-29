@@ -6,6 +6,11 @@ from typing import Optional
 from packg.typext import PathType
 
 
+def navigate_to_git_root(starting_dir: Optional[PathType] = None, verbose=False):
+    target_dir = find_git_root(starting_dir, verbose)
+    os.chdir(target_dir)
+
+
 def find_git_root(starting_dir: Optional[PathType] = None, verbose=False):
     if starting_dir is None:
         starting_dir = os.getcwd()
@@ -25,11 +30,6 @@ def find_git_root(starting_dir: Optional[PathType] = None, verbose=False):
     if verbose:
         print(f"Final dir:    {current_dir}")
     return current_dir
-
-
-def navigate_to_git_root(starting_dir: Optional[PathType] = None, verbose=False):
-    target_dir = find_git_root(starting_dir, verbose)
-    os.chdir(target_dir)
 
 
 def add_git_root_to_path(starting_dir: Optional[PathType] = None, verbose=False):

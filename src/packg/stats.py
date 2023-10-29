@@ -2,9 +2,14 @@ from typing import Optional
 
 import numpy as np
 
-from packg.tensors import ensure_numpy
 from packg.typext import TensorType
 
+def ensure_numpy(inp: TensorType) -> np.ndarray:
+    if isinstance(inp, np.ndarray):
+        return inp
+    if hasattr(inp, "numpy"):
+        return inp.numpy()
+    return np.array(inp)
 
 class AvgMetric:
     def __init__(self):
