@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 import requests
 from loguru import logger
@@ -188,7 +189,7 @@ _RE_TEXT = re.compile(r"<text.*?>.*?</text>")
 _RE_TEXT_VERSION = re.compile(r"<text.*?>v([0-9]+.[0-9]+.[0-9]+)</text>")
 
 
-def find_pypi_package_version(package: str):
+def find_pypi_package_version(package: str) -> Optional[str]:
     """
     Find the latest version of a package on pypi.
 
@@ -213,7 +214,8 @@ def find_pypi_package_version(package: str):
     if match:
         version = match.group(1)
         return version
-    raise RuntimeError(f"Could not find version for {package} on shields.io")
+    logger.error(f"Could not find version for {package} on shields.io")
+    return None
 
 
 def main():

@@ -16,7 +16,7 @@
 Collection of utilities used in other python projects.
 
 ## Features
-* 
+
 * `caching`: Cache objects to disk (using `joblib`) or to memory
 * `constclass.Const`: Base class for defining constants, as alternative to `enum.Enum`
 * `debugging`: Connect to PyCharm debug server
