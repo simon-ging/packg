@@ -2,7 +2,7 @@ import time
 from typing import Optional
 
 
-def connect_to_debug_server(host: Optional[str] = None, port: Optional[int] = None) -> None:
+def connect_to_pycharm_debug_server(host: Optional[str] = None, port: Optional[int] = None) -> None:
     """
     Connect to a running pycharm debug server.
 

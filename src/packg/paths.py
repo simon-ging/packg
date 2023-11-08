@@ -58,9 +58,7 @@ _setup_environ_done = False
 
 def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=True):
     global _setup_environ_done
-    if _setup_environ_done:
-        if verbose:
-            print("setup_environ already done")
+    if _setup_environ_done and not verbose:
         return
     _setup_environ_done = True
 
