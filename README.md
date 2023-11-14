@@ -44,6 +44,26 @@ Requires `python>=3.7`
 pip install packg
 ```
 
+## Setup environment paths
+
+```bash
+# show environment
+python -m packg.run.show_env
+```
+
+To override the defaults with your own values:
+
+- Set the environment variables in your shell e.g. using .bashrc
+- Create a file named `.env` in the root of your project as follows:
+
+```bash
+ENV_DATA_DIR=data
+ENV_RESULT_DIR=results
+ENV_ANNO_DIR=annotations
+ENV_CODE_DIR=/home/${USER}/code
+ENV_CACHE_DIR=/home/${USER}/.cache
+```
+
 ## Dev install
 
 Clone repository and cd into, then:

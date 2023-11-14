@@ -92,7 +92,7 @@ def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=
         for k, v in values.items():
             if override or k not in os.environ:
                 if verbose:
-                    print(f"From .env write: {k}={v}")
+                    print(f"From .env write: {k}={type(v).__name__} length {len(v)}")
                 os.environ[k] = v
 
     for env_k, v in _DEFAULTS.items():
