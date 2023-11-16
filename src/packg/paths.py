@@ -84,7 +84,8 @@ def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=
         if dotenv_path != "":
             values = dotenv_values(dotenv_path, verbose=verbose)
             if verbose:
-                print(f"Got from env: {values} found it as {find_dotenv()} from {os.getcwd()}")
+                print(f"Got {len(values)} from .env file, "
+                      f"found it as {find_dotenv()} from {os.getcwd()}")
         else:
             values = {}
             if verbose:
@@ -92,7 +93,7 @@ def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=
         for k, v in values.items():
             if override or k not in os.environ:
                 if verbose:
-                    print(f"From .env write: {k}={type(v).__name__} length {len(v)}")
+                    print(f"    From .env write: {k}={type(v).__name__} length {len(v)}")
                 os.environ[k] = v
 
     for env_k, v in _DEFAULTS.items():
