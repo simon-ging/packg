@@ -27,7 +27,12 @@ from .jsonext import (
 from .misc import (
     set_working_directory,
 )
-from .pathspec_matcher import make_git_pathspec, make_regex_pathspec, make_pathspec, PathSpecWithConversion
+from .pathspec_matcher import (
+    make_git_pathspec,
+    make_regex_pathspec,
+    make_pathspec,
+    PathSpecWithConversion,
+)
 from .yamlext import load_yaml, loads_yaml, dump_yaml, dumps_yaml
 
 __all__ = [
@@ -56,4 +61,7 @@ __all__ = [
     "read_bytes_from_file_or_io",
     "read_text_from_file_or_io",
     "sort_file_paths_with_dirs_separated",
+    "make_regex_pathspec",
+    "make_pathspec",
+    "PathSpecWithConversion",
 ]

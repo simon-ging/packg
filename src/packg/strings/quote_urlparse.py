@@ -1,7 +1,7 @@
 import urllib.parse
 
 
-def quote_with_urlparse(sentence: str, prefix="q") -> str:
+def quote_with_urlparse(sentence: str, prefix: str = "") -> str:
     """
     Quote the input s.t. it is safe for using in a URL.
     Useful also for e.g. using the input
@@ -9,7 +9,7 @@ def quote_with_urlparse(sentence: str, prefix="q") -> str:
 
     Args:
         sentence: input string
-        prefix: prefix to add to the quoted string, useful to avoid the empty result
+        prefix: prefix to add to the quoted string, useful to avoid empty return strings
 
     Returns:
         quoted string
@@ -19,6 +19,6 @@ def quote_with_urlparse(sentence: str, prefix="q") -> str:
     return f"{prefix}{quoted}"
 
 
-def unquote_with_urlparse(sentence: str, prefix="q") -> str:
+def unquote_with_urlparse(sentence: str, prefix: str = "") -> str:
     sentence_no_prefix = sentence[len(prefix) :]
     return urllib.parse.unquote(sentence_no_prefix)

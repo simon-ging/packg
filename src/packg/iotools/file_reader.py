@@ -21,6 +21,8 @@ def open_file_or_io(
         file_or_io = Path(file_or_io)
         if create_parent:
             os.makedirs(file_or_io.parent, exist_ok=True)
+        if "b" in mode:
+            encoding = None
         fh = file_or_io.open(mode, encoding=encoding)
         should_close = True
     else:

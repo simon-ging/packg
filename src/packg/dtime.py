@@ -16,7 +16,7 @@ def get_system_timezone() -> datetime.tzinfo:
 
 
 def get_utc_timezone() -> datetime.tzinfo:
-    print(type(datetime.timezone(datetime.timedelta(minutes=0))))
+    # print(type(datetime.timezone(datetime.timedelta(minutes=0))))
     return datetime.timezone(datetime.timedelta(minutes=0))
 
 

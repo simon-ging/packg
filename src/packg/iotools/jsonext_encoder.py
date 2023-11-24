@@ -9,6 +9,10 @@ from json.encoder import (
 )
 from pathlib import Path
 
+import attrs
+
+from typedparser import NamedTupleMixin
+
 
 class CustomJSONEncoder(json.JSONEncoder):
     def __init__(  # noqa
@@ -58,6 +62,8 @@ class CustomJSONEncoder(json.JSONEncoder):
         class_name = o.__class__.__name__
         if class_name.lower() == "devicearray":  # jax
             return o.tolist()
+        if isinstance(o, NamedTupleMixin):
+            return attrs.asdict(o)
         raise TypeError(f"Object of type {class_name} is not JSON serializable")
 
     def iterencode(self, o, _one_shot=False):

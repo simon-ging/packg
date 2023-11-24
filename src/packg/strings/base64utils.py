@@ -26,7 +26,8 @@ def b64_encode_from_bytes(
         bytes_in: input bytes to encode
         url_safe: replace "+" with "-" and "/" with "_" to become path/url
             safe, default True
-        strip_equals: strip trailing "=" characters
+        strip_equals: strip trailing "=" characters. those are only needed to reconstruct the
+            length of the original input string.
 
     Returns:
         path-safe base64 string
@@ -79,3 +80,9 @@ def b64_decode_to_str(str_b64: str, encoding: str = "utf-8") -> str:
         decoded string
     """
     return str(base64.b64decode(bytes(_b64_ensure_unsafe(str_b64), "ascii")), encoding)
+
+
+def get_random_b64_string(length: int = 40):
+    random_bytes_as_b64 = b64_encode_from_bytes(os.urandom(length), url_safe=True)
+    # at this point the string is approx 4/3 * length long, cut it down to length
+    return random_bytes_as_b64[:length]
