@@ -5,41 +5,14 @@ import itertools
 import os
 from operator import itemgetter
 from pathlib import Path
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, Tuple, List
 
 import natsort
 from attr import define
 from tqdm import tqdm
 
 from packg.typext import PathType
-from typedparser import NamedTupleMixin, add_argument
-
-
-@define(slots=False)
-class PathArgs:
-    folder: Path = add_argument("folder", type=str, help="Source base dir", default=None)
-    exclude: List[str] = add_argument(
-        shortcut="-x", default=[], action="append", help="Git-like pathspec list to exclude files."
-    )
-    exclude_regex: List[str] = add_argument(
-        shortcut="-X", default=[], action="append", help="Regex pathspec list to exclude files."
-    )
-    include: List[str] = add_argument(
-        shortcut="-i", default=[], action="append", help="Git-like pathspec list to include files."
-    )
-    include_regex: List[str] = add_argument(
-        shortcut="-I", default=[], action="append", help="Regex pathspec list to include files."
-    )
-    gitignore_file: Optional[Path] = add_argument(
-        shortcut="-g", type=str, default=None, help="Gitignore file for matching files"
-    )
-    reset_cache: bool = add_argument(shortcut="-r", action="store_true", help="Reset the cache.")
-    cache_max_age_hours: float = add_argument(
-        shortcut="-c",
-        type=float,
-        default=24 * 7,
-        help="Max age of cache in hours (default 1 week).",
-    )
+from typedparser import NamedTupleMixin
 
 
 def sort_file_paths_with_dirs_separated(
