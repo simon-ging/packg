@@ -14,7 +14,7 @@ from loguru import logger
 
 from packg.dtime import format_seconds_adaptive
 from packg.log import configure_logger
-from packg.tqdmu import tqdm_max_ncols
+from packg.tqdmext import tqdm_max_ncols
 from packg.typext import NoneType
 
 

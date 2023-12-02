@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from packg.tqdmu import tqdm_max_ncols
+from packg.tqdmext import tqdm_max_ncols
 
 
 @pytest.mark.parametrize(

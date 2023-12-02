@@ -12,7 +12,7 @@ from loguru import logger
 
 from packg.dtime import format_seconds_adaptive
 from packg.stats import AvgMetric
-from packg.tqdmu import tqdm_max_ncols
+from packg.tqdmext import tqdm_max_ncols
 
 
 @define
