@@ -1,13 +1,9 @@
 """
-Note: dotenv.load_dotenv doesnt work. Use dotenv_values instead.
-todo write a unit test for these functions here
-
 Global path definitions for projects.
 
 Resolution is as follows:
-
 1. Load from environment variables if defined
-2. Find and load from .env file in the current directory (see example below)
+2. Find and load from .env file in the current directory using python dotenv library
 3. Use the defaults defined here
 
 Usage in python:
@@ -15,54 +11,47 @@ Usage in python:
 
 Usage in yaml with omegaconf:
     storage: ${oc.env:ENV_DATA_DIR}/datasetname
-
-Example .env file content:
-
-ENV_DATA_DIR=data
-ENV_RESULT_DIR=results
-ENV_ANNO_DIR=annotations
-ENV_CODE_DIR=/home/${USER}/code
-ENV_CACHE_DIR=/home/${USER}/.cache
-
 """
 import os
-from getpass import getuser
 from pathlib import Path
 
 from dotenv import dotenv_values, find_dotenv
 
 from packg.constclass import Const
-from packg.typext import OptionalPathType
+
+HELP_STR = """Solutions:
+1. Set the environment variable in the system.
+2. Create .env file in the current dir, a parent dir or user home dir and define the variable there. 
+3. Change defaults in packg.paths module
+"""
 
 
 class EnvKeys(Const):
-    ENV_DATA_DIR = "ENV_DATA_DIR"  # datasets base directory
-    ENV_RESULT_DIR = "ENV_RESULT_DIR"  # results
-    ENV_ANNO_DIR = "ENV_ANNO_DIR"  # annotations
-    ENV_CODE_DIR = "ENV_CODE_DIR"  # parent directory for the git repositories
-    ENV_CACHE_DIR = "ENV_CACHE_DIR"  # cache
+    ENV_DATA_DIR = "ENV_DATA_DIR"
+    ENV_CACHE_DIR = "ENV_CACHE_DIR"
+    ENV_CODE_DIR = "ENV_CODE_DIR"
 
 
-uname = getuser()
+home = Path.home()
 
-_DEFAULTS = {
-    EnvKeys.ENV_DATA_DIR: "data",
-    EnvKeys.ENV_RESULT_DIR: "results",
-    EnvKeys.ENV_ANNO_DIR: "annotations",
-    EnvKeys.ENV_CODE_DIR: f"/home/{uname}/code",
-    EnvKeys.ENV_CACHE_DIR: f"/home/{uname}/.cache",
+ENV_DEFAULTS = {
+    EnvKeys.ENV_DATA_DIR: "data",  # datasets base directory
+    EnvKeys.ENV_CACHE_DIR: (home / ".cache").as_posix(),
+    EnvKeys.ENV_CODE_DIR: (home / "code").as_posix(),  # code base directory
 }
 
 _setup_environ_done = False
 
 
-def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=True):
+def setup_environ(
+    verbose=False, load_dotenv=True, override_from_dotenv=True, dotenv_path=None, use_defaults=True
+):
     global _setup_environ_done
     if _setup_environ_done and not verbose:
         return
     _setup_environ_done = True
 
-    if load_env_file:
+    if load_dotenv:
         if dotenv_path is not None:
             dotenv_path = Path(dotenv_path).as_posix()
             if not Path(dotenv_path).is_file():
@@ -84,28 +73,34 @@ def setup_environ(verbose=False, override=True, dotenv_path=None, load_env_file=
         if dotenv_path != "":
             values = dotenv_values(dotenv_path, verbose=verbose)
             if verbose:
-                print(f"Got {len(values)} from .env file, "
-                      f"found it as {find_dotenv()} from {os.getcwd()}")
+                print(
+                    f"Got {len(values)} from .env file, "
+                    f"found it as {find_dotenv()} from {os.getcwd()}"
+                )
         else:
             values = {}
             if verbose:
                 print(f"Dotenv file not found.")
         for k, v in values.items():
-            if override or k not in os.environ:
+            if override_from_dotenv or k not in os.environ:
                 if verbose:
                     print(f"    From .env write: {k}={type(v).__name__} length {len(v)}")
                 os.environ[k] = v
 
-    for env_k, v in _DEFAULTS.items():
-        if env_k not in os.environ:
-            if verbose:
-                print(f"From packg.paths defaults write: {env_k}={v}")
-            os.environ[env_k] = v
+    if use_defaults:
+        for env_k, v in ENV_DEFAULTS.items():
+            if env_k not in os.environ:
+                if verbose:
+                    print(f"from packg.paths defaults write: {env_k}={v}")
+                os.environ[env_k] = v
 
 
 def get_from_environ(env_k: str):
     setup_environ()
-    return os.environ[env_k]
+    value = os.environ[env_k]
+    if value == "" or value is None:
+        raise ValueError(f"Environment variable {env_k} is undefined: '{value}'")
+    return value
 
 
 def print_all_environment_variables(print_fn=print):
@@ -115,27 +110,17 @@ def print_all_environment_variables(print_fn=print):
         print_fn(f"    {env_k}={os.environ[env_k]}")
 
 
-def get_data_dir(overwrite_dir: OptionalPathType = None) -> Path:
-    return get_path_from_env(EnvKeys.ENV_DATA_DIR, overwrite_dir)
+def get_data_dir() -> Path:
+    return get_path_from_env(EnvKeys.ENV_DATA_DIR)
 
 
-def get_result_dir(overwrite_dir: OptionalPathType = None) -> Path:
-    return get_path_from_env(EnvKeys.ENV_RESULT_DIR, overwrite_dir)
+def get_cache_dir() -> Path:
+    return get_path_from_env(EnvKeys.ENV_CACHE_DIR)
 
 
-def get_anno_dir(overwrite_dir: OptionalPathType = None) -> Path:
-    return get_path_from_env(EnvKeys.ENV_ANNO_DIR, overwrite_dir)
+def get_code_dir() -> Path:
+    return get_path_from_env(EnvKeys.ENV_CODE_DIR)
 
 
-def get_code_dir(overwrite_dir: OptionalPathType = None) -> Path:
-    return get_path_from_env(EnvKeys.ENV_CODE_DIR, overwrite_dir)
-
-
-def get_cache_dir(overwrite_dir: OptionalPathType = None) -> Path:
-    return get_path_from_env(EnvKeys.ENV_CACHE_DIR, overwrite_dir)
-
-
-def get_path_from_env(env_k: str, overwrite_dir: OptionalPathType = None) -> Path:
-    if overwrite_dir is not None:
-        return Path(overwrite_dir)
+def get_path_from_env(env_k: str) -> Path:
     return Path(get_from_environ(env_k))
