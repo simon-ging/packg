@@ -2,4 +2,4 @@ from .constclass import Const
 from .misc import format_exception
 
 __all__ = ["Const", "format_exception"]
-__version__ = "0.6.4"
+__version__ = "0.7.1"
