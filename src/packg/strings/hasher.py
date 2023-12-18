@@ -6,7 +6,7 @@ from packg.strings import b64_encode_from_bytes
 
 
 def update_hasher_with_json_bytes(hasher, obj: Any) -> bytes:
-    hasher.update(dumps_json(obj).encode())
+    hasher.update(dumps_json(obj).encode("utf-8"))
 
 
 def hash_object(

@@ -107,7 +107,7 @@ class Const(metaclass=InstanceToClassDelegator):
     def __class_getitem__(cls, item: str):
         try:
             val = cls._get_dict()[item]
-        except AttributeError as e:
+        except KeyError as e:
             raise KeyError(f"{item} in {cls}") from e
         return val
 
