@@ -20,7 +20,6 @@ def clip_rectangle_coords(rectangle_coords: tuple[int, int, int, int], w: int, h
     return x1, y1, x2, y2
 
 
-
 def round_half_up(x: float) -> int:
     """
     Python/numpy do bankers rounding (round to even). This method rounds 0.5 up to 1 instead.

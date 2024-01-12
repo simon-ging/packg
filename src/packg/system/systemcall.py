@@ -1,9 +1,11 @@
 """Helper to run system commands and process their output."""
 import subprocess
-from typing import Tuple
+from typing import Tuple, Optional
 
 
-def systemcall(call: str, verbose: bool = False) -> Tuple[str, str, int]:
+def systemcall(
+    call: str, verbose: bool = False, decode: Optional[str] = "utf-8"
+) -> Tuple[str, str, int]:
     """Run a command with subprocess.Popen and process the output. This call
     is synchronous so output will only returned once the command is done.
 
@@ -18,9 +20,9 @@ def systemcall(call: str, verbose: bool = False) -> Tuple[str, str, int]:
     with subprocess.Popen(call, stdout=pipe, stderr=pipe, shell=True) as process:
         out, err = process.communicate()
         retcode = process.poll()
-    charset = "utf-8"
-    out = out.decode(charset)
-    err = err.decode(charset)
+    if decode is not None:
+        out = out.decode(decode)
+        err = err.decode(decode)
     if verbose:
         print(f"out {out} err {err} ret {retcode}")
     return out, err, retcode
@@ -48,7 +50,7 @@ def assert_command_worked(errmsg: str, cmd: str, out: str, err: str, retcode: in
 
 
 def systemcall_with_assert(
-    call: str, errmsg: str = "none", verbose: bool = False
+    call: str, errmsg: str = "none", verbose: bool = False, decode: Optional[str] = "utf-8"
 ) -> Tuple[str, str, int]:
     """Run a command and assert it worked
 
@@ -60,6 +62,6 @@ def systemcall_with_assert(
     Returns:
         stdout, stderr, returncode
     """
-    out, err, retcode = systemcall(call, verbose=verbose)
+    out, err, retcode = systemcall(call, verbose=verbose, decode=decode)
     assert_command_worked(errmsg, call, out, err, retcode)
     return out, err, retcode

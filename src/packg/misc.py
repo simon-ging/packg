@@ -26,7 +26,7 @@ def suppress_stdout_stderr():
             yield err, out
 
 
-def convert_unsigned_int_to_bytes(int_input:int, length:int=4) -> bytes:
+def convert_unsigned_int_to_bytes(int_input: int, length: int = 4) -> bytes:
     """
     convert integer to bytes
 
@@ -40,7 +40,7 @@ def convert_unsigned_int_to_bytes(int_input:int, length:int=4) -> bytes:
     return int(int_input).to_bytes(length, "big")
 
 
-def convert_bytes_to_unsigned_int(bytes_input:bytes) -> int:
+def convert_bytes_to_unsigned_int(bytes_input: bytes) -> int:
     """
     convert bytes to integer
 

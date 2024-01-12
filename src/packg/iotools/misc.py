@@ -36,3 +36,9 @@ def format_b_in_mb(size_b: int) -> str:
 
 def format_b_in_gb(size_b: int) -> str:
     return f"{size_b / 1024 ** 3:.3f}GB"
+
+
+def format_bytes_human_readable(size_b: int) -> str:
+    for scale, unit in enumerate(["B", "KB", "MB", "GB", "TB"]):
+        if size_b < 1024 ** (scale + 1):
+            return f"{size_b / 1024 ** scale:.3f}{unit}"

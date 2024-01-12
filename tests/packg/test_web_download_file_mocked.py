@@ -6,6 +6,7 @@ from packg.web import download_file
 
 class _MockHTTPResponse:
     """Mock for urllib3.HTTPResponse"""
+
     def __init__(self, data, headers=None, status=200):
         if headers is None:
             headers = {}

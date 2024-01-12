@@ -8,7 +8,8 @@ from typing import Optional
 from loguru import logger
 
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
-from typedparser import VerboseQuietArgs, add_argument, define, TypedParser
+from typedparser import VerboseQuietArgs, add_argument, TypedParser
+from attrs import define
 
 
 @define

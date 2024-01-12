@@ -33,4 +33,3 @@ def test_silence_stdlib_loggers():
     assert stream.getvalue() == ""
 
     print(f"Done")
-
