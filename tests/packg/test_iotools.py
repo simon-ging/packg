@@ -7,6 +7,7 @@ from packg.iotools import (
     read_text_from_file_or_io,
     read_bytes_from_file_or_io,
     yield_lines_from_file,
+    yield_lines_from_object,
     find_git_root,
     sort_file_paths_with_dirs_separated,
 )
@@ -43,7 +44,7 @@ def test_read_bytes_from_file_or_io(tmp_path):
     ids=["str", "io", "list"],
 )
 def test_yield_nonempty_stripped_lines(inp, ref):
-    cand = list(yield_lines_from_file(inp))
+    cand = list(yield_lines_from_object(inp))
     assert cand == ref
 
 

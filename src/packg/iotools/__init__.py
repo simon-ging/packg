@@ -7,6 +7,7 @@ from .file_indexer import make_index, sort_file_paths_with_dirs_separated
 from .file_reader import (
     yield_chunked_bytes,
     yield_lines_from_file,
+    yield_lines_from_object,
     read_bytes_from_file_or_io,
     read_text_from_file_or_io,
     open_file_or_io,
@@ -39,6 +40,7 @@ __all__ = [
     "set_working_directory",
     "yield_chunked_bytes",
     "yield_lines_from_file",
+    "yield_lines_from_object",
     "load_json",
     "loads_json",
     "load_jsonl",

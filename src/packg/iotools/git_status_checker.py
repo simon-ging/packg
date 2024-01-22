@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict
 
-from packg.iotools.file_reader import yield_lines_from_file
+from packg.iotools.file_reader import yield_lines_from_object
 from packg.iotools.misc import set_working_directory
 from packg.system import systemcall_with_assert
 from packg.typext import PathType
@@ -23,7 +23,7 @@ def parse_gitadd_dryrun_output(
         Alternative way to do this would be git status: https://git-scm.com/docs/git-status#_output
     """
     files = {}
-    for line in yield_lines_from_file(output.splitlines()):
+    for line in yield_lines_from_object(output.splitlines()):
         line_split = line.split(" ")
         status = line_split[0].strip()
         file = " ".join(line_split[1:]).strip()[1:-1]
