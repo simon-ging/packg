@@ -6,7 +6,7 @@ import pytest
 from packg.iotools import (
     read_text_from_file_or_io,
     read_bytes_from_file_or_io,
-    yield_nonempty_stripped_lines,
+    yield_lines_from_file,
     find_git_root,
     sort_file_paths_with_dirs_separated,
 )
@@ -43,14 +43,14 @@ def test_read_bytes_from_file_or_io(tmp_path):
     ids=["str", "io", "list"],
 )
 def test_yield_nonempty_stripped_lines(inp, ref):
-    cand = list(yield_nonempty_stripped_lines(inp))
+    cand = list(yield_lines_from_file(inp))
     assert cand == ref
 
 
 def test_yield_nonempty_stripped_lines_from_file(tmp_path):
     file = tmp_path / "example.txt"
     file.write_text(_inp_str, encoding="utf-8")
-    cand = list(yield_nonempty_stripped_lines(file))
+    cand = list(yield_lines_from_file(file))
     assert cand == _ref
 
 

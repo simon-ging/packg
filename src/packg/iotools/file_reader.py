@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Union, Iterable
 
-from packg.typext import PathOrIO, PathTypeCls
+from packg.typext import PathOrIO, PathTypeCls, PathType
 
 
 @contextmanager
@@ -78,27 +78,49 @@ def yield_chunked_bytes(file_or_io: PathOrIO, chunk_size=1024 * 1024) -> Iterabl
             yield data
 
 
-def yield_nonempty_stripped_lines(lines_obj: Union[PathOrIO, Iterable[str]]) -> Iterable[str]:
+def yield_lines_from_object(
+    lines_obj: Union[str, Iterable[str]], strip: bool = True, skip_empty: bool = True
+) -> Iterable[str]:
     """
     Read lines from input, strip whitespaces, skip empty lines, yield lines.
 
     Args:
-        lines_obj: Can be any of:
-            - iterable of str (list, opened file)
-            - filepath str or Path
+        lines_obj: Either str or iterable of str (list, opened file)
+        strip: strip whitespace from lines
+        skip_empty: skip empty lines
 
     Returns:
         Generator of stripped lines
 
     Examples:
-        >>> for li in yield_nonempty_stripped_lines(["  a  ", "  ", "  b  "]): print(li, end=",")
+        >>> for li in yield_lines_from_object(["  a  ", "  ", "  b  "]): print(li, end=",")
         a,b,
     """
     if isinstance(lines_obj, str):
         lines_obj = lines_obj.splitlines()
-    with open_file_or_io(lines_obj) as fh:
-        for line in fh:
+    for line in lines_obj:
+        if strip:
             line = line.strip()
+        if skip_empty:
             if line == "":
                 continue
-            yield line
+        yield line
+
+
+def yield_lines_from_file(
+    file: PathType, strip: bool = True, skip_empty: bool = True, encoding: str = "utf-8"
+) -> Iterable[str]:
+    """
+    Read lines from input, strip whitespaces, skip empty lines, yield lines.
+
+    Args:
+        file: Either str or iterable of str (list, opened file)
+        strip: strip whitespace from lines
+        skip_empty: skip empty lines
+        encoding: encoding to use for reading
+
+    Returns:
+        Generator of stripped lines
+    """
+    content = Path(file).read_text(encoding=encoding)
+    yield from yield_lines_from_object(content, strip=strip, skip_empty=skip_empty)

@@ -6,7 +6,7 @@ but from the actual source file. For everything outside, importing from this __i
 from .file_indexer import make_index, sort_file_paths_with_dirs_separated
 from .file_reader import (
     yield_chunked_bytes,
-    yield_nonempty_stripped_lines,
+    yield_lines_from_file,
     read_bytes_from_file_or_io,
     read_text_from_file_or_io,
     open_file_or_io,
@@ -38,7 +38,7 @@ from .yamlext import load_yaml, loads_yaml, dump_yaml, dumps_yaml
 __all__ = [
     "set_working_directory",
     "yield_chunked_bytes",
-    "yield_nonempty_stripped_lines",
+    "yield_lines_from_file",
     "load_json",
     "loads_json",
     "load_jsonl",
