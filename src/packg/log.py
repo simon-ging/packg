@@ -1,5 +1,4 @@
 """
-
 - Utils for the loguru package
   https://loguru.readthedocs.io/en/stable/overview.html
   https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
@@ -12,19 +11,20 @@ Usage:
     configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
     logger.info("Hello")
 """
+from __future__ import annotations
+
 import logging
 import os
 import sys
 from copy import deepcopy
 from logging import getLevelName
-from typing import Union, Optional, List, Any, Dict
 
 from loguru import logger
 from pathspec import PathSpec
 
 from packg.iotools.pathspec_matcher import make_pathspec
 
-LevelType = Union[str, int]  # either "DEBUG" or 10
+LevelType = str | int  # either "DEBUG" or 10
 DEFAULT_LOGURU_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | "
     "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
@@ -55,10 +55,10 @@ def configure_logger(
     sink=sys.stderr,
     format=SHORTEST_FORMAT,  # noqa # pylint: disable=redefined-builtin
     colorize=True,
-    add_sinks: Optional[List[Any]] = None,
-    kwargs_handler: Optional[Dict[str, Any]] = None,
-    **kwargs: Any,
-) -> Dict[str, Any]:
+    add_sinks: list[any] | list[dict[str, any]] | None = None,
+    kwargs_handler: dict[str, any] | None = None,
+    **kwargs: any,
+) -> dict[str, any]:
     """
     Configure the loguru logger. For more complex usages, use logger.configure() directly.
 
@@ -67,7 +67,8 @@ def configure_logger(
         sink: where to write the logs to
         format: message formatting
         colorize: add color codes to the output
-        add_sinks: other sinks to add (str will add a file sink)
+        add_sinks: list of other sinks to add. str sinks will write to file.
+            use a dictionary to change parameters format, colorize, level separately from main sink.
         kwargs_handler: additional parameters to pass to each handler
         **kwargs: additional parameters to pass to logger.configure()
 
@@ -83,13 +84,23 @@ def configure_logger(
     kwargs_handler = kwargs_handler if kwargs_handler is not None else {}
     sinks = [sink] + add_sinks
     handlers = []
+    level_str = get_level_as_str(level)
     for lsink in sinks:
-        params = {
-            "sink": lsink,
-            "format": format,
-            "colorize": colorize,
-            "level": get_level_as_str(level),
-        }
+        if isinstance(lsink, dict):
+            params = lsink
+            if "format" not in params:
+                params["format"] = format
+            if "colorize" not in params:
+                params["colorize"] = colorize
+            if "level" not in params:
+                params["level"] = level_str
+        else:
+            params = {
+                "sink": lsink,
+                "format": format,
+                "colorize": colorize,
+                "level": level_str,
+            }
         assert "sink" not in kwargs_handler, f"sink is a reserved key, got {params}"
         params.update(deepcopy(kwargs_handler))
         if isinstance(lsink, str):
