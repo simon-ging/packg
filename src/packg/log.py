@@ -18,13 +18,15 @@ import os
 import sys
 from copy import deepcopy
 from logging import getLevelName
+from typing import Union
 
 from loguru import logger
 from pathspec import PathSpec
 
 from packg.iotools.pathspec_matcher import make_pathspec
+from typedparser import VerboseQuietArgs
 
-LevelType = str | int  # either "DEBUG" or 10
+LevelType = Union[str, int]  # either "DEBUG" or 10
 DEFAULT_LOGURU_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | "
     "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
@@ -55,8 +57,8 @@ def configure_logger(
     sink=sys.stderr,
     format=SHORTEST_FORMAT,  # noqa # pylint: disable=redefined-builtin
     colorize=True,
-    add_sinks: list[any] | list[dict[str, any]] | None = None,
-    kwargs_handler: dict[str, any] | None = None,
+    add_sinks: Union[list[any], list[dict[str, any]], None] = None,
+    kwargs_handler: Union[dict[str, any], None] = None,
     **kwargs: any,
 ) -> dict[str, any]:
     """
@@ -169,7 +171,7 @@ def get_level_as_int(level: LevelType):
     return level_int
 
 
-def get_logger_level_from_args(args) -> str:
+def get_logger_level_from_args(args: VerboseQuietArgs) -> str:
     if args.verbose:
         return "DEBUG"
     if args.quiet:
