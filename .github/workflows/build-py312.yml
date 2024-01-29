@@ -1,4 +1,4 @@
-name: build for python 3.7
+name: build for python 3.12
 
 on:
   workflow_dispatch:
@@ -19,8 +19,8 @@ jobs:
       run:
         shell: bash -el {0}  # required otherwise conda will not be activated for "run" steps
     env:
-      W_ENV_NAME: env-build-py37
-      W_REQ_CONDA: etc/environment-py37.yml
+      W_ENV_NAME: buildenv
+      W_REQ_CONDA: etc/environment-py312.yml
       W_REQ_PIP: requirements.txt
       W_CACHE_NUMBER: 0  # increase to reset cache
       SEGMENT_DOWNLOAD_TIMEOUT_MINS: 2  # stuck cache download should stop after X minutes
@@ -31,7 +31,7 @@ jobs:
       uses: actions/checkout@v4
 #
     - name: Setup conda
-      uses: conda-incubator/setup-miniconda@v4
+      uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: ${{ env.W_ENV_NAME }}
         miniforge-variant: Mambaforge
