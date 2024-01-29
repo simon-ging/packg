@@ -7,6 +7,9 @@
 <a href="https://github.com/simonging/packg/actions/workflows/build-py310.yml">
   <img alt="build 3.10 status" title="build 3.10 status" src="https://img.shields.io/github/actions/workflow/status/simonging/packg/build-py310.yml?branch=main&label=build%203.10" />
 </a>
+<a href="https://github.com/simonging/packg/actions/workflows/build-py312.yml">
+  <img alt="build 3.12 status" title="build 3.12 status" src="https://img.shields.io/github/actions/workflow/status/simonging/packg/build-py312.yml?branch=main&label=build%203.12" />
+</a>
 <img alt="coverage" title="coverage" src="https://raw.githubusercontent.com/simonging/packg/main/docs/coverage.svg" />
 <a href="https://pypi.org/project/packg/">
   <img alt="version" title="version" src="https://img.shields.io/pypi/v/packg?color=success" />
