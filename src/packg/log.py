@@ -188,7 +188,8 @@ def get_terminal_size() -> int:
 
 
 def configure_stdlib_base_logger(
-    level: LevelType = "INFO", format="%(levelname)s: %(message)s"  # noqa
+    level: LevelType = "INFO",
+    format="%(levelname)s: %(message)s",  # noqa  # pylint: disable=redefined-builtin
 ) -> None:
     """
     Configure the standard library logger.

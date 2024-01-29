@@ -18,11 +18,9 @@ from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, Sequence, List
 
-# gtodo check if this properly raises wrong import source
-from packg.iotools import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.compressed import load_xz
+from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
-
 from packg.typext import PathOrIO, PathType
 
 

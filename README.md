@@ -1,13 +1,13 @@
 # packg
 
 <p align="center">
-<a href="https://github.com/simon-ging/packg/actions/workflows/build-py37.yml">
-  <img alt="build 3.7 status" title="build 3.7 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py37.yml?branch=main&label=build%203.7" />
+<a href="https://github.com/simonging/packg/actions/workflows/build-py37.yml">
+  <img alt="build 3.7 status" title="build 3.7 status" src="https://img.shields.io/github/actions/workflow/status/simonging/packg/build-py37.yml?branch=main&label=build%203.7" />
 </a>
-<a href="https://github.com/simon-ging/packg/actions/workflows/build-py310.yml">
-  <img alt="build 3.10 status" title="build 3.10 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py310.yml?branch=main&label=build%203.10" />
+<a href="https://github.com/simonging/packg/actions/workflows/build-py310.yml">
+  <img alt="build 3.10 status" title="build 3.10 status" src="https://img.shields.io/github/actions/workflow/status/simonging/packg/build-py310.yml?branch=main&label=build%203.10" />
 </a>
-<img alt="coverage" title="coverage" src="https://raw.githubusercontent.com/simon-ging/packg/main/docs/coverage.svg" />
+<img alt="coverage" title="coverage" src="https://raw.githubusercontent.com/simonging/packg/main/docs/coverage.svg" />
 <a href="https://pypi.org/project/packg/">
   <img alt="version" title="version" src="https://img.shields.io/pypi/v/packg?color=success" />
 </a>

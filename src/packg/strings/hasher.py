@@ -2,7 +2,7 @@ import hashlib
 from typing import Any
 
 from packg.iotools import dumps_json
-from packg.strings import b64_encode_from_bytes
+from packg.strings.base64tools import b64_encode_from_bytes
 
 
 def update_hasher_with_json_bytes(hasher, obj: Any) -> bytes:

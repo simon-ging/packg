@@ -1,11 +1,13 @@
 """
+Todo: create a test case whether this actually triggers on wrong import structure
+
 Utility to import everything from a module and check import path sanity.
 
 In detail: check whether imports inside a library are correctly importing from the source file
 and not from the library base __init__.py file. This ensures clean dependencies and avoids
 circular imports.
 
-https://github.com/amenck/circular_import_refactor/blob/test-imports-from-source/objects/tests/_import_from_source.py
+https://github.com/amenck/circular_import_refactor/blob/test-imports-from-source/objects/tests/
 
 Changes:
     - in visit_ImportFrom method replace error with dynamic import, before:
@@ -100,12 +102,12 @@ class ImportFromSourceChecker(NodeVisitor):
         self._module_list_to_ignore_not_found = module_list_to_ignore_not_found
 
     def visit_ImportFrom(self, node: ImportFrom) -> Any:
-        # Check that there are no relative imports that attempt to read from a parent module. We've found that there
-        # generally is no good reason to have such imports.
+        # Check that there are no relative imports that attempt to read from a parent module.
+        # We've found that there generally is no good reason to have such imports.
         if node.level >= 2:
             raise ValueError(
-                f"Import in {self._module} attempts to import from parent module using relative import. Please "
-                f"switch to absolute import instead."
+                f"Import in {self._module} attempts to import from parent module using "
+                f"relative import. Please switch to absolute import instead."
             )
 
         # Figure out which module to import in the case where this is a...
@@ -136,7 +138,6 @@ class ImportFromSourceChecker(NodeVisitor):
                         return
             raise e
         for alias in node.names:
-            # assert hasattr(module, alias.name), f"Imported {alias.name} from {module_to_import}, but this object does not exist. in {module}"
             if not hasattr(module, alias.name):
                 if alias.name == "*":
                     continue
@@ -144,16 +145,17 @@ class ImportFromSourceChecker(NodeVisitor):
             else:
                 attr = getattr(module, alias.name)
 
-            # For some objects (pretty much everything except for classes and functions), we are not able to figure
-            # out which module they were defined in... in that case there's not much we can do here, since we cannot
+            # For some objects (pretty much everything except for classes and functions),
+            # we are not able to figure out which module they were defined in...
+            # in that case there's not much we can do here, since we cannot
             # easily figure out where we *should* be importing this from in the first place.
             if isinstance(attr, type) or callable(attr):
                 attribute_module = attr.__module__
             else:
                 continue
 
-            # Figure out where we should be importing this class from, and assert that the *actual* import we found
-            # matches the place we *should* import from.
+            # Figure out where we should be importing this class from, and assert that
+            # the *actual* import we found matches the place we *should* import from.
             should_import_from = self._get_module_should_import(module_to_import=attribute_module)
             if module_to_import != should_import_from:
                 logging.warning(
@@ -165,10 +167,11 @@ class ImportFromSourceChecker(NodeVisitor):
 
     def _get_module_should_import(self, module_to_import: str) -> str:
         """
-        This function figures out the correct import path for "module_to_import" from the "self._module" module in
-        this instance. The trivial solution here would be to always just return "module_to_import", but we want
-        to actually take into account the fact that some submodules can be "private" (ie: start with an "_"), in
-        which case we should only import from them if self._module is internal to that private module.
+        This function figures out the correct import path for "module_to_import" from the
+        "self._module" module in this instance. The trivial solution here would be to always
+        just return "module_to_import", but we want to actually take into account the fact that
+        some submodules can be "private" (ie: start with an "_"), in which case we should only
+        import from them if self._module is internal to that private module.
         """
         module_components = module_to_import.split(".")
         result: List[str] = []
