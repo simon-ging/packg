@@ -27,9 +27,9 @@ class FnMultiProcessor:
 
     Usage:
         1. create instance
-        2. loop put() some tasks
+        2. loop put(arg1, arg2, ...) some tasks
         3. run()
-        4. loop get() until output queue is empty (in case with_output is True)
+        4. only if with_output is True: loop get() until output queue is empty
         5. close()
 
     Args:
