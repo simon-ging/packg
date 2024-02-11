@@ -27,17 +27,20 @@ Collection of utilities used in other python projects.
 * `log`: Wrapper for `loguru`, utilities for stdlib `logging`
 * `iotools`: Index paths, compress and read files, git utilities, wrappers to load json/yaml
 * `magic`: Wrapper around `importlib`
-* `misc`: `format_exception(e)` output the exception as it appears in the stacktrace
+* `maths`: Various small mathematical utilities
+* `misc`: 
+  * `format_exception(e)` outputs the exception as it appears in the stacktrace.
+  * `suppress_stdout_stderr` context manager to suppress all output of a block of code.
 * `multiproc`: Multiprocessing utilities
 * `packaging`: Code to handle creation and running of python packages
 * `paths`: Load paths from the global environment or .env files using `python-dotenv`
-* `stats`: Simple utilities for numpy arrays
-* `strings`: Base64, quote strings, create random strings
+* `stats`: Simple statistics utilities
+* `strings`: Base64, quote strings, create random strings, create hashes of objects
 * `system`: Wrapper for `subprocess.Popen`
-* `testing`: Import all modules from a package
-* `tqdmu`: Wrapper for `tqdm` that limits the width by default
+* `testing`: Import all modules from a package and other utilities
+* `tqdmext`: Wrapper `tqdm_max_ncols` that limits the width of a `tqdm` progressbar by default
 * `typext`: Type definitions
-* `web`: Download file and resume a partial download, disable the web access 
+* `web`: Download file and resume a partial download, disable web access 
 
 ## Install
 

@@ -1,6 +1,6 @@
 import pytest
 
-from packg.misc import convert_unsigned_int_to_bytes, convert_bytes_to_unsigned_int
+from packg.maths import convert_unsigned_int_to_bytes, convert_bytes_to_unsigned_int
 
 
 def test_convert_int_to_bytes_standard():

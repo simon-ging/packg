@@ -25,3 +25,32 @@ def round_half_up(x: float) -> int:
     Python/numpy do bankers rounding (round to even). This method rounds 0.5 up to 1 instead.
     """
     return int(math.ceil(x - 0.5))
+
+
+def convert_unsigned_int_to_bytes(int_input: int, length: int = 4) -> bytes:
+    """
+    convert integer to bytes
+
+    Args:
+        int_input:
+        length: 4 = int32 (max 4B), 8 = int64 (max 1.9e19)
+
+    Returns:
+        bytes
+    """
+    return int(int_input).to_bytes(length, "big")
+
+
+def convert_bytes_to_unsigned_int(bytes_input: bytes) -> int:
+    """
+    convert bytes to integer
+
+    Args:
+        bytes_input:
+
+    Returns:
+        integer
+    """
+    if len(bytes_input) == 0:
+        raise ValueError("bytes_input must have length > 0 but is empty")
+    return int.from_bytes(bytes_input, "big")
