@@ -17,7 +17,7 @@ def open_file_or_io(
     create_parent=False,
 ):
     should_close = False
-    if isinstance(file_or_io, (str, PathTypeCls)):
+    if isinstance(file_or_io, PathTypeCls):
         file_or_io = Path(file_or_io)
         if create_parent:
             os.makedirs(file_or_io.parent, exist_ok=True)

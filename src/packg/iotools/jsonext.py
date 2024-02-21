@@ -21,7 +21,7 @@ from typing import Any, Iterable, Sequence, List
 from packg.iotools.compressed import load_xz
 from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
-from packg.typext import PathOrIO, PathType
+from packg.typext import PathOrIO, PathType, PathTypeCls
 
 
 def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8") -> Any:
@@ -90,10 +90,18 @@ def dump_json(
     float_precision=None,
     custom_format=True,
     encoding="utf-8",
+    overwrite=True,
 ) -> None:
     """Write data to json file or file object using the custom json encoder"""
     start_timer = timer()
-    with open_file_or_io(file_or_io, "wt", encoding=encoding, create_parent=create_parent) as fh:
+    if not overwrite and isinstance(file_or_io, PathTypeCls) and Path(file_or_io).is_file():
+        if verbose:
+            print(f"File already exists and overwrite is False: {Path(file_or_io).as_posix()}")
+        return
+
+    with open_file_or_io(
+        file_or_io, mode="wt", encoding=encoding, create_parent=create_parent
+    ) as fh:
         if indent is None and separators is None:
             separators = (",", ":")
 
