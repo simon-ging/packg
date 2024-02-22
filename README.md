@@ -54,7 +54,11 @@ pip install packg
 
 ```bash
 # show environment
-python -m packg.run.show_env
+python -m packg.cli.show_env
+
+# or
+packg show_env
+
 ```
 
 To override the defaults with your own values:

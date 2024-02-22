@@ -18,7 +18,7 @@ from packg.misc import format_exception
 from packg.strings import create_nested_abbreviations
 
 
-def run_package(main_file, run_dir="run", recursive=True):
+def run_package(main_file, run_dir="cli", recursive=True, run_dir_only=True, abbreviations=True):
     """
     Create a command line interface for a package given a directory of scripts.
 
@@ -29,6 +29,8 @@ def run_package(main_file, run_dir="run", recursive=True):
             /path/to/lmbtools/python/lmbtools/__main__.py
         run_dir: submodule with run scripts
         recursive: if True, recursively search for scripts
+        run_dir_only: if True, only enable running scripts in the run_dir
+        abbreviations: if True, create abbreviations for the scripts
     """
     main_file = Path(main_file)
     print(f"main_file: {main_file}")
@@ -36,6 +38,7 @@ def run_package(main_file, run_dir="run", recursive=True):
     package_name = package_dir.name
     package_scripts_dir = package_dir / run_dir
     glob_str = "**/*.py" if recursive else "*.py"
+
     package_scripts = [
         f.relative_to(package_scripts_dir)
         for f in package_scripts_dir.glob(glob_str)
@@ -43,18 +46,23 @@ def run_package(main_file, run_dir="run", recursive=True):
     ]
     sorted_scripts = sort_file_paths_with_dirs_separated(package_scripts, dirs_first=False)
     package_scripts = [f.as_posix()[:-3].replace("/", ".") for f in sorted_scripts]
-    abbrevs = create_nested_abbreviations(package_scripts)
+
+    abbrevs = None
+    if abbreviations:
+        abbrevs = create_nested_abbreviations(package_scripts)
 
     args = sys.argv[1:]
     if len(args) > 0:
         abbrev_arg = args[0]
-        if abbrev_arg in abbrevs:
+        if abbrevs is not None and abbrev_arg in abbrevs:
             script = abbrevs[abbrev_arg]
             target = f"{package_name}.{run_dir}.{script}"
             run_script(target, args)
             return
 
         target = f"{package_name}.{abbrev_arg}"
+        if run_dir_only:
+            target = f"{package_name}.{run_dir}.{abbrev_arg}"
         try:
             importlib.import_module(target)
             found = True
@@ -73,12 +81,28 @@ def run_package(main_file, run_dir="run", recursive=True):
             return
         print(f"Error, script not found: {abbrev_arg} and {target}")
 
-    print(f"Usage option 1: {package_name} shortcut [args]")
-    print(f"Usage option 2: {package_name} path.to.module [args]")
+    # no arguments, error, show help
+    if abbreviations:
+        print(f"Usage option 1: {package_name} shortcut [args]")
+        print(f"Usage option 2: {package_name} path.to.module [args]")
+        print()
+        print(f"shortcut   script")
+        for abbrev, f in abbrevs.items():
+            if run_dir_only:
+                print(f"{abbrev:10s} {f}")
+            else:
+                print(f"{abbrev:10s} {run_dir}.{f}")
+        return
+
+    # show help but without abbreviations
+    print(f"Usage: {package_name} path.to.module [args]")
     print()
-    print(f"shortcut   script")
-    for abbrev, f in abbrevs.items():
-        print(f"{abbrev:10s} {run_dir}.{f}")
+    print(f"Available scripts:")
+    for f in package_scripts:
+        if run_dir_only:
+            print(f"{f}")
+        else:
+            print(f"{run_dir}.{f}")
 
 
 def run_script(target, args):
@@ -106,7 +130,7 @@ def _recurse_modules_remove_root_package(package: str, packages_only: bool = Fal
 
 
 def create_bash_autocomplete_script(
-    package: str, function_name: str = None, command_name: str = None
+    package: str, function_name: str = None, command_name: str = None, run_dir: Optional[str] = None
 ) -> str:
     """
     Create a bash script for autocompletion of a python package.
@@ -123,6 +147,7 @@ def create_bash_autocomplete_script(
         package: package to create the autocomplete for
         function_name: default _{package}
         command_name: default {package}
+        run_dir: only create autocompletion for this directory
 
     Returns:
 
@@ -145,8 +170,14 @@ def create_bash_autocomplete_script(
             logger.info(f"SKIP __main__ file: {m}")
             continue
         output_modules.append(m)
-
     output_modules.sort()
+
+    if run_dir is not None:
+        new_output_modules = []
+        for output_module in output_modules:
+            if output_module.startswith(run_dir):
+                new_output_modules.append(output_module[len(run_dir) + 1 :])
+        output_modules = new_output_modules
 
     ob, cb = "{", "}"
     autocomplete_script = f"""
