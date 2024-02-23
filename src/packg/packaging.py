@@ -3,19 +3,18 @@ Utilities for python packages.
 """
 import importlib
 import re
+import requests
 import subprocess
 import sys
 import time
+from loguru import logger
 from pathlib import Path
 from typing import Optional
 
-import requests
-from loguru import logger
-
-from packg.testing.import_from_source import recurse_modules
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.misc import format_exception
 from packg.strings import create_nested_abbreviations
+from packg.testing.import_from_source import recurse_modules
 
 
 def run_package(main_file, run_dir="cli", recursive=True, run_dir_only=True, abbreviations=True):
@@ -190,14 +189,59 @@ def create_bash_autocomplete_script(
         COMPREPLY=( $( compgen -W "${ob}opts{cb}" -- "${ob}cur{cb}") )
         return 0
     fi
-    # otherwise complete with filesystem
-    COMPREPLY=( $(compgen -f -- "${ob}cur{cb}") )
+    # # otherwise complete with filesystem
+    # COMPREPLY=( $(compgen -f -- "${ob}cur{cb}") )
+    _filedir
     return 0
 {cb}
 
 complete -F {function_name} {command_name}
 """
     return autocomplete_script
+
+
+FILEDIR_AUTOCOMPLETE = r"""
+_filedir()  # source: ubuntu 2004 /usr/share/bash-completion/bash_completion
+{
+    local IFS=$'\n'
+    _tilde "$cur" || return
+    local -a toks
+    local reset
+    if [[ "$1" == -d ]]; then
+        reset=$(shopt -po noglob); set -o noglob
+        toks=( $(compgen -d -- "$cur") )
+        IFS=' '; $reset; IFS=$'\n'
+    else
+        local quoted
+        _quote_readline_by_ref "$cur" quoted
+        # Munge xspec to contain uppercase version too
+        # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
+        local xspec=${1:+"!*.@($1|${1^^})"} plusdirs=()
+        # Use plusdirs to get dir completions if we have a xspec; if we don't,
+        # there's no need, dirs come along with other completions. Don't use
+        # plusdirs quite yet if fallback is in use though, in order to not ruin
+        # the fallback condition with the "plus" dirs.
+        local opts=( -f -X "$xspec" )
+        [[ $xspec ]] && plusdirs=(-o plusdirs)
+        [[ ${COMP_FILEDIR_FALLBACK-} ]] || opts+=( "${plusdirs[@]}" )
+        reset=$(shopt -po noglob); set -o noglob
+        toks+=( $(compgen "${opts[@]}" -- $quoted) )
+        IFS=' '; $reset; IFS=$'\n'
+        # Try without filter if it failed to produce anything and configured to
+        [[ -n ${COMP_FILEDIR_FALLBACK:-} && -n "$1" && ${#toks[@]} -lt 1 ]] && {
+            reset=$(shopt -po noglob); set -o noglob
+            toks+=( $(compgen -f "${plusdirs[@]}" -- $quoted) )
+            IFS=' '; $reset; IFS=$'\n'
+        }
+    fi
+    if [[ ${#toks[@]} -ne 0 ]]; then
+        # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
+        compopt -o filenames 2>/dev/null
+        COMPREPLY+=( "${toks[@]}" )
+    fi
+} # _filedir()
+
+"""
 
 
 def _get_raw_shields_io_output(package: str):
