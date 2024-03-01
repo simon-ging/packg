@@ -21,7 +21,7 @@ class MultiProcessorProducerConsumer:
     Run P producers on some input, pass their output to N consumers, and aggregate their output.
 
     Usage:
-        1) specify producer and consumer. Either as a simple function
+        1) specify producer and consumer. Either as a simple function or inheriten Producer/Consumer
 
         - define producer function that takes input_args and produces output_args
         - subclass Consumer and define setup, __call__, complete. __call__ takes output_args

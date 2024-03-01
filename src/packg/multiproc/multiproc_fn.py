@@ -7,6 +7,7 @@ import random
 import time
 from multiprocessing import Process, Queue
 from timeit import default_timer
+from traceback import format_exception
 from typing import Optional
 
 from attr import define, field
@@ -166,8 +167,8 @@ def multi_fn_with_output(
             out = fn(*args)
         except Exception as e:
             if ignore_errors:
-                logger.error(f"Error in multi_function: {e}")
-                out_q.put(e)
+                logger.error(f"Error in multi_function:\n\n{''.join(format_exception(e))}")
+                out_q.put(None)
                 continue
             raise e
         out_q.put(out)
