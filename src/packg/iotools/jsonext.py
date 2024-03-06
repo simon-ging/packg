@@ -18,7 +18,7 @@ from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, Sequence, List
 
-from packg.iotools.compressed import load_xz
+from packg.iotools.compressed import load_xz, get_compressor, get_decompressor
 from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
 from packg.typext import PathOrIO, PathType, PathTypeCls
@@ -189,6 +189,23 @@ def load_json_xz(file: PathType, verbose: bool = False, encoding: str = "utf-8")
     if verbose:
         print(f"Loaded json file {file} in {timer() - start_timer:.3f} seconds")
     return obj
+
+
+def load_json_compressed(
+    file: PathType, compressor_name: str, verbose: bool = False, encoding: str = "utf-8"
+) -> Any:
+    start_timer = timer()
+    file = Path(file)
+    decompressor = get_decompressor(compressor_name)
+    data_bytes = Path(file).read_bytes()
+    data_str = decompressor.decompress(data_bytes).decode(encoding)
+    try:
+        obj = loads_json(data_str)
+    except Exception as e:
+        raise RuntimeError(f"Error loading json file {file}") from e
+    if verbose:
+        print(f"Loaded json file {file} in {timer() - start_timer:.3f} seconds")
+    return objo
 
 
 def dump_json_xz(

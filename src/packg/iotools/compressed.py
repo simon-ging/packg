@@ -38,13 +38,19 @@ class CompressorInterface:
     def flush(self) -> bytes:
         raise NotImplementedError
 
+    def compress_once(self, data: bytes) -> bytes:
+        return b"".join([self.compress(data), self.flush()])
+
 
 class DecompressorInterface:
     def decompress(self, data: bytes) -> bytes:
         raise NotImplementedError
 
     def flush(self) -> bytes:
-        raise NotImplementedError
+        return b""
+
+    def decompress_once(self, data: bytes) -> bytes:
+        return self.decompress(data)
 
 
 # noinspection PyArgumentList
@@ -102,9 +108,6 @@ class DummyDecompressor(DecompressorInterface):
     def decompress(self, data: bytes) -> bytes:
         return data
 
-    def flush(self) -> bytes:
-        return b""
-
 
 class ZstdCompressorWrapper(CompressorInterface):
     def __init__(self, size=-1, level=3, threads=0):
@@ -126,9 +129,6 @@ class ZstdDecompressorWrapper(DecompressorInterface):
     def decompress(self, data: bytes) -> bytes:
         return self.decompressor.decompress(data)
 
-    def flush(self) -> bytes:
-        return self.decompressor.flush()
-
 
 class LzmaCompressorWrapper(CompressorInterface):
     def __init__(self):
@@ -147,6 +147,3 @@ class LzmaDecompressorWrapper(DecompressorInterface):
 
     def decompress(self, data: bytes) -> bytes:
         return self.lzd.decompress(data)
-
-    def flush(self) -> bytes:
-        return b""
