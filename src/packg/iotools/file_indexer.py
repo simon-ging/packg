@@ -1,12 +1,14 @@
 """
 Utilities to index and sort file trees.
 """
+from __future__ import annotations
+
 import itertools
 import os
 import re
 from operator import itemgetter
 from pathlib import Path
-from typing import Dict, Tuple, List, Iterator
+from typing import Iterator, Union
 
 import natsort
 from attr import define
@@ -18,14 +20,14 @@ from typedparser import NamedTupleMixin
 
 def regex_glob(
     base_path: PathType,
-    regex_pattern: re.Pattern | str,
+    regex_pattern: Union[re.Pattern, str],
     glob_pattern: str = "**/*",
     match_filename_only: bool = False,
     match_inverse: bool = False,
     ignore_directories: bool = False,
     return_relative_paths: bool = False,
     return_as_posix_str: bool = False,
-) -> Iterator[PathType | str]:
+) -> Iterator[Union[PathType, str]]:
     """Glob with regex filter
 
     Args:
@@ -41,7 +43,7 @@ def regex_glob(
     Returns:
         list of paths
     """
-    print(F"Got pattern {regex_pattern}")
+    print(f"Got pattern {regex_pattern}")
     if isinstance(regex_pattern, str):
         print(f"Compiling {regex_pattern}")
         regex_pattern = re.compile(regex_pattern)
@@ -68,8 +70,8 @@ def regex_glob(
 
 
 def sort_file_paths_with_dirs_separated(
-    file_paths: List[PathType], natsorted: bool = False, dirs_first: bool = True
-) -> List[Path]:
+    file_paths: list[PathType], natsorted: bool = False, dirs_first: bool = True
+) -> list[Path]:
     """
     Sort a list of file paths, separating files inside subdirectories from files in the root.
 
@@ -115,7 +117,7 @@ def make_index(
     verbose: bool = True,
     reverse: bool = False,
     show_file_if_verbose: bool = False,
-) -> Dict[str, FileProperties]:
+) -> dict[str, FileProperties]:
     """Create file index dictionary of some path
 
     Args:
@@ -159,7 +161,7 @@ def _recursive_index(
     verbose: bool = True,
     reverse: bool = False,
     show_file_if_verbose: bool = False,
-) -> List[Tuple[str, int, float]]:
+) -> list[tuple[str, int, float]]:
     """Recursive helper function for make_index
 
     Args:
