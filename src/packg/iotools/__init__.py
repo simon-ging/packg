@@ -3,7 +3,7 @@
 Note: Everything inside this directory should not import from this __init__.py file
 but from the actual source file. For everything outside, importing from this __init__.py is fine.
 """
-from .file_indexer import make_index, sort_file_paths_with_dirs_separated
+from .file_indexer import make_index, sort_file_paths_with_dirs_separated, regex_glob
 from .file_reader import (
     yield_chunked_bytes,
     yield_lines_from_file,

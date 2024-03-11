@@ -3,9 +3,10 @@ Utilities to index and sort file trees.
 """
 import itertools
 import os
+import re
 from operator import itemgetter
 from pathlib import Path
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Iterator
 
 import natsort
 from attr import define
@@ -13,6 +14,57 @@ from tqdm import tqdm
 
 from packg.typext import PathType
 from typedparser import NamedTupleMixin
+
+
+def regex_glob(
+    base_path: PathType,
+    regex_pattern: re.Pattern | str,
+    glob_pattern: str = "**/*",
+    match_filename_only: bool = False,
+    match_inverse: bool = False,
+    ignore_directories: bool = False,
+    return_relative_paths: bool = False,
+    return_as_posix_str: bool = False,
+) -> Iterator[PathType | str]:
+    """Glob with regex filter
+
+    Args:
+        base_path: base path
+        regex_pattern: regex pattern to filter
+        glob_pattern: glob pattern to filter, potentially increase performance by pre-filtering
+        match_filename_only: match only the filename, not the full path
+        match_inverse: return files that do not match the regex
+        ignore_directories: ignore directories in output results
+        return_relative_paths: return relative paths instead of absolute paths
+        return_as_posix_str: return as posix string instead of Path object
+
+    Returns:
+        list of paths
+    """
+    print(F"Got pattern {regex_pattern}")
+    if isinstance(regex_pattern, str):
+        print(f"Compiling {regex_pattern}")
+        regex_pattern = re.compile(regex_pattern)
+        print(f"Got {regex_pattern}")
+    glob_results = list(Path(base_path).glob(glob_pattern))
+    # print("got", len(glob_results),"results for", base_path, glob_pattern,":\n", glob_results)
+    for pth in glob_results:
+        if match_filename_only:
+            str_to_match = pth.name
+        else:
+            str_to_match = pth.as_posix()
+        re_matches_bool = bool(regex_pattern.search(str_to_match))
+        # print("match", re_matches_bool, "for", str_to_match, "with", regex_pattern)
+        if match_inverse:
+            re_matches_bool = not re_matches_bool
+        if re_matches_bool:
+            if ignore_directories and pth.is_dir():
+                continue
+            if return_relative_paths:
+                pth = pth.relative_to(base_path)
+            if return_as_posix_str:
+                pth = pth.as_posix()
+            yield pth
 
 
 def sort_file_paths_with_dirs_separated(
