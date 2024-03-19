@@ -8,18 +8,14 @@ to figure out how to complete the 2nd argument same as cat would complete the 1s
 
 """
 
-import importlib_resources
-from attrs import define
-from loguru import logger
 from pathlib import Path
 from typing import Optional
 
+from attrs import define
+from loguru import logger
+
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
-from packg.packaging import (
-    create_bash_autocomplete_script,
-    FILEDIR_AUTOCOMPLETE,
-    create_new_bash_autocomplete_script,
-)
+from packg.packaging import FILEDIR_AUTOCOMPLETE, create_new_bash_autocomplete_script
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 
@@ -46,7 +42,9 @@ def main():
     logger.info(f"{args}")
 
     packages = args.packages.split(",")
-    autocomplete_script = create_new_bash_autocomplete_script(packages, run_dir=args.run_dir, command_name=args.command_name)
+    autocomplete_script = create_new_bash_autocomplete_script(
+        packages, run_dir=args.run_dir, command_name=args.command_name
+    )
     if args.target_script is None:
         args.target_script = "autocomplete.sh"
     Path(args.target_script).write_text(
