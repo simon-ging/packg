@@ -1,6 +1,7 @@
 """
 Utilities for python packages.
 """
+from __future__ import annotations
 import importlib
 import re
 import subprocess
