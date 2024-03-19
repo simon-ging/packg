@@ -66,4 +66,5 @@ __all__ = [
     "make_regex_pathspec",
     "make_pathspec",
     "PathSpecWithConversion",
+    "regex_glob",
 ]

@@ -3,13 +3,14 @@ Utilities for python packages.
 """
 import importlib
 import re
-import requests
 import subprocess
 import sys
 import time
-from loguru import logger
 from pathlib import Path
 from typing import Optional
+
+import requests
+from loguru import logger
 
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.misc import format_exception
@@ -19,6 +20,8 @@ from packg.testing.import_from_source import recurse_modules
 
 def run_package(main_file, run_dir="cli", recursive=True, run_dir_only=True, abbreviations=True):
     """
+    todo remove this. it is too slow and ineffective. solve the problem in bash instead.
+
     Create a command line interface for a package given a directory of scripts.
 
     Check the run directory, list scripts, create shortcuts, run if given shortcut.
@@ -128,6 +131,33 @@ def _recurse_modules_remove_root_package(package: str, packages_only: bool = Fal
         yield candidate
 
 
+def get_modules_for_autocomplete(package: str, run_dir: Optional[str] = None):
+    packages_only = set(_recurse_modules_remove_root_package(package, packages_only=True))
+    all_modules = set(_recurse_modules_remove_root_package(package))
+    output_modules = []
+
+    for m in sorted(all_modules):
+        if m in packages_only:
+            mlog = f"{package}.{m}"
+            if f"{m}.__main__" not in all_modules:
+                logger.debug(f"SKIP package: {mlog}")
+                continue
+            logger.debug(f"ADD package (has __main__): {mlog}")
+        if m.endswith("__main__"):
+            logger.debug(f"SKIP __main__ file: {mlog}")
+            continue
+        output_modules.append(m)
+    output_modules.sort()
+
+    if run_dir is not None:
+        new_output_modules = []
+        for output_module in output_modules:
+            if output_module.startswith(run_dir):
+                new_output_modules.append(output_module)
+        output_modules = new_output_modules
+    return output_modules
+
+
 def create_bash_autocomplete_script(
     package: str, function_name: str = None, command_name: str = None, run_dir: Optional[str] = None
 ) -> str:
@@ -151,33 +181,11 @@ def create_bash_autocomplete_script(
     Returns:
 
     """
+    output_modules = get_modules_for_autocomplete(package, run_dir=run_dir)
     if function_name is None:
         function_name = f"_{package}"
     if command_name is None:
         command_name = package
-    packages_only = set(_recurse_modules_remove_root_package(package, packages_only=True))
-    all_modules = set(_recurse_modules_remove_root_package(package))
-    output_modules = []
-
-    for m in sorted(all_modules):
-        if m in packages_only:
-            if f"{m}.__main__" not in all_modules:
-                logger.info(f"SKIP package: {m}")
-                continue
-            logger.info(f"ADD package (has __main__): {m}")
-        if m.endswith("__main__"):
-            logger.info(f"SKIP __main__ file: {m}")
-            continue
-        output_modules.append(m)
-    output_modules.sort()
-
-    if run_dir is not None:
-        new_output_modules = []
-        for output_module in output_modules:
-            if output_module.startswith(run_dir):
-                new_output_modules.append(output_module[len(run_dir) + 1 :])
-        output_modules = new_output_modules
-
     ob, cb = "{", "}"
     autocomplete_script = f"""
 {function_name}() {ob}
@@ -186,6 +194,54 @@ def create_bash_autocomplete_script(
     # complete first argument with script
     if [ $COMP_CWORD -eq 1 ]; then
         opts="{' '.join(output_modules)}"
+        COMPREPLY=( $( compgen -W "${ob}opts{cb}" -- "${ob}cur{cb}") )
+        return 0
+    fi
+    # # otherwise complete with filesystem
+    # COMPREPLY=( $(compgen -f -- "${ob}cur{cb}") )
+    _filedir
+    return 0
+{cb}
+
+complete -F {function_name} {command_name}
+"""
+    return autocomplete_script
+
+
+def create_new_bash_autocomplete_script(
+    packages: list[str],
+    command_name: str = "py",
+    function_name: Optional[str] = None,
+    run_dir: Optional[str] = None,
+) -> str:
+    """
+    New version: allinone e.g. alias py and then complete for all installed packages.
+
+    Args:
+        packages: packages to create the autocomplete for
+        function_name: default _{package}
+        command_name: default {package}
+        run_dir: only create autocompletion for this directory
+
+    Returns:
+
+    """
+    all_output_modules = []
+    for package in packages:
+        output_modules = get_modules_for_autocomplete(package, run_dir=run_dir)
+        output_modules = [f"{package}.{m}" for m in output_modules]
+        all_output_modules.extend(output_modules)
+    if function_name is None:
+        function_name = f"_{command_name}"
+
+    ob, cb = "{", "}"
+    autocomplete_script = f"""
+{function_name}() {ob}
+    local cur prev opts
+    _init_completion || return
+    # complete second argument with script, iff first argument is -m
+    if [[ $COMP_CWORD -eq 2 && $prev == "-m" ]]; then
+        opts="{' '.join(all_output_modules)}"
         COMPREPLY=( $( compgen -W "${ob}opts{cb}" -- "${ob}cur{cb}") )
         return 0
     fi

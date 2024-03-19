@@ -15,20 +15,27 @@ from pathlib import Path
 from typing import Optional
 
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
-from packg.packaging import create_bash_autocomplete_script, FILEDIR_AUTOCOMPLETE
+from packg.packaging import (
+    create_bash_autocomplete_script,
+    FILEDIR_AUTOCOMPLETE,
+    create_new_bash_autocomplete_script,
+)
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 
 @define
 class Args(VerboseQuietArgs):
-    package: str = add_argument("package", type=str)
+    packages: str = add_argument(shortcut="-p", type=str, default="packg,visiontext")
     target_script: Optional[Path] = add_argument(
         shortcut="-t",
         type=Path,
-        help="Target script. If not given, will write to (package_directory)/autocomplete.sh",
+        help="Target script. If not given, will write to ./autocomplete.sh",
     )
     run_dir: Optional[str] = add_argument(
         shortcut="-r", type=str, help="Only create autocompletion for this directory"
+    )
+    command_name: str = add_argument(
+        shortcut="-c", type=str, default="py", help="Command name to call python"
     )
 
 
@@ -38,9 +45,10 @@ def main():
     configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
     logger.info(f"{args}")
 
-    autocomplete_script = create_bash_autocomplete_script(args.package, run_dir=args.run_dir)
+    packages = args.packages.split(",")
+    autocomplete_script = create_new_bash_autocomplete_script(packages, run_dir=args.run_dir, command_name=args.command_name)
     if args.target_script is None:
-        args.target_script = importlib_resources.files(args.package) / "autocomplete.sh"
+        args.target_script = "autocomplete.sh"
     Path(args.target_script).write_text(
         "\n".join([FILEDIR_AUTOCOMPLETE, autocomplete_script]), encoding="utf-8"
     )

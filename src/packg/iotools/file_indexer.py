@@ -43,11 +43,11 @@ def regex_glob(
     Returns:
         list of paths
     """
-    print(f"Got pattern {regex_pattern}")
+    # print(f"Got pattern {regex_pattern}")
     if isinstance(regex_pattern, str):
-        print(f"Compiling {regex_pattern}")
+        # print(f"Compiling {regex_pattern}")
         regex_pattern = re.compile(regex_pattern)
-        print(f"Got {regex_pattern}")
+        # print(f"Got {regex_pattern}")
     glob_results = list(Path(base_path).glob(glob_pattern))
     # print("got", len(glob_results),"results for", base_path, glob_pattern,":\n", glob_results)
     for pth in glob_results:
