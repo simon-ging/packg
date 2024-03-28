@@ -49,6 +49,13 @@ BRIGHTBG_FORMAT = (
 TIMELESS_FORMAT = "<level>{level: <4.4}</level> <level>{message}</level>"
 
 
+def get_stdlib_logging_formatter():
+    return logging.Formatter(
+        "%(asctime)s %(levelname)-4s %(filename)s:%(lineno)d %(message)s",
+        datefmt="%Y%m%d %H:%M:%S",
+    )
+
+
 global_logger_config = None
 
 

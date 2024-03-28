@@ -1,6 +1,7 @@
 """
 Wrapper functions for YAML I/O.
 """
+import difflib
 import os
 import sys
 from collections import abc
@@ -8,7 +9,8 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from typedparser.objects import is_any_mapping, is_any_iterable
+from typedparser.objects import is_any_mapping, is_any_iterable, compare_nested_objects,\
+    modify_nested_object
 
 from packg.iotools.file_reader import read_text_from_file_or_io
 from packg.typext import PathOrIO, PathTypeCls
@@ -43,6 +45,12 @@ def dump_yaml(
     file_or_io.write(s)
 
 
+def _path_to_str_if_path(x):
+    if isinstance(x, Path):
+        return x.as_posix()
+    return x
+
+
 def dumps_yaml(
     obj: Any, standard_format: bool = True, check_roundtrip: bool = True, **kwargs
 ) -> str:
@@ -66,6 +74,9 @@ def dumps_yaml(
     Returns:
         yaml string
     """
+    if is_any_mapping(obj):
+        # yaml does not understand pathlib.Path so first of all convert all paths to str
+        obj = modify_nested_object(obj, _path_to_str_if_path, return_copy=True)
     if standard_format:
         return yaml.dump(obj, Dumper=yaml.SafeDumper, **kwargs)
     yaml_str = _dumps_yaml_recursive(obj, **kwargs)
@@ -75,6 +86,9 @@ def dumps_yaml(
         if re_obj != obj:
             print(f"---------- Original object:\n{obj}\n", file=sys.stderr)
             print(f"---------- Reconstructed object:\n{re_obj}\n", file=sys.stderr)
+            diffs = compare_nested_objects(obj, re_obj)
+            diff_str = "\n".join(diffs)
+            print(f"---------- Diffs:\n{diff_str}\n", file=sys.stderr)
             raise RuntimeError(
                 "roundtrip failed (original object cannot be reconstructed from yaml, see stderr)"
             )
@@ -125,7 +139,7 @@ def _dumps_yaml_recursive(
     if is_any_iterable(obj):
         # iterate lists
         return f"[{', '.join((_dumps_yaml_recursive(v, _is_inside_list=True) for v in obj))}]"
-    raise ValueError(f"dict to yaml, value type not understood: {obj}")
+    raise ValueError(f"dict to yaml, value type not understood: type={type(obj)} value={obj}")
 
 
 def _convert_single_object_to_yaml_str(obj, remove_eod: bool = True):
