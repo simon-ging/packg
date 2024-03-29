@@ -30,7 +30,7 @@ def test_download_file(monkeypatch, tmpdir_factory):
     def mock_request(*_args, **_kwargs):
         return _MockHTTPResponse(mock_data, headers={"Content-Length": "500"})
 
-    monkeypatch.setattr("packg.web.urllib3.PoolManager.request", mock_request)
+    monkeypatch.setattr("packg.web.download_file.urllib3.PoolManager.request", mock_request)
 
     # # version with: from unittest.mock import Mock, MagicMock
     # response = _MockHTTPResponse(data, headers={"Content-Length": "500"})
@@ -40,8 +40,8 @@ def test_download_file(monkeypatch, tmpdir_factory):
     # monkeypatch.setattr("packg.web.urllib3.PoolManager", lambda: mock_pool_manager)
 
     # Test download to temp file
-    tmpdir = tmpdir_factory.mktemp("test_web")
-    tmp_file = tmpdir / "downloaded_file.txt"
+    tmpdir_here = tmpdir_factory.mktemp("test_web")
+    tmp_file = tmpdir_here / "downloaded_file.txt"
     num_bytes = download_file(tmp_file, "http://example.com", verbose=False, pbar=False)
     assert num_bytes == 500
 

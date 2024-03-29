@@ -60,7 +60,7 @@ def apply_specs_to_paths(
     include_regex: Optional[List[str]] = None,
     exclude_git: Optional[List[str]] = None,
     exclude_regex: Optional[List[str]] = None,
-    gitginore_file: Optional[PathType] = None,
+    exclude_gitignore_file: Optional[PathType] = None,
 ) -> Iterable[Path]:
     if include_git is not None and len(include_git) > 0:
         spec = make_git_pathspec(include_git)
@@ -74,8 +74,8 @@ def apply_specs_to_paths(
     if exclude_regex is not None and len(exclude_regex) > 0:
         spec = make_regex_pathspec(exclude_regex)
         paths = spec.match_files(paths, negate=True)
-    if gitginore_file is not None:
-        spec = make_git_pathspec(gitginore_file.read_text(encoding="utf-8").splitlines())
+    if exclude_gitignore_file is not None:
+        spec = make_git_pathspec(exclude_gitignore_file.read_text(encoding="utf-8").splitlines())
         paths = spec.match_files(paths, negate=True)
     return paths
 
@@ -94,7 +94,7 @@ class PathSpecArgs:
     include_regex: List[str] = add_argument(
         shortcut="-I", default=[], action="append", help="Regex pathspec list to include files."
     )
-    gitignore_file: Optional[Path] = add_argument(
+    exclude_gitignore_file: Optional[Path] = add_argument(
         shortcut="-g", type=str, default=None, help="Gitignore file for matching files"
     )
 
