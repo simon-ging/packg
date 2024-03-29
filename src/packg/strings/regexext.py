@@ -1,4 +1,4 @@
-"""
+r"""
 pattern:
     match(string, pos, endpos) -> re.Match | None - Determine if RE matches at beginning of string.
     fullmatch(string, pos, endpos) - same but the entire string must match
