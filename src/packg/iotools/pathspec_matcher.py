@@ -4,11 +4,13 @@ Shortcut to create a pathspec from a list of patterns with either .gitignore or 
 https://pypi.org/project/pathspec/#description
 
 """
+
 from pathlib import Path
-from typing import Iterable, Union, List, Optional
+from typing import Iterable, Union, List, Optional, Tuple, Dict, Any
 
 import pathspec
 from attr import define
+from pathspec import PathSpec
 
 from packg.typext import PathType
 from typedparser import add_argument
@@ -54,7 +56,7 @@ def make_pathspec(patterns: List[str], regex_mode: bool = False) -> pathspec.Pat
         return make_git_pathspec(patterns)
 
 
-def apply_specs_to_paths(
+def make_and_apply_pathspecs(
     paths: List[PathType],
     include_git: Optional[List[str]] = None,
     include_regex: Optional[List[str]] = None,
@@ -62,21 +64,56 @@ def apply_specs_to_paths(
     exclude_regex: Optional[List[str]] = None,
     exclude_gitignore_file: Optional[PathType] = None,
 ) -> Iterable[Path]:
+    specs = make_pathspecs(
+        include_git=include_git,
+        include_regex=include_regex,
+        exclude_git=exclude_git,
+        exclude_regex=exclude_regex,
+        exclude_gitignore_file=exclude_gitignore_file,
+    )
+    paths = apply_pathspecs(paths, specs)
+    return paths
+
+
+SPECLISTTYPE = List[Tuple[PathSpec, bool]]
+
+
+def make_pathspecs(
+    include_git: Optional[List[str]] = None,
+    include_regex: Optional[List[str]] = None,
+    exclude_git: Optional[List[str]] = None,
+    exclude_regex: Optional[List[str]] = None,
+    exclude_gitignore_file: Optional[PathType] = None,
+) -> SPECLISTTYPE:
+    """
+    Builds PathSpecs based on inputs to include or exclude.
+
+    Returns:
+        List of tuples with PathSpec and negate flag
+
+    """
+    specs = []
     if include_git is not None and len(include_git) > 0:
         spec = make_git_pathspec(include_git)
-        paths = spec.match_files(paths)
+        specs.append((spec, False))
     if include_regex is not None and len(include_regex) > 0:
         spec = make_regex_pathspec(include_regex)
-        paths = spec.match_files(paths)
+        specs.append((spec, False))
     if exclude_git is not None and len(exclude_git) > 0:
         spec = make_git_pathspec(exclude_git)
-        paths = spec.match_files(paths, negate=True)
+        specs.append((spec, True))
     if exclude_regex is not None and len(exclude_regex) > 0:
         spec = make_regex_pathspec(exclude_regex)
-        paths = spec.match_files(paths, negate=True)
+        specs.append((spec, True))
     if exclude_gitignore_file is not None:
         spec = make_git_pathspec(exclude_gitignore_file.read_text(encoding="utf-8").splitlines())
-        paths = spec.match_files(paths, negate=True)
+        specs.append((spec, True))
+    return specs
+
+
+def apply_pathspecs(paths: List[PathType], specs: SPECLISTTYPE) -> Iterable[Path]:
+    for spec, negate in specs:
+        paths = spec.match_files(paths, negate=negate)
     return paths
 
 
@@ -96,6 +133,16 @@ class PathSpecArgs:
     )
     exclude_gitignore_file: Optional[Path] = add_argument(
         shortcut="-g", type=str, default=None, help="Gitignore file for matching files"
+    )
+
+
+def expand_pathspec_args(args: PathSpecArgs) -> Dict[str, Any]:
+    return dict(
+        exclude_git=args.exclude_git,
+        exclude_regex=args.exclude_regex,
+        include_git=args.include_git,
+        include_regex=args.include_regex,
+        exclude_gitignore_file=args.exclude_gitignore_file,
     )
 
 
