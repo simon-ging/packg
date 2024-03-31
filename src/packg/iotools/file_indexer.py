@@ -195,7 +195,6 @@ def _recursive_index(
     Returns:
         list of tuples (filename str, file_size_bytes int, time_last_modified float)
     """
-    print(f"Recurse into {root}: {root.is_symlink()=} {root.is_dir()=}")
     if specs is None:
         specs = []
     global _total_counter, _ignored_dirs_counter, _ignored_files_counter
@@ -214,7 +213,6 @@ def _recursive_index(
 
     dirs = sorter(dirs)
     files = sorter(files)
-    print(f"Found {dirs=} {files=}")
     if dirs is not None and recursive:
         abs_dirs = []
         for d in dirs:
