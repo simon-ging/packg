@@ -14,9 +14,7 @@ from attrs import define
 
 @define
 class Args(VerboseQuietArgs):
-    base_dir: Optional[Path] = add_argument(
-        shortcut="-b", type=str, help="Dir to clean", default="."
-    )
+    folder: Path = add_argument("folder", type=str, help="Directory to check")
     write: bool = add_argument(shortcut="-w", action="store_true", help="Confirm removing files")
     clean_packages: bool = add_argument(
         shortcut="-p", action="store_true", help="remove package builds and dist"
@@ -25,6 +23,9 @@ class Args(VerboseQuietArgs):
         shortcut="-c", action="store_true", help="remove all pycache and pytests cache"
     )
     clean_all: bool = add_argument(shortcut="-a", action="store_true", help="remove everything")
+    remove_empty_dirs: bool = add_argument(
+        shortcut="-e", action="store_true", help="remove empty directories"
+    )
 
 
 def main():
@@ -33,11 +34,11 @@ def main():
     configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
     logger.info(f"{args}")
 
-    base_dir = args.base_dir.resolve()
-    logger.info(f"Running in {base_dir}. Use -v to show all deletions")
+    base_dir = args.folder.resolve()
+    logger.warning(f"Cleaning up: {base_dir}")
 
     def rmtree_verbose(path):
-        logger.debug(f"removing path {path}")
+        logger.info(f"RM {path}")
         if args.write:
             shutil.rmtree(path, ignore_errors=True)
 
@@ -59,11 +60,28 @@ def main():
             n_removed += 1
 
     logger.info(f"Removed {n_removed} files or dirs")
-    if len(glob_strs) == 0:
+    if len(glob_strs) == 0 and not args.remove_empty_dirs:
         logger.warning("No operation specified")
+
+    if args.remove_empty_dirs or args.clean_all:
+        remove_empty_dirs(base_dir, write=args.write)
 
     if not args.write:
         logger.warning("Test run (no -w), did not do anything.")
+
+
+def remove_empty_dirs(folder, level=0, write=False):
+    # recursively delete empty subfolders
+    subfolders = [f for f in list(folder.glob("*")) if f.is_dir() and not f.is_symlink()]
+    for subfolder in subfolders:
+        remove_empty_dirs(subfolder, level=level + 1, write=write)
+
+    # if nothing remains, delete this folder
+    remaining_elements = list(folder.glob("*"))
+    if len(remaining_elements) == 0:
+        logger.info(f"RM empty dir: {folder}")
+        if write:
+            folder.rmdir()
 
 
 if __name__ == "__main__":

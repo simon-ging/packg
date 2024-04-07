@@ -143,7 +143,7 @@ def make_index(
     Returns:
         file dict {filename str : (file_size int, time_last_modified float) }
     """
-    base_root = Path(base_root)
+    base_root = Path(base_root).resolve().absolute()
     global _total_counter, _pbar, _ignored_dirs_counter, _ignored_files_counter
     _total_counter = 0
     _pbar = tqdm(total=0, disable=not verbose, desc="Indexing files")

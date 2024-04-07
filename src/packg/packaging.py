@@ -231,6 +231,9 @@ def create_new_bash_autocomplete_script(
     for package in packages:
         output_modules = get_modules_for_autocomplete(package, run_dir=run_dir)
         output_modules = [f"{package}.{m}" for m in output_modules]
+        logger.debug(f"package={package} output_modules={output_modules}")
+        if len(output_modules) == 0:
+            logger.warning(f"Nothing found for package {package} in {run_dir}, is it installed?")
         all_output_modules.extend(output_modules)
     if function_name is None:
         function_name = f"_{command_name}"
