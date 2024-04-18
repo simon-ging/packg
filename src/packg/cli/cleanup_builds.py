@@ -47,7 +47,7 @@ def main():
         glob_strs = ["**/build", "**/dist", "**/*.egg-info"]
 
     if args.clean_pycache or args.clean_all:
-        glob_strs += ["**/__pycache__", "**/.pytest_cache"]
+        glob_strs += ["**/__pycache__", "**/.pytest_cache", "**/*.pyc", "**/*.pyo"]
 
     if args.clean_all:
         glob_strs += ["**/.ipynb_checkpoints"]
