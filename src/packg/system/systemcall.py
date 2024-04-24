@@ -58,6 +58,7 @@ def systemcall_with_assert(
         call: command to run
         errmsg: additional error info to display when the command fails
         verbose: verbosity of the command
+        decode: decode the output with this encoding
 
     Returns:
         stdout, stderr, returncode

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 import numpy as np
-from typing import Iterable, Union
+from typing import Iterable, Union, Optional
 
 
 def clip_rectangle_coords(rectangle_coords: tuple[int, int, int, int], w: int, h: int):
@@ -109,3 +109,43 @@ def np_str_len(str_arr: Union[np.ndarray, Iterable[str]]) -> np.ndarray:
     len_arr[v[np.arange(len(v)), len_arr] > 0] = v.shape[-1]
     len_arr = np.reshape(len_arr, str_arr.shape)
     return len_arr
+
+
+def format_float_maybe_scientific(
+    in_float,
+    decimals: Optional[int] = None,
+    integers: Optional[int] = None,
+    lower_limit: float = 1e-4,
+    upper_limit: float = 1e6,
+) -> str:
+    """
+    Format float as string, as decimal notation if with limits, scientific otherwise.
+
+    Args:
+        in_float:
+        decimals: how many numbers after decimal point
+        integers: how many numbers before decimal point
+        lower_limit: switch to scientific notation below this
+        upper_limit: switch to scientific notation above this
+
+    Returns:
+
+    """
+    in_float = float(in_float)
+    if decimals is not None:
+        decimals_str = int(decimals)
+        assert decimals_str >= 0
+    else:
+        decimals_str = ""
+
+    if integers is not None:
+        total_len_str = int(integers)
+        assert total_len_str >= 0
+    else:
+        total_len_str = ""
+
+    len_and_dec_str = f"{total_len_str}.{decimals_str}" if decimals_str != "" else ""
+
+    format_type = "e" if abs(in_float) < lower_limit or abs(in_float) > upper_limit else "f"
+    format_str = f"{{:{len_and_dec_str}{format_type}}}"
+    return format_str.format(in_float)

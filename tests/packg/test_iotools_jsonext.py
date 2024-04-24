@@ -1,9 +1,7 @@
 import json
-from pathlib import Path
-
 import numpy as np
 import pytest
-from typedparser.objects import modify_nested_object
+from pathlib import Path
 
 from packg.iotools import (
     load_json,
@@ -17,8 +15,15 @@ from packg.iotools import (
     load_json_xz,
     dump_json_xz,
 )
-from packg.iotools.compressed import load_xz
-from packg.iotools.jsonext import CustomJSONEncoder
+from packg.iotools.compress import load_xz, CompressorC
+from packg.iotools.jsonext import (
+    CustomJSONEncoder,
+    dump_json_compressed,
+    load_json_compressed,
+    dump_jsonl_compressed,
+    load_jsonl_compressed,
+)
+from typedparser.objects import modify_nested_object
 
 
 # ---------- define input data for the tests
@@ -138,52 +143,70 @@ def test_json_dumps_loads(json_data_fixture):
     _compare_objects(loads_json(dumps_json(data_python, indent=2)), data_python)
 
 
-def test_jsonl_dump_load(tmp_path):
-    # need new ground truth test data for jsonl, since it is a different format
-    data_python = [
-        {"menü": {"id": "file", "popup": "lorem ipsum"}},
-        {
-            "menü": {
-                "ids": [
-                    6,
-                    np.int64(64),
-                    np.int8(8),
-                    np.int16(0),
-                    np.float16(16.0),
-                    np.float64(64.0),
-                    np.float32(0.0),
-                ]
-            }
-        },
-        np.arange(6) + 0.5,
-        Path("/path/to/somewhere/test.json"),
-    ]
-    data_json = (
-        '{"menü": {"id": "file", "popup": "lorem ipsum"}}\n'
-        '{"menü": {"ids": [6, 64, 8, 0, 16.0, 64.0, 0.0]}}\n'
-        "[0.5, 1.5, 2.5, 3.5, 4.5, 5.5]\n"
-        '"/path/to/somewhere/test.json"\n'
-    )
+# need new ground truth test data for jsonl, since it is a different format
+_jsonl_data_python = [
+    {"menü": {"id": "file", "popup": "lorem ipsum"}},
+    {
+        "menü": {
+            "ids": [
+                6,
+                np.int64(64),
+                np.int8(8),
+                np.int16(0),
+                np.float16(16.0),
+                np.float64(64.0),
+                np.float32(0.0),
+            ]
+        }
+    },
+    np.arange(6) + 0.5,
+    Path("/path/to/somewhere/test.json"),
+]
+_jsonl_data_jsonl = (
+    '{"menü":{"id":"file","popup":"lorem ipsum"}}\n'
+    '{"menü":{"ids":[6,64,8,0,16.0,64.0,0.0]}}\n'
+    "[0.5,1.5,2.5,3.5,4.5,5.5]\n"
+    '"/path/to/somewhere/test.json"\n'
+)
 
+
+def test_jsonl_dump_load(tmp_path):
     tmp_file = tmp_path / "test.jsonl"
-    dump_jsonl(data_python, tmp_file)
-    _compare_json_strings(tmp_file.read_text(encoding="utf8"), data_json)
+    dump_jsonl(_jsonl_data_python, tmp_file)
+    _compare_json_strings(tmp_file.read_text(encoding="utf8"), _jsonl_data_jsonl)
     data_python_reloaded = load_jsonl(tmp_file)
-    _compare_objects(data_python, data_python_reloaded)
+    _compare_objects(_jsonl_data_python, data_python_reloaded)
 
     # also test the string mode
-    data_json_created = dumps_jsonl(data_python)
-    _compare_json_strings(data_json_created, data_json)
+    data_json_created = dumps_jsonl(_jsonl_data_python)
+    _compare_json_strings(data_json_created, _jsonl_data_jsonl)
     data_python_reloaded = loads_jsonl(data_json_created)
-    _compare_objects(data_python, data_python_reloaded)
+    _compare_objects(_jsonl_data_python, data_python_reloaded)
+
+
+def test_json_dump_load_compressed(json_data_fixture, tmp_path):
+    data_python, data_json = json_data_fixture
+    for compressor_name in CompressorC.values():
+        tmp_file = tmp_path / f"test.json_{compressor_name}"
+        dump_json_compressed(data_python, tmp_file, compressor_name, indent=2)
+        data_python_reloaded = load_json_compressed(tmp_file, compressor_name)
+        _compare_objects(data_python, data_python_reloaded)
+
+
+def test_jsonl_dump_load_compressed(tmp_path):
+    for compressor_name in CompressorC.values():
+        tmp_file = tmp_path / f"test.jsonl_{compressor_name}"
+        dump_jsonl_compressed(_jsonl_data_python, tmp_file, compressor_name)
+        data_python_reloaded = load_jsonl_compressed(tmp_file, compressor_name)
+        _compare_objects(_jsonl_data_python, data_python_reloaded)
 
 
 def test_dump_with_float_precision():
     num_inp = 0.010972334
     inp = {"mydata": num_inp}
-    assert dumps_json(inp) == "{" f'"mydata": {num_inp}' "}"
-    assert dumps_json(inp, float_precision=3) == "{" f'"mydata": {round(num_inp, 3)}' "}"
-    assert dumps_json(inp, float_precision=0) == "{" f'"mydata": {round(num_inp)}' "}"
+    assert dumps_json(inp) == "{" f'"mydata":{num_inp}' "}"
+    assert dumps_json(inp, float_precision=3) == "{" f'"mydata":{round(num_inp, 3)}' "}"
+    assert dumps_json(inp, float_precision=0) == "{" f'"mydata":{round(num_inp)}' "}"
 
 
 def _compare_json_strings(candidate, reference):

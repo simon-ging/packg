@@ -18,8 +18,16 @@ from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, Sequence, List
 
-from packg.iotools.compressed import load_xz, get_compressor, get_decompressor
-from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
+from packg.iotools.compress import (
+    load_xz,
+    CompressorC,
+    decompress_file_to_str,
+    compress_data_to_file,
+)
+from packg.iotools.file_reader import (
+    open_file_or_io,
+    read_text_from_file_or_io,
+)
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
 from packg.typext import PathOrIO, PathType, PathTypeCls
 
@@ -46,6 +54,24 @@ def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-
     return obj
 
 
+def load_json_compressed(
+    file_or_io: PathOrIO,
+    compressor_name: CompressorC,
+    verbose: bool = False,
+    encoding: str = "utf-8",
+    **compressor_kwargs,
+) -> Any:
+    start_timer = timer()
+    data_text = decompress_file_to_str(file_or_io, compressor_name, encoding, **compressor_kwargs)
+    try:
+        obj = loads_json(data_text)
+    except Exception as e:
+        raise RuntimeError(f"Error loading compressed json file {file_or_io}") from e
+    if verbose:
+        print(f"Loaded json file {file_or_io} in {timer() - start_timer:.3f} seconds")
+    return obj
+
+
 def loads_json(s: str) -> Any:
     """Load data from json string"""
     return json.loads(s)
@@ -62,8 +88,26 @@ def load_jsonl(file_or_io: PathOrIO, encoding: str = "utf-8") -> List[Any]:
     try:
         data = loads_jsonl(data_str)
     except Exception as e:
-        raise RuntimeError(f"Error loading json file {file_or_io} (see reraised error)") from e
+        raise RuntimeError(f"Error loading jsonl file {file_or_io}") from e
     return data
+
+
+def load_jsonl_compressed(
+    file_or_io: PathOrIO,
+    compressor_name: CompressorC,
+    verbose: bool = False,
+    encoding: str = "utf-8",
+    **compressor_kwargs,
+) -> Any:
+    start_timer = timer()
+    data_text = decompress_file_to_str(file_or_io, compressor_name, encoding, **compressor_kwargs)
+    try:
+        obj = loads_jsonl(data_text)
+    except Exception as e:
+        raise RuntimeError(f"Error loading compressed jsonl file {file_or_io}") from e
+    if verbose:
+        print(f"Loaded json file {file_or_io} in {timer() - start_timer:.3f} seconds")
+    return obj
 
 
 def loads_jsonl(s: str) -> List[Any]:
@@ -74,6 +118,14 @@ def loads_jsonl(s: str) -> List[Any]:
         except Exception as e:
             raise RuntimeError(f"Error loading json line {i}: {line}") from e
     return data
+
+
+def _check_can_write(file_or_io, overwrite, verbose):
+    if not overwrite and isinstance(file_or_io, PathTypeCls) and Path(file_or_io).is_file():
+        if verbose:
+            print(f"File already exists and overwrite is False: {Path(file_or_io).as_posix()}")
+        return False
+    return True
 
 
 def dump_json(
@@ -94,9 +146,7 @@ def dump_json(
 ) -> None:
     """Write data to json file or file object using the custom json encoder"""
     start_timer = timer()
-    if not overwrite and isinstance(file_or_io, PathTypeCls) and Path(file_or_io).is_file():
-        if verbose:
-            print(f"File already exists and overwrite is False: {Path(file_or_io).as_posix()}")
+    if not _check_can_write(file_or_io, overwrite, verbose):
         return
 
     with open_file_or_io(
@@ -126,6 +176,52 @@ def dump_json(
         print(f"Wrote json file {file_or_io} in {timer() - start_timer:.3f} seconds")
 
 
+def dump_json_compressed(
+    obj: Any,
+    file_or_io: PathOrIO,
+    compressor_name: CompressorC,
+    ensure_ascii: bool = False,
+    check_circular: bool = False,
+    allow_nan=False,
+    indent=None,
+    separators=None,
+    sort_keys=False,
+    verbose: bool = True,
+    create_parent=False,
+    float_precision=None,
+    custom_format=True,
+    encoding="utf-8",
+    overwrite=True,
+    **compressor_kwargs,
+):
+    start_timer = timer()
+    if not _check_can_write(file_or_io, overwrite, verbose):
+        return
+
+    json_data = dumps_json(
+        obj,
+        ensure_ascii=ensure_ascii,
+        check_circular=check_circular,
+        allow_nan=allow_nan,
+        indent=indent,
+        separators=separators,
+        sort_keys=sort_keys,
+        float_precision=float_precision,
+        custom_format=custom_format,
+    )
+    compress_data_to_file(
+        json_data,
+        file_or_io,
+        compressor_name,
+        encoding=encoding,
+        create_parent=create_parent,
+        **compressor_kwargs,
+    )
+
+    if verbose:
+        print(f"Wrote json file {file_or_io} in {timer() - start_timer:.3f} seconds")
+
+
 def dumps_json(
     obj: Any,
     ensure_ascii: bool = False,
@@ -135,19 +231,28 @@ def dumps_json(
     separators=None,
     sort_keys=False,
     float_precision=None,
+    custom_format=True,
 ) -> str:
     """Write data to json string using the custom json encoder"""
-    return json.dumps(
-        obj,
-        cls=CustomJSONEncoder,
+    if indent is None and separators is None:
+        separators = (",", ":")
+
+    kwargs = dict(
         ensure_ascii=ensure_ascii,
         check_circular=check_circular,
         allow_nan=allow_nan,
         indent=indent,
         separators=separators,
         sort_keys=sort_keys,
-        float_precision=float_precision,
     )
+    if custom_format:
+        kwargs.update(
+            dict(
+                cls=CustomJSONEncoder,
+                float_precision=float_precision,
+            )
+        )
+    return json.dumps(obj, **kwargs)
 
 
 def dump_jsonl(
@@ -156,10 +261,14 @@ def dump_jsonl(
     verbose: bool = True,
     create_parent=False,
     encoding="utf-8",
+    overwrite=True,
 ) -> None:
     """Write lines of data to jsonl (list of json strings) file or file object
     using the custom json encoder"""
     start_timer = timer()
+    if not _check_can_write(file_or_io, overwrite, verbose):
+        return
+
     err_msg = f"data must be a list/sequence but is {type(data)}"
     assert not isinstance(data, str), err_msg
     assert isinstance(data, Sequence), err_msg
@@ -168,6 +277,39 @@ def dump_jsonl(
         for d in data:
             fh.write(f"{dumps_json(d)}\n")
 
+    if verbose:
+        print(f"Wrote jsonl file {file_or_io} in {timer() - start_timer:.3f} seconds")
+
+
+def dump_jsonl_compressed(
+    data: Iterable[Any],
+    file_or_io: PathOrIO,
+    compressor_name: CompressorC,
+    verbose: bool = True,
+    create_parent=False,
+    encoding="utf-8",
+    overwrite=True,
+    **compressor_kwargs,
+) -> None:
+    """Write lines of data to jsonl (list of json strings) file or file object
+    using the custom json encoder"""
+    start_timer = timer()
+    if not _check_can_write(file_or_io, overwrite, verbose):
+        return
+
+    try:
+        jsonl_data = dumps_jsonl(data)
+    except Exception as e:
+        raise RuntimeError(f"Error dumping jsonl file {file_or_io}") from e
+
+    compress_data_to_file(
+        jsonl_data,
+        file_or_io,
+        compressor_name,
+        encoding=encoding,
+        create_parent=create_parent,
+        **compressor_kwargs,
+    )
     if verbose:
         print(f"Wrote jsonl file {file_or_io} in {timer() - start_timer:.3f} seconds")
 
@@ -189,23 +331,6 @@ def load_json_xz(file: PathType, verbose: bool = False, encoding: str = "utf-8")
     if verbose:
         print(f"Loaded json file {file} in {timer() - start_timer:.3f} seconds")
     return obj
-
-
-def load_json_compressed(
-    file: PathType, compressor_name: str, verbose: bool = False, encoding: str = "utf-8"
-) -> Any:
-    start_timer = timer()
-    file = Path(file)
-    decompressor = get_decompressor(compressor_name)
-    data_bytes = Path(file).read_bytes()
-    data_str = decompressor.decompress(data_bytes).decode(encoding)
-    try:
-        obj = loads_json(data_str)
-    except Exception as e:
-        raise RuntimeError(f"Error loading json file {file}") from e
-    if verbose:
-        print(f"Loaded json file {file} in {timer() - start_timer:.3f} seconds")
-    return objo
 
 
 def dump_json_xz(

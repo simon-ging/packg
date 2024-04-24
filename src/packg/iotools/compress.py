@@ -1,12 +1,16 @@
 """
 possible improvements:
     - add more hyperparameters to the compressor wrappers, currently using mostly the defaults.
+    - auto compressor name from filename
+    - compressor ios similar to BytesIO that compress/decompress as needed on write/read
 
 """
 import lzma
-
 import zstandard
+from typing import Union
+
 from packg import Const
+from packg.iotools import read_bytes_from_file_or_io, open_file_or_io
 
 
 def load_xz(file, mode: str = "rt", encoding: str = "utf-8"):
@@ -24,7 +28,7 @@ def dump_xz(data, file, mode: str = "wt", encoding: str = "utf-8"):
         fh.write(data)
 
 
-class CompressorConst(Const):
+class CompressorC(Const, str):
     NONE = "none"
     LZMA = "lzma"
     ZSTD = "zstd"
@@ -53,6 +57,57 @@ class DecompressorInterface:
         return self.decompress(data)
 
 
+def decompress_file_to_bytes(file_or_io, compressor_name: str, **compressor_kwargs) -> bytes:
+    data_bytes_compressed = read_bytes_from_file_or_io(file_or_io)
+    return decompress_bytes_to_bytes(data_bytes_compressed, compressor_name, **compressor_kwargs)
+
+
+def decompress_bytes_to_bytes(
+    data_bytes_compressed: bytes, compressor_name: str, **compressor_kwargs
+) -> bytes:
+    decompressor = get_decompressor(compressor_name, **compressor_kwargs)
+    return decompressor.decompress_once(data_bytes_compressed)
+
+
+def decompress_file_to_str(
+    file_or_io, compressor_name: str, encoding: str = "utf-8", **compressor_kwargs
+) -> str:
+    data_bytes_compressed = read_bytes_from_file_or_io(file_or_io)
+    return decompress_bytes_to_str(
+        data_bytes_compressed, compressor_name, encoding, **compressor_kwargs
+    )
+
+
+def decompress_bytes_to_str(
+    data_bytes_compressed: bytes, compressor_name: str, encoding: str = "utf-8", **compressor_kwargs
+) -> str:
+    data_bytes = decompress_bytes_to_bytes(
+        data_bytes_compressed, compressor_name, **compressor_kwargs
+    )
+    return data_bytes.decode(encoding)
+
+
+def compress_data_to_bytes(
+    data: Union[str, bytes], compressor_name: str, encoding: str = "utf-8", **compressor_kwargs
+) -> bytes:
+    if isinstance(data, str):
+        data = data.encode(encoding)
+    compressor = get_compressor(compressor_name, len(data), **compressor_kwargs)
+    return compressor.compress_once(data)
+
+
+def compress_data_to_file(
+    data: Union[str, bytes],
+    file_or_io,
+    compressor_name: str,
+    create_parent: bool = False,
+    **compressor_kwargs,
+):
+    data_bytes = compress_data_to_bytes(data, compressor_name, **compressor_kwargs)
+    with open_file_or_io(file_or_io, mode="wb", create_parent=create_parent) as fh:
+        fh.write(data_bytes)
+
+
 # noinspection PyArgumentList
 def get_compressor(compressor_name: str, size: int = -1, **kwargs) -> CompressorInterface:
     """
@@ -65,14 +120,14 @@ def get_compressor(compressor_name: str, size: int = -1, **kwargs) -> Compressor
     Returns:
         compressor
     """
-    if compressor_name == CompressorConst.NONE:
+    if compressor_name == CompressorC.NONE:
         return DummyCompressor(**kwargs)
-    if compressor_name == CompressorConst.LZMA:
+    if compressor_name == CompressorC.LZMA:
         return LzmaCompressorWrapper(**kwargs)
-    if compressor_name == CompressorConst.ZSTD:
+    if compressor_name == CompressorC.ZSTD:
         return ZstdCompressorWrapper(size=size, **kwargs)
-    if compressor_name == CompressorConst.ZSTD_SLOW:
-        return ZstdCompressorWrapper(size=size, level=10, **kwargs)
+    if compressor_name == CompressorC.ZSTD_SLOW:
+        return ZstdCompressorWrapper(size=size, level=9, **kwargs)
     raise ValueError(f"Unknown compressor {compressor_name}")
 
 
@@ -87,11 +142,11 @@ def get_decompressor(compressor_name: str, **kwargs) -> DecompressorInterface:
     Returns:
         decompressor
     """
-    if compressor_name == CompressorConst.NONE:
+    if compressor_name == CompressorC.NONE:
         return DummyDecompressor(**kwargs)
-    if compressor_name == CompressorConst.LZMA:
+    if compressor_name == CompressorC.LZMA:
         return LzmaDecompressorWrapper(**kwargs)
-    if compressor_name in (CompressorConst.ZSTD, CompressorConst.ZSTD_SLOW):
+    if compressor_name in (CompressorC.ZSTD, CompressorC.ZSTD_SLOW):
         return ZstdDecompressorWrapper(**kwargs)
     raise ValueError(f"Unknown compressor {compressor_name}")
 
