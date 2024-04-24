@@ -12,14 +12,12 @@ Possible improvements:
 """
 import io
 import json
-import lzma
-import os
+from functools import partial
 from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, Sequence, List
 
 from packg.iotools.compress import (
-    load_xz,
     CompressorC,
     decompress_file_to_str,
     compress_data_to_file,
@@ -29,7 +27,7 @@ from packg.iotools.file_reader import (
     read_text_from_file_or_io,
 )
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
-from packg.typext import PathOrIO, PathType, PathTypeCls
+from packg.typext import PathOrIO, PathTypeCls
 
 
 def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8") -> Any:
@@ -320,54 +318,12 @@ def dumps_jsonl(data: Iterable[Any]) -> str:
     return sio.getvalue()
 
 
-def load_json_xz(file: PathType, verbose: bool = False, encoding: str = "utf-8") -> Any:
-    start_timer = timer()
-    file = Path(file)
-    data_str = load_xz(file, encoding=encoding)
-    try:
-        obj = loads_json(data_str)
-    except Exception as e:
-        raise RuntimeError(f"Error loading json file {file}") from e
-    if verbose:
-        print(f"Loaded json file {file} in {timer() - start_timer:.3f} seconds")
-    return obj
+load_json_xz = partial(load_json_compressed, compressor_name=CompressorC.LZMA)
+dump_json_xz = partial(dump_json_compressed, compressor_name=CompressorC.LZMA)
+load_jsonl_xz = partial(load_jsonl_compressed, compressor_name=CompressorC.LZMA)
+dump_jsonl_xz = partial(dump_jsonl_compressed, compressor_name=CompressorC.LZMA)
 
-
-def dump_json_xz(
-    obj: Any,
-    file: PathType,
-    ensure_ascii: bool = False,
-    check_circular: bool = False,
-    allow_nan=False,
-    indent=None,
-    separators=None,
-    sort_keys=False,
-    verbose: bool = True,
-    create_parent=False,
-    float_precision=None,
-    encoding="utf-8",
-) -> None:
-    start_timer = timer()
-    file = Path(file)
-    if create_parent:
-        os.makedirs(file.parent, exist_ok=True)
-    with lzma.open(file, "wt", encoding=encoding) as fh:
-        try:
-            dump_json(
-                obj,
-                fh,
-                ensure_ascii=ensure_ascii,
-                check_circular=check_circular,
-                allow_nan=allow_nan,
-                indent=indent,
-                separators=separators,
-                sort_keys=sort_keys,
-                verbose=verbose,
-                create_parent=create_parent,
-                float_precision=float_precision,
-            )
-        except Exception as e:
-            raise RuntimeError(f"Error dumping json xz file {file}") from e
-
-    if verbose:
-        print(f"Wrote json xz file {file} in {timer() - start_timer:.3f} seconds")
+load_json_zst = partial(load_json_compressed, compressor_name=CompressorC.ZSTD)
+dump_json_zst = partial(dump_json_compressed, compressor_name=CompressorC.ZSTD)
+load_jsonl_zst = partial(load_jsonl_compressed, compressor_name=CompressorC.ZSTD)
+dump_jsonl_zst = partial(dump_jsonl_compressed, compressor_name=CompressorC.ZSTD)
