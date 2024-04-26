@@ -1,6 +1,10 @@
 import time
 from typing import Optional
 
+from attrs import define
+
+from typedparser import add_argument
+
 
 def connect_to_pycharm_debug_server(host: Optional[str] = None, port: Optional[int] = None) -> None:
     """
@@ -30,3 +34,10 @@ def connect_to_pycharm_debug_server(host: Optional[str] = None, port: Optional[i
         except ConnectionRefusedError:
             print(f"Debug server connection refused: {host}:{port}. Retrying...")
             time.sleep(2)
+
+@define
+class PyCharmDebugArgs:
+    trace: str | None = add_argument(
+        type=str, help="Connect debug server on this host.", default=None
+    )
+    trace_port: int = add_argument(type=int, default=33553, help="Target debugging server port")

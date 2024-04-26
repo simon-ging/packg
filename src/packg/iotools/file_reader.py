@@ -114,7 +114,7 @@ def yield_lines_from_file(
     Read lines from input, strip whitespaces, skip empty lines, yield lines.
 
     Args:
-        file: Either str or iterable of str (list, opened file)
+        file: file path as string
         strip: strip whitespace from lines
         skip_empty: skip empty lines
         encoding: encoding to use for reading
