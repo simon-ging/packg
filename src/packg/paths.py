@@ -13,9 +13,8 @@ Usage in yaml with omegaconf:
     storage: ${oc.env:ENV_DATA_DIR}/datasetname
 """
 import os
-from pathlib import Path
-
 from dotenv import dotenv_values, find_dotenv
+from pathlib import Path
 
 from packg.constclass import Const
 
@@ -29,15 +28,13 @@ HELP_STR = """Solutions:
 class EnvKeys(Const):
     ENV_DATA_DIR = "ENV_DATA_DIR"
     ENV_CACHE_DIR = "ENV_CACHE_DIR"
-    ENV_CODE_DIR = "ENV_CODE_DIR"
 
 
 home = Path.home()
 
 ENV_DEFAULTS = {
-    EnvKeys.ENV_DATA_DIR: "data",  # datasets base directory
+    EnvKeys.ENV_DATA_DIR: "data",  # datasets base directory, default is relative dir 'data'
     EnvKeys.ENV_CACHE_DIR: (home / ".cache").as_posix(),
-    EnvKeys.ENV_CODE_DIR: (home / "code").as_posix(),  # code base directory
 }
 
 _setup_environ_done = False
@@ -116,10 +113,6 @@ def get_data_dir() -> Path:
 
 def get_cache_dir() -> Path:
     return get_path_from_env(EnvKeys.ENV_CACHE_DIR)
-
-
-def get_code_dir() -> Path:
-    return get_path_from_env(EnvKeys.ENV_CODE_DIR)
 
 
 def get_path_from_env(env_k: str) -> Path:
