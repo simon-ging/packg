@@ -282,7 +282,7 @@ class Producer:
         self.wait_times_put = AvgMetric()
 
     def setup(self, *args, **kwargs) -> None:
-        raise NotImplementedError
+        pass
 
     def __call__(self, *args, **kwargs) -> None:
         raise NotImplementedError
@@ -333,7 +333,7 @@ class Consumer:
         self.wait_times_get = AvgMetric()
 
     def setup(self, *args, **kwargs) -> None:
-        raise NotImplementedError
+        pass
 
     def __call__(self, *args, **kwargs) -> None:
         raise NotImplementedError

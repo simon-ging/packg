@@ -21,7 +21,7 @@ from packg.iotools.jsonext import (
     dump_json_compressed,
     load_json_compressed,
     dump_jsonl_compressed,
-    load_jsonl_compressed,
+    load_jsonl_compressed, dump_json_safely,
 )
 from typedparser.objects import modify_nested_object
 
@@ -119,12 +119,13 @@ def test_json_encoder(json_data_fixture):
 
 
 def test_json_dump_load(json_data_fixture, tmp_path):
-    data_python, data_json = json_data_fixture
-    tmp_file = tmp_path / "test.json"
-    dump_json(data_python, tmp_file, indent=2)
-    _compare_json_strings(tmp_file.read_text(encoding="utf8"), data_json)
-    data_python_reloaded = load_json(tmp_file)
-    _compare_objects(data_python, data_python_reloaded)
+    for dump_fn in dump_json, dump_json_safely:
+        data_python, data_json = json_data_fixture
+        tmp_file = tmp_path / "test.json"
+        dump_fn(data_python, tmp_file, indent=2)
+        _compare_json_strings(tmp_file.read_text(encoding="utf8"), data_json)
+        data_python_reloaded = load_json(tmp_file)
+        _compare_objects(data_python, data_python_reloaded)
 
 
 def test_json_xz_dump_load(json_data_fixture, tmp_path):

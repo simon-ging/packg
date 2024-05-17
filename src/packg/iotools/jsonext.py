@@ -12,11 +12,13 @@ Possible improvements:
 """
 import io
 import json
+import os
 from functools import partial
 from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, Sequence, List
 
+from packg import format_exception
 from packg.iotools.compress import (
     CompressorC,
     decompress_file_to_str,
@@ -27,7 +29,7 @@ from packg.iotools.file_reader import (
     read_text_from_file_or_io,
 )
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
-from packg.typext import PathOrIO, PathTypeCls
+from packg.typext import PathOrIO, PathTypeCls, PathType
 
 
 def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8") -> Any:
@@ -46,7 +48,21 @@ def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-
     try:
         obj = loads_json(data_str)
     except Exception as e:
-        raise RuntimeError(f"Error loading json file {file_or_io}") from e
+        # # todo use a general way to reraise the same exception with added information.
+        # print(f"{e=} {e.args=}")
+        # if len(e.args) > 0:
+        #     _msg = e.args[0]
+        #     remaining_args = e.args[1:]
+        # else:
+        #     remaining_args = tuple()
+        # print(f"{remaining_args=} {type(e)=}")
+        # raise type(e)(
+        #     f"Error loading json file {file_or_io} due to {format_exception(e)}", *remaining_args
+        # ) from e
+        raise RuntimeError(
+            f"Error loading json file {file_or_io} due to {format_exception(e)}"
+        ) from e
+
     if verbose:
         print(f"Loaded json file {file_or_io} in {timer() - start_timer:.3f} seconds")
     return obj
@@ -126,6 +142,19 @@ def _check_can_write(file_or_io, overwrite, verbose):
     return True
 
 
+def dump_json_safely(obj: Any, f: PathType, **kwargs):
+    try:
+        dump_json(obj, f, **kwargs)
+    except KeyboardInterrupt as e:
+        print(f"Deleting {f} due to KeyboardInterrupt")
+        try:
+            os.remove(f)
+        except Exception as e2:
+            print(f"Exception while deleting {f}: {format_exception(e2)}")
+            pass
+        raise e
+
+
 def dump_json(
     obj: Any,
     file_or_io: PathOrIO,
@@ -168,7 +197,13 @@ def dump_json(
                     float_precision=float_precision,
                 )
             )
-        json.dump(obj, fh, **kwargs)
+        try:
+            json.dump(obj, fh, **kwargs)
+        except KeyboardInterrupt as e:
+            if isinstance(fh, (Path, str)):
+                print(f"KeyboardInterrupt, removing potentially corrupt json: {fh}")
+                Path(fh).unlink()
+            raise e
 
     if verbose:
         print(f"Wrote json file {file_or_io} in {timer() - start_timer:.3f} seconds")
