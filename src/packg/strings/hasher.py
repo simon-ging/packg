@@ -20,7 +20,7 @@ def hash_object(
         hasher_cls: class to create the hash object
 
     Returns:
-        hash string
+        hash string. url-safe b64 i.e. a-zA-Z0-9 and _-
 
     """
     hasher = hasher_cls()
