@@ -11,3 +11,4 @@ pathspec
 zstandard
 tqdm
 requests
+deprecated

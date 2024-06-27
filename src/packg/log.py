@@ -1,27 +1,26 @@
 """
-- Utils for the loguru package
-  https://loguru.readthedocs.io/en/stable/overview.html
-  https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
-- Utils for the standard library logging package
+The logger provided here is a link to the loguru.logger but sets default level to ERROR.
+To activate logging, use the configure_logger function:
 
-Usage:
-    from loguru import logger
-    from lmbtools.logging.console import configure_logger, SHORTEST_FORMAT
+    >>> configure_logger(level=logging.DEBUG)
 
-    configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
-    logger.info("Hello")
+Other contents of this file: Utils for the standard library logging package,
+Utils for the loguru package.
+https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
 """
 from __future__ import annotations
 
+from logging import getLevelName
+
+import itertools
 import logging
 import os
 import sys
 from copy import deepcopy
-from logging import getLevelName
-from typing import Union
-
-from loguru import logger
+from deprecated import deprecated
+from loguru import logger as loguru_logger
 from pathspec import PathSpec
+from typing import Union
 
 from packg.iotools.pathspec_matcher import make_pathspec
 from typedparser import VerboseQuietArgs
@@ -47,6 +46,9 @@ BRIGHTBG_FORMAT = (
     "<level>{message}</level>"
 )
 TIMELESS_FORMAT = "<level>{level: <4.4}</level> <level>{message}</level>"
+
+SPINNER_STR = "|/-\\"
+SPINNER_CYCLE = itertools.cycle("|/-\\")
 
 
 def get_stdlib_logging_formatter():
@@ -127,7 +129,7 @@ def configure_logger(
         print("\r", end="")  # the invisible print here magically fixes the color
 
     logger_config = {"handlers": handlers, **kwargs}
-    logger.configure(**logger_config)
+    loguru_logger.configure(**logger_config)
     global global_logger_config
     global_logger_config = logger_config
     return logger_config
@@ -159,7 +161,7 @@ def reroute_logger(new_sink=sys.stderr, logger_config=None, handler_num: int = 0
     if logger_config is None:
         logger_config = global_logger_config
     logger_config["handlers"][handler_num]["sink"] = new_sink
-    logger.configure(**logger_config)
+    loguru_logger.configure(**logger_config)
     return logger_config
 
 
@@ -225,3 +227,10 @@ def silence_stdlib_loggers(
             loggr.setLevel(level)
             if verbose:
                 print(f"Set verbosity to {level} for logger '{name}'")
+
+
+# the default loguru logger level is debug, but it should be error.
+# use configure_logger function anywhere to change the logger level.
+configure_logger(level=logging.ERROR, sink=sys.stderr, format=SHORTEST_FORMAT, colorize=True)
+logger = loguru_logger
+logger.warn = deprecated("Use logger.warning instead")(logger.warning)
