@@ -8,17 +8,35 @@ https://pypi.org/project/pathspec/#description
 from pathlib import Path
 from typing import Iterable, Union, List, Optional, Tuple, Dict, Any
 
-import pathspec
 from attr import define
-from pathspec import PathSpec
+from pathspec import PathSpec, patterns as p_patterns, RegexPattern, Pattern
 
 from packg.typext import PathType
 from typedparser import add_argument
 
 
-def make_git_pathspec(patterns: List[str]) -> pathspec.PathSpec:
+class PathSpecRepr(PathSpec):
+    def __str__(self):
+        return repr_pathspec(self)
+
+    def __repr__(self):
+        return repr_pathspec(self)
+
+
+def repr_pathspec(pspec:PathSpec):
+    patts:list[Pattern] = pspec.patterns
+    reps = []
+    for patt in patts:
+        patt_rep = f"Unknown"
+        if hasattr(patt, "pattern"):
+            patt_rep = str(patt.pattern)
+        reps.append(f"{type(patt).__name__}({patt_rep})")
+    return f"PathSpec({', '.join(reps)})"
+
+
+def make_git_pathspec(patterns: List[str]) -> PathSpecRepr:
     """
-    >>> spec1: pathspec.PathSpec = make_git_pathspec(["hello*world"])
+    >>> spec1: PathSpecRepr = make_git_pathspec(["hello*world"])
     >>> print(spec1.match_file("hello_world"))
     True
     >>> print(spec1.match_file("hello_world.txt"))
@@ -30,16 +48,16 @@ def make_git_pathspec(patterns: List[str]) -> pathspec.PathSpec:
     Returns:
 
     """
-    spec = pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, patterns)
+    spec = PathSpecRepr.from_lines(p_patterns.GitWildMatchPattern, patterns)
     return spec
 
 
-def make_regex_pathspec(patterns: List[str]) -> pathspec.PathSpec:
-    spec = pathspec.PathSpec.from_lines(pathspec.RegexPattern, patterns)
+def make_regex_pathspec(patterns: List[str]) -> PathSpecRepr:
+    spec = PathSpecRepr.from_lines(RegexPattern, patterns)
     return spec
 
 
-def make_pathspec(patterns: List[str], regex_mode: bool = False) -> pathspec.PathSpec:
+def make_pathspec(patterns: List[str], regex_mode: bool = False) -> PathSpecRepr:
     """
     Create PathSpec object that can be used to match or search files.
 
