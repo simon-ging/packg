@@ -7,6 +7,8 @@ from packg.strings import (
     b64_encode_from_bytes,
     b64_decode_to_str,
     b64_decode_to_bytes,
+    b64_decode_to_int,
+    b64_encode_from_int,
 )
 
 
@@ -79,3 +81,40 @@ def test_b64_decode_bytes(bytes_plain, bytes_b64):
 def test_b64_decode_bytes_url_safe(bytes_plain, bytes_b64_url_safe):
     bytes_plain_output = b64_decode_to_bytes(bytes_b64_url_safe)
     assert bytes_plain == bytes_plain_output
+
+
+def test_small_integer():
+    n = 123456789
+    base64_str = b64_encode_from_int(n)
+    assert b64_decode_to_int(base64_str) == n
+
+
+def test_large_integer_int64():
+    n = 9223372036854775807  # Max int64
+    base64_str = b64_encode_from_int(n)
+    assert b64_decode_to_int(base64_str) == n
+
+
+def test_very_large_integer_beyond_int64():
+    n = 123456789123456789123456789123456789
+    with pytest.raises(OverflowError):
+        _base64_str = b64_encode_from_int(n)
+    base64_str = b64_encode_from_int(n, bytes_per_int=16)  # int128 is big enough
+    assert b64_decode_to_int(base64_str) == n
+
+
+def test_zero():
+    n = 0
+    base64_str = b64_encode_from_int(n)
+    assert b64_decode_to_int(base64_str) == n
+
+
+def test_one():
+    n = 1
+    base64_str = b64_encode_from_int(n)
+    assert b64_decode_to_int(base64_str) == n
+
+
+def test_negative_number():
+    n = -123456789
+    assert b64_decode_to_int(b64_encode_from_int(n)) == n

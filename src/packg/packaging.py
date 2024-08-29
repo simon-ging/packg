@@ -5,15 +5,16 @@ todo split this into multiple, make the get_module... thing faster and depend on
 thenr eenable the logger.
 """
 from __future__ import annotations
+
 import importlib
+import os
 import re
+import requests
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Optional
-
-import requests
 
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.misc import format_exception
@@ -355,6 +356,31 @@ def find_pypi_package_version(package: str) -> Optional[str]:
         return version
     print(f"ERROR: Could not find version for {package} on shields.io")
     return None
+
+
+def find_top_level_package(file_path, verbose: bool = True):
+    """
+    Args:
+        file_path: __file__ of the module or script you want to find the top-level package for
+    Returns:
+    """
+    print_fn = print if verbose else lambda *args, **kwargs: None
+    current_file_path = os.path.abspath(file_path)
+    print_fn(f"Current file path: {current_file_path}")
+    package = __package__
+    print_fn(f"__package__: {package}")
+    name = __name__
+    print_fn(f"__name__: {name}")
+
+    # Attempt to determine the top-level package
+    if package:
+        top_level_package = package.split(".")[0]
+    else:
+        # If __package__ is None, infer top-level package from the file structure
+        top_level_package = os.path.basename(os.path.dirname(current_file_path))
+
+    print_fn(f"Top-level package: {top_level_package}")
+    return top_level_package
 
 
 def main():

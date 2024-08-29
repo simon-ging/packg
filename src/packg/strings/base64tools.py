@@ -2,6 +2,7 @@
 
 
 import base64
+import os
 
 
 def _b64_ensure_unsafe(b64str: str):
@@ -86,3 +87,26 @@ def get_random_b64_string(length: int = 40):
     random_bytes_as_b64 = b64_encode_from_bytes(os.urandom(length), url_safe=True)
     # at this point the string is approx 4/3 * length long, cut it down to length
     return random_bytes_as_b64[:length]
+
+
+def b64_encode_from_int(
+    int_number: int,
+    url_safe: bool = True,
+    strip_equals: bool = False,
+    bytes_per_int: int = 8,
+    byteorder: str = "big",
+    signed=True,
+):
+    int_as_bytes = int(int_number).to_bytes(bytes_per_int, byteorder, signed=signed)
+    return b64_encode_from_bytes(int_as_bytes, url_safe=url_safe, strip_equals=strip_equals)
+
+
+def b64_decode_to_int(
+    b64str: str,
+    # bytes_per_int: int = 8,
+    byteorder: str = "big",
+    signed=True,
+):
+    int_as_bytes = base64.b64decode(_b64_ensure_unsafe(b64str))
+    int_number = int.from_bytes(int_as_bytes, byteorder, signed=signed)
+    return int_number

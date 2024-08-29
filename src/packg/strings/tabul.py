@@ -25,6 +25,7 @@ def format_pseudo_table(items, max_width=None, padding=2):
 
 def main():
     # todo turn into test file
+    # todo test witg empty list
     items = [
         "file1.txt",
         "file2.jpg",
