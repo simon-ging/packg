@@ -1,9 +1,11 @@
 import shutil
+from packg.log import logger
 
 
 def format_pseudo_table(items, max_width=None, padding=2):
     if len(items) == 0:
-        print(f"(Empty table supplied to format_pseudo_table)")
+        logger.warning(f"(Empty table supplied to format_pseudo_table)")
+        return ""
     if max_width is None:
         max_width = shutil.get_terminal_size().columns
     max_item_length = max(len(item) for item in items)
