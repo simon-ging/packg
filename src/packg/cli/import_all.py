@@ -9,10 +9,35 @@ from importlib.metadata import entry_points
 from pathlib import Path
 import tempfile
 
+from packg.iotools import make_git_pathspec
 from packg.system import systemcall
+from pathlib import Path
+from typing import Optional
+
+from loguru import logger
+from attrs import define
+from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
+from packg.testing import recurse_modules
+from typedparser import VerboseQuietArgs, add_argument, TypedParser
+
+
+@define
+class Args(VerboseQuietArgs):
+    filter_imports: str = add_argument(shortcut="-f", type=str, help="Filter imports", default="")
+    filter_package_list: str = add_argument(
+        shortcut="-p", type=str, help="Filter package list", default=""
+    )
+    recursive: bool = add_argument(
+        shortcut="-r", action="store_true", help="Recursively import all"
+    )
 
 
 def main():
+    parser = TypedParser.create_parser(Args, description=__doc__)
+    args: Args = parser.parse_args()
+    configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
+    logger.info(f"{args}")
+
     eps = entry_points()
     all_vs = []
     for k, vs in eps.items():
@@ -20,11 +45,23 @@ def main():
             all_vs.append(v.value.split(":")[0])
     all_vs = sorted(set(all_vs))
     more_vs = []
+    spec = None
+    if len(args.filter_imports) > 0:
+        filter_list = args.filter_imports.split(",")
+        spec = make_git_pathspec(filter_list)
+    filter_package_set = set()
+    if len(args.filter_package_list) > 0:
+        filter_package_set = set(args.filter_package_list.split(","))
     for v in all_vs:
         current = []
         for part in v.split("."):
             current.append(part)
-            more_vs.append(".".join(current))
+            to_add = ".".join(current)
+            if spec is not None and not spec.match_file(to_add):
+                continue
+            if len(filter_package_set) > 0 and to_add not in filter_package_set:
+                continue
+            more_vs.append(to_add)
     more_vs = sorted(set(more_vs))
     with tempfile.NamedTemporaryFile(
         prefix="python_import_all_file", suffix=".txt", delete=True, mode="wt", encoding="utf-8"
@@ -34,10 +71,27 @@ def main():
         fh.flush()
 
     for v in more_vs:
-        print(f"---------- importing {v}")
-        out,err,retcode=systemcall(f"python -c 'import {v}; print({v}.__name__)'")
+        module_list = [v]
+        if args.recursive:
+            module_list += list(recurse_modules(v, ignore_tests=True, packages_only=False))
+        print(f"---------- importing {v} total {len(module_list)} ----------")
+        strs = []
+        for mod in module_list:
+            strs += [
+                "try:",
+                f"    import {mod}",
+                f"    print(\"{mod}\", end=\" \", flush=True)",
+                "except Exception as e:",
+                f"    from packg import format_exception",
+                f"    print(f\"Error importing {mod}\")",
+                f"    print(format_exception(e))",
+                f"    print()",
+                f""
+            ]
+        final_str = "\n".join(strs)
+        out, err, retcode = systemcall(f"python -c '{final_str}'")
         if retcode != 0:
-            print(F"ERROR CODE: {retcode}")
+            print(f"ERROR CODE: {retcode}")
         if out.strip() != "":
             print(out.strip())
         if err.strip() != "":

@@ -1,5 +1,8 @@
 """
 Utilities for python packages.
+
+todo split this into multiple, make the get_module... thing faster and depend on less.
+thenr eenable the logger.
 """
 from __future__ import annotations
 import importlib
@@ -11,7 +14,6 @@ from pathlib import Path
 from typing import Optional
 
 import requests
-from loguru import logger
 
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.misc import format_exception
@@ -21,7 +23,8 @@ from packg.testing.import_from_source import recurse_modules
 
 def run_package(main_file, run_dir="cli", recursive=True, run_dir_only=True, abbreviations=True):
     """
-    todo remove this. it is too slow and ineffective. solve the problem in bash instead.
+    todo remove this. it is too slow and ineffective. solve the problem in bash,
+         or use the way simpler approach to import the main function and run it.
 
     Create a command line interface for a package given a directory of scripts.
 
@@ -141,11 +144,11 @@ def get_modules_for_autocomplete(package: str, run_dir: Optional[str] = None):
         if m in packages_only:
             mlog = f"{package}.{m}"
             if f"{m}.__main__" not in all_modules:
-                logger.debug(f"SKIP package: {mlog}")
+                # print(f"SKIP package: {mlog}")
                 continue
-            logger.debug(f"ADD package (has __main__): {mlog}")
+            # print(f"ADD package (has __main__): {mlog}")
         if m.endswith("__main__"):
-            logger.debug(f"SKIP __main__ file: {mlog}")
+            # print(f"SKIP __main__ file itself: {mlog}")
             continue
         output_modules.append(m)
     output_modules.sort()
@@ -189,6 +192,7 @@ def create_bash_autocomplete_script(
         command_name = package
     ob, cb = "{", "}"
     autocomplete_script = f"""
+# source this file to enable autocompletion for {package} command
 {function_name}() {ob}
     local cur prev opts
     _init_completion || return
@@ -231,9 +235,9 @@ def create_new_bash_autocomplete_script(
     for package in packages:
         output_modules = get_modules_for_autocomplete(package, run_dir=run_dir)
         output_modules = [f"{package}.{m}" for m in output_modules]
-        logger.debug(f"package={package} output_modules={output_modules}")
+        # logger.debug(f"package={package} output_modules={output_modules}")
         if len(output_modules) == 0:
-            logger.warning(f"Nothing found for package {package} in {run_dir}, is it installed?")
+            print(f"WARN: Nothing found for package {package} in {run_dir}, is it installed?")
         all_output_modules.extend(output_modules)
     if function_name is None:
         function_name = f"_{command_name}"
@@ -307,14 +311,14 @@ _filedir()  # source: ubuntu 2004 /usr/share/bash-completion/bash_completion
 def _get_raw_shields_io_output(package: str):
     # todo wrap this request code into a separate function in packg.web
     url = f"https://img.shields.io/pypi/v/{package}"
-    logger.info(f"Finding pypi version via {url}")
+    print(f"Finding pypi version via {url}")
     counter = 0
     while True:
         try:
             response = requests.get(url, timeout=10)
             break
         except Exception as e:
-            logger.warning(f"Error requesting {url}: {format_exception(e)}")
+            print(f"ERROR requesting {url}: {format_exception(e)}")
         counter += 1
         time.sleep(1)
     return response.text
@@ -349,7 +353,7 @@ def find_pypi_package_version(package: str) -> Optional[str]:
     if match:
         version = match.group(1)
         return version
-    logger.error(f"Could not find version for {package} on shields.io")
+    print(f"ERROR: Could not find version for {package} on shields.io")
     return None
 
 

@@ -8,3 +8,4 @@ from .base64tools import (
 )
 from .hasher import hash_object
 from .quote_urlparse import quote_with_urlparse, unquote_with_urlparse
+from .tabul import format_pseudo_table
