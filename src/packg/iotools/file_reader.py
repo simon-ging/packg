@@ -122,5 +122,18 @@ def yield_lines_from_file(
     Returns:
         Generator of stripped lines
     """
-    content = Path(file).read_text(encoding=encoding)
-    yield from yield_lines_from_object(content, strip=strip, skip_empty=skip_empty)
+    with Path(file).open(encoding=encoding) as fh:
+        while True:
+            next_line = fh.readline()
+            if len(next_line) == 0:
+                # empty lines will have at least a newline character
+                # so this is only true if EOF is reached.
+                break
+            if strip:
+                next_line = next_line.strip()
+            if skip_empty:
+                if strip and next_line == "":
+                    continue
+                if not strip and next_line.strip("\r\n") == "":
+                    continue
+            yield next_line
