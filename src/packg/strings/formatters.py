@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def dict_to_str_comma_equals(in_dict: dict[str, any] | list[tuple[any, any]]):
     try:
         items = in_dict.items()

@@ -6,6 +6,8 @@ Note about smoothing:
     (math: EMAcurrent = (1 − smoothing) * EMAprevious + smoothing * valuecurrent)
     Default is 0.3
 """
+
+from __future__ import annotations
 from attrs import define, field
 from timeit import default_timer
 from tqdm import tqdm
