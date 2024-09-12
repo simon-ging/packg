@@ -35,7 +35,6 @@ class tqdm_max_ncols(tqdm):
 
 @define
 class SimplePbar:
-    # todo format=minutes etc. paramaeter.
     interval: int | None = None
     total: int | None = None
     print_fn: callable = print
@@ -70,7 +69,7 @@ class SimplePbar:
         elif self.time_fmt == "d":
             self.time_fmt_div = 86400
         else:
-            raise ValueError(f"Invalid time_fmt {self.time_fmt=}")
+            raise ValueError(f"Invalid time_fmt {self.time_fmt}")
 
     def update(self, n: int = 1, status_counts: dict[str, int] | None = None):
         self.current += n
