@@ -1,4 +1,5 @@
 import hashlib
+import random
 from typing import Any
 
 from packg.iotools import dumps_json
@@ -28,3 +29,20 @@ def hash_object(
     out_hash_bytes = hasher.digest()
     out_hash = b64_encode_from_bytes(out_hash_bytes, strip_equals=True)
     return out_hash
+
+
+EASY_TO_READ_SYMBOLS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+
+def get_random_str_id(length: int = 16, symbols: str = EASY_TO_READ_SYMBOLS):
+    """
+    Get a random string id of given length using the given symbols.
+
+    Args:
+        length: length of the id
+        symbols: symbols to use for the id
+
+    Returns:
+        random string id
+    """
+    return "".join(random.choices(symbols, k=length))

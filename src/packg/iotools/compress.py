@@ -5,8 +5,11 @@ possible improvements:
     - compressor ios similar to BytesIO that compress/decompress as needed on write/read
 
 """
+
 import lzma
+import time
 import zstandard
+from datetime import datetime
 from typing import Union
 
 from packg import Const
@@ -202,3 +205,33 @@ class LzmaDecompressorWrapper(DecompressorInterface):
 
     def decompress(self, data: bytes) -> bytes:
         return self.lzd.decompress(data)
+
+
+def read_unzip_list_output(unzip_output: str):
+    """
+    Args:
+        unzip_output: output from unzip -l command
+
+    Returns:
+        dict: filename -> (size, timestamp)
+    """
+    result = {}
+    lines = unzip_output.strip().splitlines()
+
+    for line in lines:
+        parts = line.split()
+        if len(parts) < 4 or not parts[0].isdigit():
+            continue
+
+        size = int(parts[0])
+        date_str = parts[1]
+        time_str = parts[2]
+        filename = " ".join(parts[3:])
+
+        # Combine date and time strings to create a timestamp
+        timestamp_str = f"{date_str} {time_str}"
+        timestamp = time.mktime(datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M").timetuple())
+
+        result[filename] = (size, timestamp)
+
+    return result

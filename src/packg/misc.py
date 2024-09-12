@@ -24,5 +24,3 @@ def suppress_stdout_stderr():
     with open(devnull, "w", encoding="utf-8") as fnull:
         with redirect_stderr(fnull) as err, redirect_stdout(fnull) as out:
             yield err, out
-
-
