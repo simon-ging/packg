@@ -1,3 +1,31 @@
+"""
+
+----- Copy paste:
+
+from attrs import define
+from loguru import logger
+
+from packg.debugging import PyCharmDebugArgs, connect_to_pycharm_debug_server
+from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args, logger
+from typedparser import VerboseQuietArgs, add_argument, TypedParser
+
+@define
+class Args(VerboseQuietArgs, PyCharmDebugArgs):
+    pass
+
+
+def main():
+    parser = TypedParser.create_parser(Args, description=__doc__)
+    args: Args = parser.parse_args()
+    configure_logger(level=get_logger_level_from_args(args), format=SHORTEST_FORMAT)
+    logger.info(f"{args}")
+    if args.trace is not None:
+        connect_to_pycharm_debug_server(args.trace, args.trace_port)
+
+if __name__ == "__main__":
+    main()
+
+"""
 import time
 from typing import Optional
 
@@ -34,6 +62,7 @@ def connect_to_pycharm_debug_server(host: Optional[str] = None, port: Optional[i
         except ConnectionRefusedError:
             print(f"Debug server connection refused: {host}:{port}. Retrying...")
             time.sleep(2)
+
 
 @define
 class PyCharmDebugArgs:
