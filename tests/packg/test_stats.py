@@ -55,18 +55,25 @@ def test_negative_n():
     metric = AvgMetric()
     with pytest.raises(ValueError):
         metric.update(10.0, n=-1)
+
+
 import pytest
 import numpy as np
 from packg.stats import ensure_numpy, AvgMetric
+
 
 def test_ensure_numpy():
     array = [1, 2, 3]
     np_array = ensure_numpy(array)
     assert isinstance(np_array, np.ndarray)
 
+
 def test_avg_metric():
     metric = AvgMetric()
     metric.update(10, 2)
-    assert metric.avg == 5
-    metric.update(20, 2)
     assert metric.avg == 10
+    metric.update(20, 2)
+    assert metric.avg == 15
+    metric.update(10, 6)
+    assert metric.avg == 12
+
