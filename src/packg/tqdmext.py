@@ -37,6 +37,14 @@ class tqdm_max_ncols(tqdm):
 
 @define
 class SimplePbar:
+    """
+    Usage example:
+        from packg.tqdmext import SimplePbar
+        sbar = SimplePbar(1000, len(mylist))
+        for item in mylist:
+            # do something
+            sbar.update()
+    """
     interval: int | None = None
     total: int | None = None
     print_fn: callable = print

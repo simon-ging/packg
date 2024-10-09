@@ -84,3 +84,19 @@ def test_yaml_dump_load(input_object_fixture, tmp_path):
     dump_yaml(input_dict, file, standard_format=True)
     assert file.read_text(encoding="utf-8").strip() == ref_str_standard.strip()
     assert load_yaml(file) == input_dict
+
+
+def test_yamls_roundtrip_with_empty_dict():
+    input_dict = {"empty": {}}
+    ref_str_nonstandard = "empty: {}\n"
+    ref_str_standard = "empty: {}\n"
+
+    # test roundtrip for standard format (yaml.dump)
+    cand_str_standard = dumps_yaml(input_dict, standard_format=True)
+    assert cand_str_standard.strip() == ref_str_standard.strip()
+    assert loads_yaml(cand_str_standard) == input_dict
+
+    # test roundtrip for nonstandard format
+    cand_str_nonstandard = dumps_yaml(input_dict, standard_format=False)
+    assert cand_str_nonstandard.strip() == ref_str_nonstandard.strip()
+    assert loads_yaml(cand_str_nonstandard) == input_dict

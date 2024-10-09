@@ -129,11 +129,16 @@ def _dumps_yaml_recursive(
             return "".join(dct_strs)
         # long: build the dict line by line
         ret_list = []
+        if len(obj) == 0:
+            return "{}"
         for k, v in obj.items():
-            kv_sep = "\n" if isinstance(v, abc.Mapping) else " "
             recursive_result = _dumps_yaml_recursive(
                 v, _indent_level=_indent_level + 1, _is_inside_list=_is_inside_list
             )
+            kv_sep = " "
+            if isinstance(v, abc.Mapping) and recursive_result != "{}":
+                # dicts, except empty dict, should have their content on a new line
+                kv_sep = "\n"
             ret_list.append(f"{indent}{k}:{kv_sep}{recursive_result}")
         return "\n".join(ret_list)
     if is_any_iterable(obj):
