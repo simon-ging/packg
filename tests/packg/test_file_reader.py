@@ -1,6 +1,7 @@
-import pytest
-from packg.iotools.file_reader import read_text_from_file_or_io
 from io import StringIO
+
+from packg.iotools.file_reader import read_text_from_file_or_io
+
 
 def test_read_text_from_file_or_io():
     text = "Hello, World!"

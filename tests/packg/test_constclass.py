@@ -1,8 +1,10 @@
 import pytest
 from packg.constclass import Const
 
+
 class MyConstants(Const):
     FIELD = "value"
+
 
 def test_const_class():
     assert MyConstants.FIELD == "value"

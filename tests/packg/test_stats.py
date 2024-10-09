@@ -1,6 +1,7 @@
+import numpy as np
 import pytest
 
-from packg.stats import AvgMetric
+from packg.stats import ensure_numpy, AvgMetric
 
 
 def test_initial_state():
@@ -57,11 +58,6 @@ def test_negative_n():
         metric.update(10.0, n=-1)
 
 
-import pytest
-import numpy as np
-from packg.stats import ensure_numpy, AvgMetric
-
-
 def test_ensure_numpy():
     array = [1, 2, 3]
     np_array = ensure_numpy(array)
@@ -76,4 +72,3 @@ def test_avg_metric():
     assert metric.avg == 15
     metric.update(10, 6)
     assert metric.avg == 12
-

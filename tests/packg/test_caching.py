@@ -1,5 +1,5 @@
-import pytest
 from packg.caching import SimpleMemoryCache
+
 
 def test_simple_memory_cache():
     cache = SimpleMemoryCache()

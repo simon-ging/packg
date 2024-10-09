@@ -1,7 +1,7 @@
 import io
 import logging
 
-from packg.log import silence_stdlib_loggers
+from packg.log import silence_stdlib_loggers, configure_logger
 
 
 def test_silence_stdlib_loggers():
@@ -33,8 +33,7 @@ def test_silence_stdlib_loggers():
     assert stream.getvalue() == ""
 
     print(f"Done")
-import pytest
-from packg.log import configure_logger
+
 
 def test_configure_logger():
     config = configure_logger(level="INFO")
