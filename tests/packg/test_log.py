@@ -33,3 +33,9 @@ def test_silence_stdlib_loggers():
     assert stream.getvalue() == ""
 
     print(f"Done")
+import pytest
+from packg.log import configure_logger
+
+def test_configure_logger():
+    config = configure_logger(level="INFO")
+    assert config["handlers"][0]["level"] == "INFO"
