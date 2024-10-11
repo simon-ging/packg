@@ -1,3 +1,6 @@
+"""
+Find status of a local git repository: changed files, staged files, unpushed commits.
+"""
 from pathlib import Path
 from typing import Dict
 

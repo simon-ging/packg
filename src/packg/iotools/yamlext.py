@@ -1,19 +1,23 @@
 """
 Wrapper functions for YAML I/O.
 """
-import difflib
+
+from collections import abc
+
 import os
 import sys
-from collections import abc
+import yaml
 from pathlib import Path
 from typing import Any
 
-import yaml
-from typedparser.objects import is_any_mapping, is_any_iterable, compare_nested_objects,\
-    modify_nested_object
-
 from packg.iotools.file_reader import read_text_from_file_or_io
 from packg.typext import PathOrIO, PathTypeCls
+from typedparser.objects import (
+    is_any_mapping,
+    is_any_iterable,
+    compare_nested_objects,
+    modify_nested_object,
+)
 
 
 def load_yaml(file_or_io: PathOrIO) -> Any:

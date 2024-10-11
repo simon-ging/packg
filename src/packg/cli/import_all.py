@@ -1,22 +1,19 @@
 """
 import all installed packages (useful to check for errors, to pre-generate cache etc.)
 
-for i in $(cat import_all.txt); do echo $i; python -c "import $i; print($i.__name__)"; done
-
+Example usage:
+    for i in $(cat import_all.txt); do echo $i; python -c "import $i; print($i.__name__)"; done
 """
 
 from importlib.metadata import entry_points
-from pathlib import Path
+
 import tempfile
+from attrs import define
+from loguru import logger
 
 from packg.iotools import make_git_pathspec
-from packg.system import systemcall
-from pathlib import Path
-from typing import Optional
-
-from loguru import logger
-from attrs import define
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
+from packg.system import systemcall
 from packg.testing import recurse_modules
 from packg.tqdmext import tqdm_max_ncols
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
@@ -87,13 +84,13 @@ def main():
             strs += [
                 "try:",
                 f"    import {mod}",
-                f"    print(\"{mod}\", end=\" \", flush=True)",
+                f'    print("{mod}", end=" ", flush=True)',
                 "except Exception as e:",
                 f"    from packg import format_exception",
-                f"    print(f\"Error importing {mod}\")",
+                f'    print(f"Error importing {mod}")',
                 f"    print(format_exception(e))",
                 f"    print()",
-                f""
+                f"",
             ]
         final_str = "\n".join(strs)
         out, err, retcode = systemcall(f"python -c '{final_str}'")

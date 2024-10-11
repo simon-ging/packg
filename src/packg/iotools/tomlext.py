@@ -1,7 +1,6 @@
 import logging
-from timeit import default_timer as timer
-
 import tomlkit
+from timeit import default_timer as timer
 from tomlkit import TOMLDocument
 
 from packg.iotools.file_reader import read_text_from_file_or_io
@@ -24,15 +23,3 @@ def load_toml(file_or_io: PathOrIO, verbosity: int = logging.WARNING) -> TOMLDoc
 def loads_toml(s: str) -> TOMLDocument:
     source_toml_dict: TOMLDocument = tomlkit.loads(s)
     return source_toml_dict
-
-
-# source_toml_str_re = tomlkit.dumps(source_toml_dict)
-
-
-# # todo
-# def dump_toml():
-#     raise NotImplementedError()
-#
-#
-# def dumps_toml():
-#     raise NotImplementedError()

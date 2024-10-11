@@ -1,5 +1,9 @@
 """
-Also autocomplete but for a single package separately
+Create a bash autocompletion script.
+
+Given the files __main__.py and pyproject.toml, after installation,
+the command `packg my.module` will run `python -m packg.my.module`.
+This script will create the autocompletion script over all modules in the package.
 """
 
 import importlib
@@ -15,7 +19,7 @@ from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 @define
 class Args(VerboseQuietArgs):
-    packages: str = add_argument(shortcut="-p", type=str, default="packg,visiontext,crx,crossm")
+    packages: str = add_argument(shortcut="-p", type=str, default="packg,visiontext")
     run_dir: Optional[str] = add_argument(
         shortcut="-r", type=str, help="Only create autocompletion for this directory"
     )

@@ -1,5 +1,5 @@
 """
-Remove build artifacts and other clutter from a directory.
+Remove build artifacts (like __pycache__) and other clutter from a directory.
 """
 import shutil
 from pathlib import Path

@@ -2,8 +2,9 @@
 Wrapper functions for json files.
 
 Behaviour of the JSON writer is changed to:
-    - Automatically converts JSON incompatible data types to lists
-    (pathlib.Path, numpy arrays, torch tensors, jax tensors) instead of raising errors
+    - Automatically converts JSON incompatible data types
+    (pathlib.Path, numpy arrays, torch tensors, jax tensors) instead of raising errors.
+    Paths become strings, tensors become lists.
     - Does not indent each list element as a new line
 
 Possible improvements:

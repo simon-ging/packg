@@ -1,3 +1,6 @@
+"""
+Count file endings in a directory.
+"""
 from collections import defaultdict
 
 from attrs import define

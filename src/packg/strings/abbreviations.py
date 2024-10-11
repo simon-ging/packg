@@ -5,11 +5,11 @@ from typing import List, Dict, Tuple
 
 def create_unique_abbreviations(input_strings: List[str], seps=("_", ".")) -> Dict[str, str]:
     """
+    Create abbreviations, by splitting input strings at "_" and ".", then taking the
+    first letter of each word. Ensures uniqueness by appending a number if needed.
 
-    Old version, splits input strings at "_" and "." and takes first letter of each word.
-
-    lg         run.list_gpus
-    pcbs       run.packaging.create_build_scripts
+    lg         list_gpus
+    pcbs       packaging.create_build_scripts
 
     Args:
         input_strings: list of strings to abbreviate
@@ -42,10 +42,11 @@ def create_unique_abbreviations(input_strings: List[str], seps=("_", ".")) -> Di
 
 def create_nested_abbreviations(input_strings: List[str], sep_dir=".") -> Dict[str, str]:
     """
-    New version, keep the directory nesting and use minimal amount of letters
+    Create abbreviations by splitting first at "." and then for each element of the split
+    using the first letter. Ensures uniqueness by using more letters per element.
 
-    l          run.list_gpus
-    p.c        run.packaging.create_build_scripts
+    l          list_gpus
+    p.c        packaging.create_build_scripts
 
     Args:
         input_strings: list of strings to abbreviate

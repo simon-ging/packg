@@ -7,7 +7,7 @@ import os
 
 def _b64_ensure_unsafe(b64str: str):
     """Take a base64 string that is either path-/url-safe or not, and make sure
-    it is unsafe, such that the decoder understands it.
+    it is url-unsafe, such that the decoder understands it.
 
     Args:
         b64str: base64 string
