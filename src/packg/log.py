@@ -8,6 +8,7 @@ Other contents of this file: Utils for the standard library logging package,
 Utils for the loguru package.
 https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
 """
+
 from __future__ import annotations
 
 from logging import getLevelName
@@ -22,7 +23,6 @@ from loguru import logger as loguru_logger
 from pathspec import PathSpec
 from typing import Union
 
-from packg.iotools.pathspec_matcher import make_pathspec
 from typedparser import VerboseQuietArgs
 
 LevelType = Union[str, int]  # either "DEBUG" or 10
@@ -218,6 +218,10 @@ def silence_stdlib_loggers(
     level: LevelType = logging.ERROR,
     verbose: bool = False,
 ):
+    # the packg.log module should be usable anywhere so we cannot import other packg modules here
+    # otherwise we would cause a circular import. so we put the import here inside the function.
+    from packg.iotools.pathspec_matcher import make_pathspec
+
     spec: PathSpec = make_pathspec([search_str], regex_mode=regex_mode)
     # print([p.regex for p in spec.patterns])
     level = get_level_as_int(level)

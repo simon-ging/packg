@@ -193,7 +193,11 @@ def apply_visitor(module: str, visitor: NodeVisitor) -> None:
     assert module_spec is not None
     assert module_spec.origin is not None
 
-    with open(module_spec.origin, "r", encoding="utf-8") as source_file:
-        ast = parse(source=source_file.read(), filename=module_spec.origin)
+    source_file = module_spec.origin
+    if source_file.endswith(".abi3.so"):
+        print(f"Skipping rust binary: {source_file}")
+        return
 
+    with open(module_spec.origin, "r", encoding="utf-8") as fh:
+        ast = parse(source=fh.read(), filename=module_spec.origin)
     visitor.visit(ast)

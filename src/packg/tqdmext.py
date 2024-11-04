@@ -3,7 +3,7 @@ Wrapper for tqdm progressbar with default settings.
 
 Note about smoothing:
     Smoothing: 0=compute average speed, 1=compute current speed
-    (math: EMAcurrent = (1 − smoothing) * EMAprevious + smoothing * valuecurrent)
+    (math: EMAcurrent = (1 - smoothing) * EMAprevious + smoothing * valuecurrent)
     Default is 0.3
 """
 

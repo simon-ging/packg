@@ -14,7 +14,9 @@ from typing import Iterator, Union, Optional
 import natsort
 from attr import define
 from tqdm import tqdm
+from packg.log import logger
 
+from packg import format_exception
 from packg.iotools.pathspec_matcher import (
     PathSpecArgs,
     make_pathspecs,
@@ -127,6 +129,7 @@ def make_index(
     show_file_if_verbose: bool = False,
     pathspec_args: Optional[PathSpecArgs] = None,
     follow_symlinks: bool = False,
+    ignore_io_errors: bool = False,
 ) -> dict[str, FileProperties]:
     """Create file index dictionary of some path
 
@@ -139,6 +142,7 @@ def make_index(
         pathspec_args: optional pathspec arguments to filter files
         follow_symlinks: follow symlinks (default False) both by recursing into symlinked dirs and
             by indexing symlinked files.
+        ignore_io_errors: ignore IO errors when reading files
 
     Returns:
         file dict {filename str : (file_size int, time_last_modified float) }
@@ -160,6 +164,7 @@ def make_index(
         show_file_if_verbose=show_file_if_verbose,
         specs=specs,
         follow_symlinks=follow_symlinks,
+        ignore_io_errors=ignore_io_errors,
     )
     file_dict = {}
     for filename, size, modtime in file_list:
@@ -184,6 +189,7 @@ def _recursive_index(
     show_file_if_verbose: bool = False,
     specs: Optional[SPECLISTTYPE, None] = None,
     follow_symlinks: bool = False,
+    ignore_io_errors: bool = False,
 ) -> list[tuple[str, int, float]]:
     """Recursive helper function for make_index
 
@@ -246,25 +252,31 @@ def _recursive_index(
                 show_file_if_verbose=show_file_if_verbose,
                 specs=specs,
                 follow_symlinks=follow_symlinks,
+                ignore_io_errors=ignore_io_errors,
             )
     if files is None:
         return entries
 
     abs_files = []
     for f in files:
-        abs_file = (root / f).absolute()
-        if abs_file.is_symlink() and follow_symlinks:
-            # pathlib silently ignores recursive symlinks. the way to detect the error is because
-            # it is not a directory anymore, but following it will lead to a directory.
-            linked_file = abs_file.readlink()
-            if linked_file.is_dir() and not abs_file.is_dir():
-                raise RuntimeError(f"Broken symlink, potentially recursive: {abs_file} -> {linked_file}")
-        if not abs_file.is_file():
-            # .is_file() safeguards against stuff like /dev/zero which returns .is_char_device()
-            continue
-        if abs_file.is_symlink() and not follow_symlinks:
-            continue
-        abs_files.append(abs_file)
+        try:
+            abs_file = (root / f).absolute()
+            if abs_file.is_symlink() and follow_symlinks:
+                # pathlib silently ignores recursive symlinks. the way to detect the error is because
+                # it is not a directory anymore, but following it will lead to a directory.
+                linked_file = abs_file.readlink()
+                if linked_file.is_dir() and not abs_file.is_dir():
+                    raise RuntimeError(f"Broken symlink, potentially recursive: {abs_file} -> {linked_file}")
+            if not abs_file.is_file():
+                # .is_file() safeguards against stuff like /dev/zero which returns .is_char_device()
+                continue
+            if abs_file.is_symlink() and not follow_symlinks:
+                continue
+            abs_files.append(abs_file)
+        except OSError as e:
+            if "input/output error" in str(e).lower() and ignore_io_errors:
+                logger.error(f"IO error: {format_exception(e)}")
+                continue
     rel_files = [f.relative_to(base_root) for f in abs_files]
     if len(specs) > 0:
         # filter with pathspecs on relative file level

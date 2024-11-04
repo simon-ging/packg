@@ -1,15 +1,15 @@
 """
 Remove build artifacts (like __pycache__) and other clutter from a directory.
 """
+
 import shutil
-from pathlib import Path
-from typing import Optional
-
+from attrs import define
 from loguru import logger
+from pathlib import Path
 
+from packg import format_exception
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
-from attrs import define
 
 
 @define
@@ -22,7 +22,11 @@ class Args(VerboseQuietArgs):
     clean_pycache: bool = add_argument(
         shortcut="-c", action="store_true", help="remove all pycache and pytests cache"
     )
+    clean_rust: bool = add_argument(shortcut="-r", action="store_true", help="remove rust builds")
     clean_all: bool = add_argument(shortcut="-a", action="store_true", help="remove everything")
+    clean_latex: bool = add_argument(
+        shortcut="-l", action="store_true", help="remove latex build artifacts"
+    )
     remove_empty_dirs: bool = add_argument(
         shortcut="-e", action="store_true", help="remove empty directories"
     )
@@ -37,10 +41,14 @@ def main():
     base_dir = args.folder.resolve()
     logger.warning(f"Cleaning up: {base_dir}")
 
-    def rmtree_verbose(path):
-        logger.info(f"RM {path}")
+    def rmtree_verbose(path: Path):
+        logger.info(f"RM {args.write} {path}")
         if args.write:
-            shutil.rmtree(path, ignore_errors=True)
+            # shutil.rmtree(path, ignore_errors=True)
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
 
     glob_strs = []
     if args.clean_packages or args.clean_all:
@@ -48,6 +56,12 @@ def main():
 
     if args.clean_pycache or args.clean_all:
         glob_strs += ["**/__pycache__", "**/.pytest_cache", "**/*.pyc", "**/*.pyo"]
+
+    if args.clean_rust or args.clean_all:
+        glob_strs += ["**/*.abi3.so", "**/Cargo.lock"]
+
+    if args.clean_latex or args.clean_all:
+        glob_strs += ["**/*.aux", "**/*.log", "**/*.out", "**/*.bbl", "**/*.blg", "**/*.synctex.gz"]
 
     if args.clean_all:
         glob_strs += ["**/.ipynb_checkpoints"]
@@ -70,7 +84,7 @@ def main():
         logger.warning("Test run (no -w), did not do anything.")
 
 
-def remove_empty_dirs(folder, level=0, write=False):
+def remove_empty_dirs(folder, level=0, write=False, ignore_errors=True):
     # recursively delete empty subfolders
     subfolders = [f for f in list(folder.glob("*")) if f.is_dir() and not f.is_symlink()]
     for subfolder in subfolders:
@@ -81,7 +95,13 @@ def remove_empty_dirs(folder, level=0, write=False):
     if len(remaining_elements) == 0:
         logger.info(f"RM empty dir: {folder}")
         if write:
-            folder.rmdir()
+            if ignore_errors:
+                try:
+                    folder.rmdir()
+                except OSError as e:
+                    logger.error(f"{format_exception(e)}\nwhen removing {folder}")
+            else:
+                folder.rmdir()
 
 
 if __name__ == "__main__":

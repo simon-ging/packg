@@ -1,9 +1,10 @@
+import joblib
 import os
 import pickle
-
-import joblib
+import time
 from joblib import register_store_backend
 from joblib._store_backends import FileSystemStoreBackend  # noqa
+from joblib.logger import format_time
 
 from packg.paths import get_cache_dir
 
@@ -16,21 +17,32 @@ class StoreNoNumpy(FileSystemStoreBackend):
 
     NAME = "no_numpy"
 
-    def load_item(self, path, verbose=1, msg=None):
-        full_path = os.path.join(self.location, *path)
+    def load_item(self, call_id, verbose=1, timestamp=None, metadata=None):
+        """Load an item from the store given its id as a list of str."""
+        full_path = os.path.join(self.location, *call_id)
 
         if verbose > 1:
+            ts_string = (
+                "{: <16}".format(format_time(time.time() - timestamp))
+                if timestamp is not None
+                else ""
+            )
+            signature = os.path.basename(call_id[0])
+            if metadata is not None and "input_args" in metadata:
+                kwargs = ", ".join("{}={}".format(*item) for item in metadata["input_args"].items())
+                signature += "({})".format(kwargs)
+            msg = "[Memory]{}: Loading {}".format(ts_string, signature)
             if verbose < 10:
-                print(f"{msg}...")
+                print("{0}...".format(msg))
             else:
-                print(f"{msg} from {full_path}")
+                print("{0} from {1}".format(msg, full_path))
 
         mmap_mode = None if not hasattr(self, "mmap_mode") else self.mmap_mode
 
         filename = os.path.join(full_path, "output.pkl")
         if not self._item_exists(filename):
             raise KeyError(
-                f"Non-existing item (may have been cleared).\n" f"File {filename} does not exist"
+                "Non-existing item (may have been " "cleared).\nFile %s does not exist" % filename
             )
 
         assert mmap_mode is None, "Standard pickle does not support mmap_mode"
