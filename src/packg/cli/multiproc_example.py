@@ -1,6 +1,7 @@
 import multiprocessing
 import random
 import time
+
 from attrs import define
 from loguru import logger
 

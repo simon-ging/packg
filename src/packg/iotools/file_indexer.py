@@ -14,7 +14,6 @@ from typing import Iterator, Union, Optional
 import natsort
 from attr import define
 from tqdm import tqdm
-from packg.log import logger
 
 from packg import format_exception
 from packg.iotools.pathspec_matcher import (
@@ -24,6 +23,7 @@ from packg.iotools.pathspec_matcher import (
     SPECLISTTYPE,
     apply_pathspecs,
 )
+from packg.log import logger
 from packg.typext import PathType
 from typedparser import NamedTupleMixin
 
@@ -148,7 +148,7 @@ def make_index(
         file dict {filename str : (file_size int, time_last_modified float) }
     """
     base_root = Path(base_root).resolve().absolute()
-    global _total_counter, _pbar, _ignored_dirs_counter, _ignored_files_counter
+    global _total_counter, _pbar
     _total_counter = 0
     _pbar = tqdm(total=0, disable=not verbose, desc="Indexing files")
     specs = []
@@ -228,9 +228,8 @@ def _recursive_index(
             if abs_dir.is_symlink():
                 if not follow_symlinks:
                     continue
-                else:
-                    # reading the link will raise an error if the link is broken.
-                    abs_dir.readlink()
+                # reading the link will raise an error if the link is broken.
+                abs_dir.readlink()
             abs_dirs.append(abs_dir)
         if not follow_symlinks:
             abs_dirs = [d for d in abs_dirs if not d.is_symlink()]

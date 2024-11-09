@@ -7,10 +7,11 @@ This script will create the autocompletion script over all modules in the packag
 """
 
 import importlib
-from attrs import define
-from loguru import logger
 from pathlib import Path
 from typing import Optional
+
+from attrs import define
+from loguru import logger
 
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.packaging import FILEDIR_AUTOCOMPLETE, create_bash_autocomplete_script

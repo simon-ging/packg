@@ -5,6 +5,8 @@ https://pypi.org/project/pathspec/#description
 
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Iterable, Union, List, Optional, Tuple, Dict, Any
 
@@ -70,8 +72,7 @@ def make_pathspec(patterns: List[str], regex_mode: bool = False) -> PathSpecRepr
     """
     if regex_mode:
         return make_regex_pathspec(patterns)
-    else:
-        return make_git_pathspec(patterns)
+    return make_git_pathspec(patterns)
 
 
 def make_and_apply_pathspecs(

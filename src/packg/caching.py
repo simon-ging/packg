@@ -1,7 +1,8 @@
-import joblib
 import os
 import pickle
 import time
+
+import joblib
 from joblib import register_store_backend
 from joblib._store_backends import FileSystemStoreBackend  # noqa
 from joblib.logger import format_time
@@ -23,19 +24,19 @@ class StoreNoNumpy(FileSystemStoreBackend):
 
         if verbose > 1:
             ts_string = (
-                "{: <16}".format(format_time(time.time() - timestamp))
+                f"{format_time(time.time() - timestamp): <16}"
                 if timestamp is not None
                 else ""
             )
             signature = os.path.basename(call_id[0])
             if metadata is not None and "input_args" in metadata:
-                kwargs = ", ".join("{}={}".format(*item) for item in metadata["input_args"].items())
-                signature += "({})".format(kwargs)
-            msg = "[Memory]{}: Loading {}".format(ts_string, signature)
+                kwargs = ", ".join(f"{k}={v}" for k, v in metadata["input_args"].items())
+                signature += f"({kwargs})"
+            msg = f"[Memory]{ts_string}: Loading {signature}"
             if verbose < 10:
-                print("{0}...".format(msg))
+                print(f"{msg}...")
             else:
-                print("{0} from {1}".format(msg, full_path))
+                print(f"{msg} from {full_path}")
 
         mmap_mode = None if not hasattr(self, "mmap_mode") else self.mmap_mode
 

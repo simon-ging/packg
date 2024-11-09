@@ -1,13 +1,10 @@
-from pathlib import Path
-from typing import Optional
-
-from loguru import logger
 from attrs import define
+from loguru import logger
 
-from packg.iotools import load_json, loads_json
+from packg.iotools import loads_json
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.system import systemcall_with_assert
-from typedparser import VerboseQuietArgs, add_argument, TypedParser
+from typedparser import VerboseQuietArgs, TypedParser
 
 
 @define

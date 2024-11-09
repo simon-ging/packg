@@ -10,12 +10,13 @@ from __future__ import annotations
 import importlib
 import os
 import re
-import requests
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Optional
+
+import requests
 
 from packg.iotools import sort_file_paths_with_dirs_separated
 from packg.misc import format_exception
@@ -144,7 +145,7 @@ def get_modules_for_autocomplete(package: str, run_dir: Optional[str] = None):
 
     for m in sorted(all_modules):
         if m in packages_only:
-            mlog = f"{package}.{m}"
+            # mlog = f"{package}.{m}"
             if f"{m}.__main__" not in all_modules:
                 # print(f"SKIP package: {mlog}")
                 continue
@@ -368,14 +369,14 @@ def find_top_level_package(file_path, verbose: bool = True):
     print_fn = print if verbose else lambda *args, **kwargs: None
     current_file_path = os.path.abspath(file_path)
     print_fn(f"Current file path: {current_file_path}")
-    package = __package__
+    package = str(__package__)
     print_fn(f"__package__: {package}")
     name = __name__
     print_fn(f"__name__: {name}")
 
     # Attempt to determine the top-level package
     if package:
-        top_level_package = package.split(".")[0]
+        top_level_package = package.split(".", maxsplit=1)[0]
     else:
         # If __package__ is None, infer top-level package from the file structure
         top_level_package = os.path.basename(os.path.dirname(current_file_path))

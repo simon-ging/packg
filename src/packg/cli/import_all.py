@@ -5,9 +5,9 @@ Example usage:
     for i in $(cat import_all.txt); do echo $i; python -c "import $i; print($i.__name__)"; done
 """
 
+import tempfile
 from importlib.metadata import entry_points
 
-import tempfile
 from attrs import define
 from loguru import logger
 
@@ -38,7 +38,7 @@ def main():
 
     eps = entry_points()
     all_vs = []
-    for k, vs in eps.items():
+    for _k, vs in eps.items():
         for v in vs:
             all_vs.append(v.value.split(":")[0])
     all_vs = sorted(set(all_vs))

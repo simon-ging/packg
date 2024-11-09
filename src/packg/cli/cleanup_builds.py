@@ -3,9 +3,10 @@ Remove build artifacts (like __pycache__) and other clutter from a directory.
 """
 
 import shutil
+from pathlib import Path
+
 from attrs import define
 from loguru import logger
-from pathlib import Path
 
 from packg import format_exception
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args

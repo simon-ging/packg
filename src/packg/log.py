@@ -11,17 +11,17 @@ https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-leve
 
 from __future__ import annotations
 
-from logging import getLevelName
-
 import itertools
 import logging
 import os
 import sys
 from copy import deepcopy
+from logging import getLevelName
+from typing import Union
+
 from deprecated import deprecated
 from loguru import logger as loguru_logger
 from pathspec import PathSpec
-from typing import Union
 
 from typedparser import VerboseQuietArgs
 

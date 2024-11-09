@@ -153,7 +153,6 @@ def dump_json_safely(obj: Any, f: PathType, **kwargs):
             os.remove(f)
         except Exception as e2:
             print(f"Exception while deleting {f}: {format_exception(e2)}")
-            pass
         raise e
 
 

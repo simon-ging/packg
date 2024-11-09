@@ -14,8 +14,9 @@ Usage in yaml with omegaconf:
 """
 
 import os
-from dotenv import dotenv_values, find_dotenv
 from pathlib import Path
+
+from dotenv import dotenv_values, find_dotenv
 
 from packg.constclass import Const
 

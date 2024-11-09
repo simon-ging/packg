@@ -1,9 +1,11 @@
 """
 Count lines per file endings in a directory.
 """
+from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from typing import Optional
 
 from attrs import define
 from loguru import logger
@@ -23,7 +25,7 @@ from typedparser import VerboseQuietArgs, add_argument, TypedParser
 class Args(VerboseQuietArgs):
     folder: Path = add_argument("folder", type=str, help="Directory to check")
     ignore_case: bool = add_argument(shortcut="-i", action="store_true", help="Ignore case")
-    endings: list[str] | None = add_argument(
+    endings: Optional[list[str]] = add_argument(
         shortcut="-e", action="append", help="count files with these endings"
     )
     write_fix: bool = add_argument(

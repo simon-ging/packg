@@ -1,6 +1,7 @@
 import logging
-import tomlkit
 from timeit import default_timer as timer
+
+import tomlkit
 from tomlkit import TOMLDocument
 
 from packg.iotools.file_reader import read_text_from_file_or_io

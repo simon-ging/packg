@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import math
-import numpy as np
 from typing import Iterable, Union, Optional
+
+import numpy as np
 
 
 def clip_rectangle_coords(rectangle_coords: tuple[int, int, int, int], w: int, h: int):

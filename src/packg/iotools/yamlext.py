@@ -2,13 +2,13 @@
 Wrapper functions for YAML I/O.
 """
 
-from collections import abc
-
 import os
 import sys
-import yaml
+from collections import abc
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from packg.iotools.file_reader import read_text_from_file_or_io
 from packg.typext import PathOrIO, PathTypeCls

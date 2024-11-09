@@ -8,9 +8,10 @@ possible improvements:
 
 import lzma
 import time
-import zstandard
 from datetime import datetime
 from typing import Union
+
+import zstandard
 
 from packg import Const
 from packg.iotools import read_bytes_from_file_or_io, open_file_or_io

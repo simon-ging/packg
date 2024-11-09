@@ -8,10 +8,12 @@ Note about smoothing:
 """
 
 from __future__ import annotations
-from attrs import define, field
+
 from timeit import default_timer
-from tqdm import tqdm
 from typing import Optional
+
+from attrs import define, field
+from tqdm import tqdm
 
 from packg.strings.formatters import dict_to_str_comma_equals
 
