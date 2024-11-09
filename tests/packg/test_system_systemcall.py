@@ -2,7 +2,7 @@
 
 import pytest
 
-from packg.system import systemcall, systemcall_with_assert, assert_command_worked
+from packg.system import systemcall, systemcall_with_assert
 
 
 def test_systemcall():

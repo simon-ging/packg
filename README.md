@@ -19,6 +19,9 @@
 <a href="https://github.com/simon-ging/packg/actions/workflows/build-py312.yml">
   <img alt="build 3.12 status" title="build 3.12 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py312.yml?branch=main&label=python%203.12" />
 </a>
+<a href="https://github.com/simon-ging/packg/actions/workflows/build-py313.yml">
+  <img alt="build 3.13 status" title="build 3.13 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py313.yml?branch=main&label=python%203.13" />
+</a>
 <img alt="coverage" title="coverage" src="https://raw.githubusercontent.com/simon-ging/packg/main/docs/coverage.svg" />
 <a href="https://pypi.org/project/packg/">
   <img alt="version" title="version" src="https://img.shields.io/pypi/v/packg?color=success" />

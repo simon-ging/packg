@@ -1,4 +1,5 @@
 import pytest
+
 from packg.constclass import Const
 
 

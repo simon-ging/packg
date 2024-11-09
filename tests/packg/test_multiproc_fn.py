@@ -1,4 +1,3 @@
-import pytest
 from packg.multiproc.multiproc_fn import FnMultiProcessor
 
 
