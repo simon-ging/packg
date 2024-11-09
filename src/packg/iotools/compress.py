@@ -13,8 +13,8 @@ from typing import Union
 
 import zstandard
 
-from packg import Const
-from packg.iotools import read_bytes_from_file_or_io, open_file_or_io
+from packg.constclass import Const
+from packg.iotools.file_reader import read_bytes_from_file_or_io, open_file_or_io
 
 
 def load_xz(file, mode: str = "rt", encoding: str = "utf-8"):

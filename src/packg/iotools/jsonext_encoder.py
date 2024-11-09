@@ -1,6 +1,8 @@
 """JSON encoder implementation for jsonext.py"""
 
 # pylint: skip-file
+# since this is mostly a reimplementation of the original json.encoder module
+# there is no point in fixing all the lint errors
 import json
 from json.encoder import (
     c_make_encoder,  # noqa

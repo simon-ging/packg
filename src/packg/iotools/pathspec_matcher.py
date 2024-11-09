@@ -13,8 +13,8 @@ from typing import Iterable, Union, List, Optional, Tuple, Dict, Any
 from attr import define
 from pathspec import PathSpec, patterns as p_patterns, RegexPattern, Pattern
 
-from packg.typext import PathType
 from typedparser import add_argument
+from packg.typext import PathType
 
 
 class PathSpecRepr(PathSpec):

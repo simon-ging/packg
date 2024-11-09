@@ -11,12 +11,12 @@ from importlib.metadata import entry_points
 from attrs import define
 from loguru import logger
 
+from typedparser import VerboseQuietArgs, add_argument, TypedParser
 from packg.iotools import make_git_pathspec
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.system import systemcall
 from packg.testing import recurse_modules
 from packg.tqdmext import tqdm_max_ncols
-from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 
 @define

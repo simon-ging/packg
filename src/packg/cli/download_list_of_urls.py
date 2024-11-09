@@ -13,11 +13,11 @@ from typing import Optional
 from attrs import define
 from loguru import logger
 
+from typedparser import VerboseQuietArgs, add_argument, TypedParser
 from packg.iotools import yield_lines_from_file
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.multiproc import FnMultiProcessor
 from packg.web import download_file
-from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 
 @define

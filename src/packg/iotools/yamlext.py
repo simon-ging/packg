@@ -10,14 +10,14 @@ from typing import Any
 
 import yaml
 
-from packg.iotools.file_reader import read_text_from_file_or_io
-from packg.typext import PathOrIO, PathTypeCls
 from typedparser.objects import (
     is_any_mapping,
     is_any_iterable,
     compare_nested_objects,
     modify_nested_object,
 )
+from packg.iotools.file_reader import read_text_from_file_or_io
+from packg.typext import PathOrIO, PathTypeCls
 
 
 def load_yaml(file_or_io: PathOrIO) -> Any:

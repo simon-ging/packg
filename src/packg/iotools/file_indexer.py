@@ -15,6 +15,7 @@ import natsort
 from attr import define
 from tqdm import tqdm
 
+from typedparser import NamedTupleMixin
 from packg import format_exception
 from packg.iotools.pathspec_matcher import (
     PathSpecArgs,
@@ -25,7 +26,6 @@ from packg.iotools.pathspec_matcher import (
 )
 from packg.log import logger
 from packg.typext import PathType
-from typedparser import NamedTupleMixin
 
 
 def regex_glob(

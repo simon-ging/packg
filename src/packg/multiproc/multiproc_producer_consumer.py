@@ -8,6 +8,7 @@ from multiprocessing import Process, Queue
 from statistics import mean
 from timeit import default_timer
 from typing import Optional, Any
+
 from attr import define, field
 from loguru import logger
 

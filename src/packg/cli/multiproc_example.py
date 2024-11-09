@@ -5,9 +5,9 @@ import time
 from attrs import define
 from loguru import logger
 
+from typedparser import TypedParser, add_argument, VerboseQuietArgs
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.multiproc import FnMultiProcessor
-from typedparser import TypedParser, add_argument, VerboseQuietArgs
 
 
 @define
