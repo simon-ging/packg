@@ -3,9 +3,11 @@ Count lines per file endings in a directory.
 """
 
 from collections import defaultdict
+from pathlib import Path
 
 from attrs import define
 from loguru import logger
+
 from packg import format_exception
 from packg.iotools import make_index
 from packg.iotools.encoding import (
@@ -14,7 +16,6 @@ from packg.iotools.encoding import (
 )
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.tqdmext import tqdm_max_ncols
-from pathlib import Path
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 

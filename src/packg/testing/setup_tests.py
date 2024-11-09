@@ -51,7 +51,7 @@ def setup_git_example(git_dir):
         # author config is necessary e.g. on test job runners, otherwise git commit fails
         verbose_os_system('git config user.email "test@te.st"')
         verbose_os_system('git config user.name "Te St"')
-        verbose_os_system('git config --global init.defaultBranch main')
+        verbose_os_system("git config --global init.defaultBranch main")
         _write_text("a", "a")
         _write_text("b", "b")
         _write_text("c", "c")

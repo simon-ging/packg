@@ -266,7 +266,9 @@ def _recursive_index(
                 # it is not a directory anymore, but following it will lead to a directory.
                 linked_file = abs_file.readlink()
                 if linked_file.is_dir() and not abs_file.is_dir():
-                    raise RuntimeError(f"Broken symlink, potentially recursive: {abs_file} -> {linked_file}")
+                    raise RuntimeError(
+                        f"Broken symlink, potentially recursive: {abs_file} -> {linked_file}"
+                    )
             if not abs_file.is_file():
                 # .is_file() safeguards against stuff like /dev/zero which returns .is_char_device()
                 continue

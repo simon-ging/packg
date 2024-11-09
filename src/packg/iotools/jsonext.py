@@ -11,6 +11,7 @@ Possible improvements:
     - Refactor the "file_or_io" handling into a context manager
 
 """
+
 import io
 import json
 import os

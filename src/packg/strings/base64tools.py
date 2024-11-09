@@ -1,6 +1,5 @@
 """Base64 utilities"""
 
-
 import base64
 import os
 
