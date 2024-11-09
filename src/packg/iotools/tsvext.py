@@ -1,7 +1,8 @@
-import csv
+from __future__ import annotations
 
-import io
+import csv
 from csv import Error as CsvError
+import io
 
 
 def format_to_tsv(data: list[list[any]]) -> str:
