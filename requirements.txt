@@ -3,7 +3,6 @@ typedparser
 attrs
 numpy
 joblib
-importlib_resources
 loguru
 natsort
 pyyaml
@@ -15,3 +14,4 @@ requests
 deprecated
 tomlkit
 chardet
+
