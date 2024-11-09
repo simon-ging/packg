@@ -21,7 +21,9 @@ def format_pseudo_table(items, max_width=None, padding=2, indent=0):
             for col in range(num_columns)
             if row + num_rows * col < len(items)
         ]
-        lines.append(" "*indent+"".join(f"{item:<{max_item_length + padding}}" for item in row_items))
+        lines.append(
+            " " * indent + "".join(f"{item:<{max_item_length + padding}}" for item in row_items)
+        )
     return "\n".join(lines)
 
 

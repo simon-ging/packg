@@ -45,6 +45,7 @@ class SimplePbar:
             # do something
             sbar.update()
     """
+
     interval: int | None = None
     total: int | None = None
     print_fn: callable = print

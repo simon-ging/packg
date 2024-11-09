@@ -35,7 +35,7 @@ def main():
     print(final_cmd)
     print()
     for name in names:
-        print(F"pip install -U {name} --no-deps")
+        print(f"pip install -U {name} --no-deps")
     print()
 
 

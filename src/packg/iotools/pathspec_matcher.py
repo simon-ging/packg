@@ -23,8 +23,8 @@ class PathSpecRepr(PathSpec):
         return repr_pathspec(self)
 
 
-def repr_pathspec(pspec:PathSpec):
-    patts:list[Pattern] = pspec.patterns
+def repr_pathspec(pspec: PathSpec):
+    patts: list[Pattern] = pspec.patterns
     reps = []
     for patt in patts:
         patt_rep = f"Unknown"

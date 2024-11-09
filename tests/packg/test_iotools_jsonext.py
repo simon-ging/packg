@@ -21,7 +21,8 @@ from packg.iotools.jsonext import (
     dump_json_compressed,
     load_json_compressed,
     dump_jsonl_compressed,
-    load_jsonl_compressed, dump_json_safely,
+    load_jsonl_compressed,
+    dump_json_safely,
 )
 from typedparser.objects import modify_nested_object
 

@@ -1,4 +1,5 @@
 """JSON encoder implementation for jsonext.py"""
+
 # pylint: skip-file
 import json
 from json.encoder import (

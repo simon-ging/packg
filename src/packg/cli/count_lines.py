@@ -1,14 +1,13 @@
 """
 Count lines per file endings in a directory.
-
-todo running chardet on every file is too slow, make it a flag and otherwise
-     only run in case of errors.
 """
 
 from collections import defaultdict
+from pathlib import Path
 
 from attrs import define
 from loguru import logger
+
 from packg import format_exception
 from packg.iotools import make_index
 from packg.iotools.encoding import (
@@ -17,7 +16,6 @@ from packg.iotools.encoding import (
 )
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.tqdmext import tqdm_max_ncols
-from pathlib import Path
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
 
 
@@ -86,7 +84,7 @@ def main():
                 continue
             # file should be fixed
             win_lineendings = content.count("\r\n")
-            msg = f"{encoding=} {win_lineendings=} {full_file}"
+            msg = f"encoding={encoding} win_lineendings={win_lineendings} full_file={full_file}"
             if not args.write_fix:
                 logger.warning(f"{msg} - would fix but no -w/--write_fix")
                 continue

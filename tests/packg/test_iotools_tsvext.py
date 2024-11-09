@@ -1,7 +1,8 @@
+from csv import Error as CsvError
+
 import pytest
 
 from packg.iotools.tsvext import format_to_tsv
-from csv import Error as CsvError
 
 
 def test_format_to_tsv():

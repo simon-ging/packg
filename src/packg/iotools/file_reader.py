@@ -1,6 +1,7 @@
 """
 Utilities to read content of a single file.
 """
+
 import os
 from contextlib import contextmanager
 from pathlib import Path

@@ -26,6 +26,7 @@ if __name__ == "__main__":
     main()
 
 """
+
 import time
 from typing import Optional
 

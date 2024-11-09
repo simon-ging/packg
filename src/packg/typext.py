@@ -1,4 +1,5 @@
 """Type extensions"""
+
 from io import IOBase
 from pathlib import Path
 from typing import Union, Any
