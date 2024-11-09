@@ -71,9 +71,9 @@ def yield_chunked_bytes(file_or_io: PathOrIO, chunk_size=1024 * 1024) -> Iterabl
     Returns:
         bytes content
     """
-    with open_file_or_io(file_or_io, mode="rb") as fh:
+    with open_file_or_io(file_or_io, mode="rb") as fh:  # noqa, pylint: disable=W0135
         while True:
-            data = fh.read(chunk_size)
+            data = fh.read(chunk_size)  # noqa
             if len(data) == 0:
                 break
             yield data

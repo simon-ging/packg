@@ -43,7 +43,7 @@ class StoreNoNumpy(FileSystemStoreBackend):
         filename = os.path.join(full_path, "output.pkl")
         if not self._item_exists(filename):
             raise KeyError(
-                "Non-existing item (may have been " "cleared).\nFile %s does not exist" % filename
+                "Non-existing item (may have been " f"cleared).\nFile {filename} does not exist"
             )
 
         assert mmap_mode is None, "Standard pickle does not support mmap_mode"

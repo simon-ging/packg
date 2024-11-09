@@ -225,7 +225,7 @@ def silence_stdlib_loggers(
     spec: PathSpec = make_pathspec([search_str], regex_mode=regex_mode)
     # print([p.regex for p in spec.patterns])
     level = get_level_as_int(level)
-    for name in logging.root.manager.loggerDict.keys():
+    for name in logging.root.manager.loggerDict.keys():  # pylint: disable=no-member
         loggr = logging.getLogger(name)
         if spec.match_file(name):
             loggr.setLevel(level)
