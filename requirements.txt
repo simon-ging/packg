@@ -14,4 +14,3 @@ requests
 deprecated
 tomlkit
 chardet
-

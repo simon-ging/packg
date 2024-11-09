@@ -1,9 +1,6 @@
 # packg
 
 <p align="center">
-<a href="https://github.com/simon-ging/packg/actions/workflows/build-py37.yml">
-  <img alt="build 3.7 status" title="build 3.7 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py37.yml?branch=main&label=python%203.7" />
-</a>
 <a href="https://github.com/simon-ging/packg/actions/workflows/build-py38.yml">
   <img alt="build 3.8 status" title="build 3.8 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py38.yml?branch=main&label=python%203.8" />
 </a>
@@ -56,7 +53,7 @@ Collection of utilities used in other python projects.
 
 ## Install
 
-Requires `python>=3.7`
+Requires `python>=3.8`
 
 ```bash
 pip install packg
@@ -90,7 +87,7 @@ ENV_CACHE_DIR=/home/${USER}/.cache
 
 Clone repository and cd into, then:
 
-~~~bash
+```bash
 pip install -e .
 pip install pytest pytest-cov pylint
 
@@ -98,4 +95,4 @@ python -m pytest --cov
 
 pylint packg
 pylint tests
-~~~
+```
