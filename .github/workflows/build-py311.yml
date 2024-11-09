@@ -42,6 +42,7 @@ jobs:
       id: collect-info
       run: |
         conda info
+        conda config --show channels
         echo "----------"
         _now=$(date -u '+%s')
         echo "today=$(date -u '+%Y%m%d' -d @${_now})" >> $GITHUB_OUTPUT
