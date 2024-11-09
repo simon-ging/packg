@@ -6,7 +6,7 @@ Example usage:
 """
 
 import tempfile
-from importlib.metadata import entry_points
+from importlib.metadata import entry_points, EntryPoint
 
 from attrs import define
 from loguru import logger
@@ -38,9 +38,17 @@ def main():
 
     eps = entry_points()
     all_vs = []
-    for _k, vs in eps.items():  # pylint: disable=no-member
-        for v in vs:
-            all_vs.append(v.value.split(":")[0])
+    eps_list: list[EntryPoint] = []
+    if hasattr(eps, "items"):
+        # old python versions
+        for _k, vs in eps.items():  # pylint: disable=no-member
+            for v in vs:
+                eps_list.append(v)
+    else:
+        # new python versions
+        eps_list = list(eps)
+    for v in eps_list:
+        all_vs.append(v.value.split(":", maxsplit=1)[0])
     all_vs = sorted(set(all_vs))
     more_vs = []
     spec = None
