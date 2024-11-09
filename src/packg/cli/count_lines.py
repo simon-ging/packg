@@ -1,8 +1,5 @@
 """
 Count lines per file endings in a directory.
-
-todo running chardet on every file is too slow, make it a flag and otherwise
-     only run in case of errors.
 """
 
 from collections import defaultdict
@@ -86,7 +83,7 @@ def main():
                 continue
             # file should be fixed
             win_lineendings = content.count("\r\n")
-            msg = f"{encoding=} {win_lineendings=} {full_file}"
+            msg = f"encoding={encoding} win_lineendings={win_lineendings} full_file={full_file}"
             if not args.write_fix:
                 logger.warning(f"{msg} - would fix but no -w/--write_fix")
                 continue
