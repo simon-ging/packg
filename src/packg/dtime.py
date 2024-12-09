@@ -5,6 +5,7 @@ Note: If more timezones than system and UTC are required, use pytz package
 """
 
 import datetime
+from timeit import default_timer
 from typing import Optional
 
 
@@ -92,3 +93,10 @@ def format_timestamp(
     else:
         dt_object = datetime.datetime.fromtimestamp(timestamp, tz=tz)
     return dt_object.strftime(format_str)
+
+
+def make_timed_log_fn(t1, print_fn=print):
+    def timed_log_fn(mesg: str, **kwargs):
+        print_fn(f"{default_timer() - t1:.3f}s {mesg}", **kwargs)
+
+    return timed_log_fn
