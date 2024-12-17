@@ -26,6 +26,8 @@ class tqdm_max_ncols(tqdm):
 
     This allows resizing a window later on without breaking the progressbar output.
     Usually tqdm would resize dynamically, but this doesn't always work (e.g. when using screen).
+
+    smoothing: 0 (average speed) to 1 (current/instantaneous speed) [default: 0.3].
     """
 
     def __init__(self, *args, max_ncols: Optional[int] = TQDM_WID, **kwargs):
