@@ -1,5 +1,5 @@
 """
-utility to run a function in multiple processes with a progress bar and error handling
+utility to run a simple worker in multiple processes with a progress bar and error handling
 """
 
 # pylint: disable=duplicate-code
@@ -24,11 +24,14 @@ from packg.typext import NoneType
 
 
 @define
-class FnMultiProcessor:
+class WorkerMultiProcessor:
     """
-    Simple multiprocessor with N producers and
+    Simple multiprocessor with N workers and
         - either no output at all
         - or all output is append to an infinitely large queue and read after everything is done
+
+    The worker should implement setup() which is called at the beginning of the spawned process,
+    and run() which is called for each task.
 
     Usage:
         1. create instance
@@ -39,7 +42,8 @@ class FnMultiProcessor:
 
     Args:
         workers: number of workers (0 = foreground)
-        target_fn: function to call in the worker
+        target_class: function to call in the worker
+        target_class_args: arguments for the target class
         ignore_errors: do not raise errors in the worker
         verbose: show progress bar
         with_output: return output from worker
@@ -50,14 +54,16 @@ class FnMultiProcessor:
     """
 
     workers: int
-    target_fn: callable
+    target_class: type
+    target_class_args: tuple | None = None
     ignore_errors: bool = False
     verbose: bool = True
     with_output: bool = True
     total: Optional[int] = None
     desc: str = "Multiprocessing"
 
-    worker_list: list[Process] = field(factory=list, init=False)
+    worker_list: list[Worker] = field(factory=list, init=False)
+    process_list: list[Process] = field(factory=list, init=False)
     q_in: Queue = field(init=False)
     q_out: Optional[Queue] = field(init=False)
     pbar: tqdm_max_ncols = field(init=False)
@@ -67,26 +73,24 @@ class FnMultiProcessor:
 
     def __attrs_post_init__(self):
         assert self.workers >= 0, f"workers must be >= 0 but is {self.workers}"
+        if self.target_class_args is None:
+            self.target_class_args = ()
         maxsize = self.workers * 2
         self.q_in = Queue(maxsize=maxsize)
         self.q_out = Queue(maxsize=0) if self.with_output else None
-        multi_fn_args = self._get_multi_fn_args()
-        for _ in range(self.workers):
-            w = Process(target=self._get_multi_fn(), args=multi_fn_args)
+        for i in range(self.workers):
+            wi = self.target_class(i, self.target_class_args)
+            target_fn = wi.multi_fn_with_output if self.with_output else wi.multi_fn_no_output
+            w = Process(target=target_fn, args=(self.q_in, self.q_out, self.ignore_errors))
             w.start()
-            self.worker_list.append(w)
+            self.worker_list.append(wi)
+            self.process_list.append(w)
         self.pbar = tqdm_max_ncols(
             total=self.total, desc=self.desc, disable=not self.verbose or self.workers == 0
         )
         self.start_time = default_timer()
         self.processed = 0
         self.input_counter = 0
-
-    def _get_multi_fn(self):
-        return multi_fn_with_output if self.with_output else multi_fn_no_output
-
-    def _get_multi_fn_args(self):
-        return self.target_fn, self.q_in, self.q_out, self.ignore_errors
 
     def put(self, *args):
         self.q_in.put(args)
@@ -118,8 +122,10 @@ class FnMultiProcessor:
         if self.workers == 0:
             # no multiprocessing, queue is full, run one worker in foreground
             self.q_in.put(None)
-            multi_fn_args = self._get_multi_fn_args()
-            self._get_multi_fn()(*multi_fn_args, foreground=True, desc=self.desc)
+            wi = self.target_class(0)
+            wi.setup(*self.target_class_args)
+            target_fn = wi.multi_fn_with_output if self.with_output else wi.multi_fn_no_output
+            target_fn(self.q_in, self.q_out, self.ignore_errors, foreground=True, desc=self.desc)
         else:
             # wait for input queue to be empty
             wait_counter = 0
@@ -143,10 +149,10 @@ class FnMultiProcessor:
     def close(self):
         # note: output queue has to be empty before workers can be joined otherwise this will hang
         logger.debug(f"Joining workers")
-        for n in self.worker_list:
-            n.join()
+        for p in self.process_list:
+            p.join()
             self.update_pbar(1)
-            n.terminate()
+            p.terminate()
         self.pbar.close()
 
         self.q_in.close()
@@ -154,65 +160,85 @@ class FnMultiProcessor:
             self.q_out.close()
 
 
-def multi_fn_with_output(
-    fn: callable,
-    in_q: Queue,
-    out_q: Queue,
-    ignore_errors: bool,
-    foreground: bool = False,
-    desc: str = "Processing",
-):
-    pbar = tqdm_max_ncols(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
-    while True:
-        args = in_q.get()
-        if args is None:
-            break
-        try:
-            out = fn(*args)
-        except Exception as e:
-            if ignore_errors:
-                logger.error(f"Error in multi_function:\n\n{''.join(format_exception(e))}")
-                out_q.put(None)
-                continue
-            raise e
-        out_q.put(out)
-        pbar.update(1)
-    pbar.close()
+class Worker:
+    def __init__(self, i: int, target_class_args: tuple):
+        self.i = i
+        self.target_class_args = target_class_args
 
+    def setup(self, *args):
+        raise NotImplementedError
 
-def multi_fn_no_output(
-    fn: callable,
-    in_q: Queue,
-    out_q: NoneType,
-    ignore_errors: bool,
-    foreground: bool = False,
-    desc: str = "Processing",
-):
-    assert out_q is None, "out_q must be None"
-    pbar = tqdm_max_ncols(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
-    while True:
-        args = in_q.get()
-        if args is None:
-            break
-        try:
-            fn(*args)
-        except Exception as e:
-            if ignore_errors:
-                logger.error(f"Error in multi_function: {e}")
-            else:
+    def run(self, *args):
+        raise NotImplementedError
+
+    def multi_fn_with_output(
+        self,
+        in_q: Queue,
+        out_q: Queue,
+        ignore_errors: bool,
+        foreground: bool = False,
+        desc: str = "Processing",
+    ):
+        self.setup(*self.target_class_args)
+        pbar = tqdm_max_ncols(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
+        while True:
+            args = in_q.get()
+            if args is None:
+                break
+            try:
+                out = self.run(*args)
+            except Exception as e:
+                if ignore_errors:
+                    logger.error(f"Error in multi_function:\n\n{''.join(format_exception(e))}")
+                    out_q.put(None)
+                    continue
                 raise e
-        pbar.update(1)
-    pbar.close()
+            out_q.put(out)
+            pbar.update(1)
+        pbar.close()
+
+    def multi_fn_no_output(
+        self,
+        in_q: Queue,
+        out_q: NoneType,
+        ignore_errors: bool,
+        foreground: bool = False,
+        desc: str = "Processing",
+    ):
+        assert out_q is None, "out_q must be None"
+        self.setup(*self.target_class_args)
+        pbar = tqdm_max_ncols(total=in_q.qsize() - 1, disable=not foreground, desc=desc)
+        while True:
+            args = in_q.get()
+            if args is None:
+                break
+            try:
+                self.run(*args)
+            except Exception as e:
+                if ignore_errors:
+                    logger.error(f"Error in multi_function: {e}")
+                else:
+                    raise e
+            pbar.update(1)
+        pbar.close()
 
 
-def fn_w_out(t_x: int):
-    time.sleep(random.random() * 0.2 + 0.2)
-    return t_x * 2
+class ExampleWorkerWithOutput(Worker):
+    def setup(self):
+        pass
+
+    def run(self, t_x: int):
+        time.sleep(random.random() * 0.2 + 0.2)
+        return t_x * 2
 
 
-def fn_wo_out(_t_x: int):
-    time.sleep(random.random() * 0.2 + 0.2)
-    # print(t_x * 3)
+class ExampleWorkerWithoutOutput(Worker):
+    def setup(self):
+        pass
+
+    def run(self, t_x: int):
+        time.sleep(random.random() * 0.2 + 0.2)
+        # print(t_x * 3)
 
 
 def main():
@@ -220,8 +246,12 @@ def main():
     for workers in [3, 0]:
         print(f"Workers: {workers} ******************")
         ix = list(range(10))
-        proc = FnMultiProcessor(
-            workers, fn_w_out, total=len(ix), desc=f"With output queue, {workers} workers"
+        proc = WorkerMultiProcessor(
+            workers,
+            ExampleWorkerWithOutput,
+            None,
+            total=len(ix),
+            desc=f"With output queue, {workers} workers",
         )
         for in_x in ix:
             proc.put(in_x)
@@ -233,9 +263,9 @@ def main():
         print(outputs)
 
         ix = list(range(10))
-        proc = FnMultiProcessor(
+        proc = WorkerMultiProcessor(
             workers,
-            fn_wo_out,
+            ExampleWorkerWithoutOutput,
             with_output=False,
             total=len(ix),
             desc=f"No output queue, {workers} workers",
