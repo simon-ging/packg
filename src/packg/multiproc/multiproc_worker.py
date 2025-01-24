@@ -7,15 +7,15 @@ utility to run a simple worker in multiple processes with a progress bar and err
 # todo move the main() example outside of this file
 from __future__ import annotations
 
+from multiprocessing import Process, Queue
+
 import random
 import time
-from multiprocessing import Process, Queue
+from attr import define, field
+from loguru import logger
 from timeit import default_timer
 from traceback import format_exception
 from typing import Optional
-
-from attr import define, field
-from loguru import logger
 
 from packg.dtime import format_seconds_adaptive
 from packg.log import configure_logger
@@ -149,6 +149,8 @@ class WorkerMultiProcessor:
     def close(self):
         # note: output queue has to be empty before workers can be joined otherwise this will hang
         logger.debug(f"Joining workers")
+        for w in self.worker_list:
+            w.close()
         for p in self.process_list:
             p.join()
             self.update_pbar(1)
@@ -221,6 +223,9 @@ class Worker:
                     raise e
             pbar.update(1)
         pbar.close()
+
+    def close(self):
+        pass
 
 
 class ExampleWorkerWithOutput(Worker):

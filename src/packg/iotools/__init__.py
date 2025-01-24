@@ -28,6 +28,12 @@ from .jsonext import (
 )
 from .misc import (
     set_working_directory,
+    set_working_directory,
+    get_file_size,
+    get_file_size_in_mb,
+    format_b_in_mb,
+    format_b_in_gb,
+    format_bytes_human_readable,
 )
 from .pathspec_matcher import (
     make_git_pathspec,
@@ -37,6 +43,7 @@ from .pathspec_matcher import (
     make_and_apply_pathspecs,
     make_pathspecs,
     PathSpecWithConversion,
+    PathSpecRepr,
 )
 from .yamlext import load_yaml, loads_yaml, dump_yaml, dumps_yaml
 
@@ -74,4 +81,11 @@ __all__ = [
     "apply_pathspecs",
     "make_and_apply_pathspecs",
     "make_pathspecs",
+    "set_working_directory",
+    "get_file_size",
+    "get_file_size_in_mb",
+    "format_b_in_mb",
+    "format_b_in_gb",
+    "format_bytes_human_readable",
+    "PathSpecRepr",
 ]

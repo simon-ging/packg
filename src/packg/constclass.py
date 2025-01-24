@@ -80,6 +80,14 @@ class Const(metaclass=InstanceToClassDelegator):
     _dict: Dict[str, Dict[str, Any]] = {"Const": {}}
 
     @classmethod
+    def values_list(cls) -> List[Any]:
+        return list(cls.values())
+
+    @classmethod
+    def keys_list(cls) -> List[str]:
+        return list(cls.keys())
+
+    @classmethod
     def _get_dict(cls):
         return cls._dict[cls.__name__]
 

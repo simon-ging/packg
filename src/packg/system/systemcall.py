@@ -1,11 +1,11 @@
 """Helper to run system commands and process their output."""
 
 import subprocess
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 
 
 def systemcall(
-    call: str, verbose: bool = False, decode: Optional[str] = "utf-8", shell: bool = True
+    call: Union[str, list[str]], verbose: bool = False, decode: Optional[str] = "utf-8", shell: bool = True
 ) -> Tuple[str, str, int]:
     """Run a command with subprocess.Popen and process the output. This call
     is synchronous so output will only returned once the command is done.
@@ -53,7 +53,7 @@ def assert_command_worked(errmsg: str, cmd: str, out: str, err: str, retcode: in
 
 
 def systemcall_with_assert(
-    call: str,
+    call: Union[str, list[str]],
     errmsg: str = "none",
     verbose: bool = False,
     decode: Optional[str] = "utf-8",
