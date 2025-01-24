@@ -46,5 +46,3 @@ def create_shared_array(arr: np.ndarray, dtype: str):
     shared_array = shared_array.reshape(shape)
     shared_array[:] = arr[:]
     return shared_array
-
-

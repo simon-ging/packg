@@ -24,9 +24,7 @@ class StoreNoNumpy(FileSystemStoreBackend):
 
         if verbose > 1:
             ts_string = (
-                f"{format_time(time.time() - timestamp): <16}"
-                if timestamp is not None
-                else ""
+                f"{format_time(time.time() - timestamp): <16}" if timestamp is not None else ""
             )
             signature = os.path.basename(call_id[0])
             if metadata is not None and "input_args" in metadata:
