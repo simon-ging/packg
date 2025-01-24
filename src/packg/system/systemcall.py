@@ -1,11 +1,16 @@
 """Helper to run system commands and process their output."""
 
+from __future__ import annotations
+
 import subprocess
 from typing import Tuple, Optional, Union
 
 
 def systemcall(
-    call: Union[str, list[str]], verbose: bool = False, decode: Optional[str] = "utf-8", shell: bool = True
+    call: Union[str, list[str]],
+    verbose: bool = False,
+    decode: Optional[str] = "utf-8",
+    shell: bool = True,
 ) -> Tuple[str, str, int]:
     """Run a command with subprocess.Popen and process the output. This call
     is synchronous so output will only returned once the command is done.
