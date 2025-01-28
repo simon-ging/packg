@@ -8,7 +8,7 @@ from loguru import logger
 
 from packg import Const
 from packg.caching import get_joblib_memory
-from packg.iotools.folder import Folder, convert_subfolder_data_to_dataframe, get_subfolder_data
+from packg.iotools.folder import Folder, get_subfolder_data
 from packg.iotools.misc import format_b_in_gb
 from packg.log import configure_logger, get_logger_level_from_args
 from typedparser import add_argument, TypedParser, VerboseQuietArgs
@@ -51,6 +51,7 @@ class Args(VerboseQuietArgs):
 
 def main():
     import pandas as pd  # todo either move to visiontext, or recreate without pandas.
+
     parser = TypedParser.create_parser(Args, description=__doc__)
     args: Args = parser.parse_args()
     configure_logger(level=get_logger_level_from_args(args))
@@ -64,15 +65,13 @@ def main():
     root = get_populated_root(start)
     # print_graph(root, max_level=args.depth, min_size_mb=args.min_mb)
     subfolder_data = get_subfolder_data(root, max_level=args.depth, min_size_mb=args.min_mb)
-    df = convert_subfolder_data_to_dataframe(subfolder_data)
+    # df = convert_subfolder_data_to_dataframe(subfolder_data)
 
     column_titles = ["path", "type", "size", "mtime"]
     df = pd.DataFrame(subfolder_data, columns=column_titles)
     df["size"] = df["size"].apply(format_b_in_gb)
     df["mtime"] = pd.to_datetime(df["mtime"], unit="s")
     df["mtime"] = df["mtime"].dt.strftime("%Y-%m-%d %H:%M:%S")
-    return df
-
 
     # sort by mtime ascending
     df = df.sort_values(by=args.sort.split(","), ascending=not args.inverse)
