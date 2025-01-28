@@ -62,12 +62,19 @@ def main():
 
     url_status = {url: "todo" for url in url_input_list}
     url_to_file_here = {}
+    n_deleted = 0
     for url, file in url_to_file.items():
         full_file = args.target_dir / file
         if full_file.is_file():
+            if full_file.stat().st_size <= args.min_size_mb * 1024**2:
+                logger.warning(f"File {full_file} is too small, deleting")
+                full_file.unlink()
+                n_deleted += 1
+                continue
             url_status[url] = "done"
             continue
         url_to_file_here[url] = full_file
+    logger.info(f"Deleted {n_deleted} files")
     logger.info(f"Downloading status: {Counter(url_status.values())}")
 
     os.makedirs(args.target_dir, exist_ok=True)
@@ -92,10 +99,13 @@ def download_fn(file, url, sleep_time, min_size_mb, n_retries):
         n_tries += 1
         try:
             download_file(file, url, verbose=False, pbar=False)
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             # delete file to avoid having half files leftover
-            if file.is_file():
+            try:
                 file.unlink()
+            except Exception as e2:
+                logger.error(f"Error deleting file {file}: {e2}")
+            raise e
         if min_size_mb > 0 and Path(file).stat().st_size < min_size_mb * 1024**2:
             logger.warning(
                 f"File {file} is too small, retrying after sleep. "

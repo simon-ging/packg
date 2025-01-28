@@ -49,7 +49,7 @@ class WorkerMultiProcessor:
         with_output: return output from worker
         total: total number of tasks for progress bar or None if unknown
         desc: description for progress bar
-
+        smoothing: smoothing factor for progress bar (0 = average speed, 1 = instantaneous speed)
 
     """
 
@@ -61,6 +61,7 @@ class WorkerMultiProcessor:
     with_output: bool = True
     total: Optional[int] = None
     desc: str = "Multiprocessing"
+    smoothing: float = 0.0
 
     worker_list: list[Worker] = field(factory=list, init=False)
     process_list: list[Process] = field(factory=list, init=False)
@@ -86,7 +87,10 @@ class WorkerMultiProcessor:
             self.worker_list.append(wi)
             self.process_list.append(w)
         self.pbar = tqdm_max_ncols(
-            total=self.total, desc=self.desc, disable=not self.verbose or self.workers == 0
+            total=self.total,
+            desc=self.desc,
+            disable=not self.verbose or self.workers == 0,
+            smoothing=self.smoothing,
         )
         self.start_time = default_timer()
         self.processed = 0
