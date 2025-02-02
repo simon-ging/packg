@@ -29,3 +29,15 @@ def clean_string_for_filename(input_str):
     output_str = re.sub(r"^_+", "", output_str)
     output_str = re.sub(r"_+$", "", output_str)
     return output_str
+
+
+def format_float_to_fixed_length_with_variable_precision(in_float: float, out_len: int = 5) -> str:
+    """Format float, use 2, 1 or 0 decimal places depending on float magnitude."""
+    abs_in_float = abs(in_float)
+    if abs_in_float < 100:
+        spi_str = f"{in_float:{out_len}.2f}"
+    elif abs_in_float < 1000:
+        spi_str = f"{in_float:{out_len}.1f}"
+    else:
+        spi_str = f"{in_float:{out_len}.0f}"
+    return spi_str

@@ -19,6 +19,7 @@ from loguru import logger
 
 from packg.dtime import format_seconds_adaptive
 from packg.log import configure_logger
+from packg.strings.formatters import format_float_to_fixed_length_with_variable_precision
 from packg.tqdmext import tqdm_max_ncols
 from packg.typext import NoneType
 
@@ -99,10 +100,11 @@ class FnMultiProcessor:
     def update_pbar(self, amount=1):
         self.processed += amount
         sec_per_iter = (default_timer() - self.start_time) / max(self.processed, 1)
-        desc_post = f" {sec_per_iter:10.2f} s/it"
         if sec_per_iter < 1:
             iter_per_sec = 1 / sec_per_iter
-            desc_post = f" {iter_per_sec:10.2f} it/s"
+            desc_post = f" {format_float_to_fixed_length_with_variable_precision(iter_per_sec)}it/s"
+        else:
+            desc_post = f" {format_float_to_fixed_length_with_variable_precision(sec_per_iter)}s/it"
         rem_time_fmt = ""
         if self.total is not None:
             rem_time = sec_per_iter * (self.total - self.processed)

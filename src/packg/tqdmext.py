@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from packg.strings.formatters import dict_to_str_comma_equals
 
-TQDM_WID = 100
+TQDM_WID = 90
 
 
 class tqdm_max_ncols(tqdm):

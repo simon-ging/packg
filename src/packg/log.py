@@ -46,9 +46,9 @@ BRIGHTBG_FORMAT = (
     "<level>{message}</level>"
 )
 TIMELESS_FORMAT = "<level>{level: <4.4}</level> <level>{message}</level>"
-
 SPINNER_STR = "|/-\\"
 SPINNER_CYCLE = itertools.cycle("|/-\\")
+LOG_LEVEL_NAMES = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]  # logging._nameToLevel
 
 
 def get_stdlib_logging_formatter():
@@ -182,9 +182,21 @@ def get_level_as_int(level: LevelType):
 
 def get_logger_level_from_args(args: VerboseQuietArgs) -> str:
     if args.verbose:
+        assert args.loglevel is None, "Cannot set both -v/--verbose and --log_level LEVEL"
         return "DEBUG"
     if args.quiet:
+        assert args.loglevel is None, "Cannot set both -q/--quiet and --log_level LEVEL"
         return "WARNING"
+    loglevel = args.loglevel
+    if loglevel == "WARN":
+        print("Deprecation: log level WARN is deprecated, use WARNING instead", file=sys.stderr)
+        loglevel = "WARNING"
+    if loglevel == "FATAL":
+        print("Deprecation: log level FATAL is deprecated, use CRITICAL instead", file=sys.stderr)
+        loglevel = "CRITICAL"
+    if loglevel is not None:
+        assert loglevel in LOG_LEVEL_NAMES, f"{loglevel=} not in {LOG_LEVEL_NAMES=}"
+        return loglevel
     return "INFO"
 
 
