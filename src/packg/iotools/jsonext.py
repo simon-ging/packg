@@ -12,6 +12,8 @@ Possible improvements:
 
 """
 
+import sys
+
 import io
 import json
 import os
@@ -51,19 +53,11 @@ def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-
         obj = loads_json(data_str)
     except Exception as e:
         # # todo use a general way to reraise the same exception with added information.
-        # print(f"{e=} {e.args=}")
-        # if len(e.args) > 0:
-        #     _msg = e.args[0]
-        #     remaining_args = e.args[1:]
-        # else:
-        #     remaining_args = tuple()
-        # print(f"{remaining_args=} {type(e)=}")
-        # raise type(e)(
-        #     f"Error loading json file {file_or_io} due to {format_exception(e)}", *remaining_args
-        # ) from e
-        raise RuntimeError(
-            f"Error loading json file {file_or_io} due to {format_exception(e)}"
-        ) from e
+        print(
+            f"\nERROR: Got {format_exception(e)}, probably corrupt json file {file_or_io}\n",
+            file=sys.stderr,
+        )
+        raise
 
     if verbose:
         print(f"Loaded json file {file_or_io} in {timer() - start_timer:.3f} seconds")
