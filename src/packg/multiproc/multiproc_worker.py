@@ -126,8 +126,7 @@ class WorkerMultiProcessor:
         if self.workers == 0:
             # no multiprocessing, queue is full, run one worker in foreground
             self.q_in.put(None)
-            wi = self.target_class(0)
-            wi.setup(*self.target_class_args)
+            wi = self.target_class(0, self.target_class_args)
             target_fn = wi.multi_fn_with_output if self.with_output else wi.multi_fn_no_output
             target_fn(self.q_in, self.q_out, self.ignore_errors, foreground=True, desc=self.desc)
         else:
