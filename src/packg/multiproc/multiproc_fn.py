@@ -172,8 +172,8 @@ def multi_fn_with_output(
         try:
             out = fn(*args)
         except Exception as e:
+            logger.error(f"Error in multi_function:\n\n{''.join(format_exception(e))}")
             if ignore_errors:
-                logger.error(f"Error in multi_function:\n\n{''.join(format_exception(e))}")
                 out_q.put(None)
                 continue
             raise e
