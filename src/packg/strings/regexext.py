@@ -17,6 +17,4 @@ match object:
     groupdict() - named groups
         m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Malcolm Reynolds")
         m.groupdict()  # {'first_name': 'Malcolm', 'last_name': 'Reynolds'}
-
-
 """

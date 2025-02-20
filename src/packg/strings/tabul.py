@@ -55,12 +55,12 @@ def main():
     here_output = format_pseudo_table(items)
     print(here_output)
     gt_output = """\
-file1.txt             file8.tsdfsar.gz      file15.docx           
-file2.jpg             file9.mov             file16.mp3            
-file3.pdf             file10.avi            file17.png            
-file4.do4234cx        file11.mkv            filsfde18.zip         
-file5.mp3             file12.234txt         fi234234le19.tar.gz   
-file6.png             file13.jpg            filesdfasdasdf20.mov  
+file1.txt             file8.tsdfsar.gz      file15.docx
+file2.jpg             file9.mov             file16.mp3
+file3.pdf             file10.avi            file17.png
+file4.do4234cx        file11.mkv            filsfde18.zip
+file5.mp3             file12.234txt         fi234234le19.tar.gz
+file6.png             file13.jpg            filesdfasdasdf20.mov
 file7.zip             file14.pdf       """
     assert here_output.strip() == gt_output.strip()
 

@@ -37,7 +37,7 @@ Collection of utilities used in other python projects.
 * `iotools`: Index paths, compress and read files, git utilities, wrappers to load json/yaml
 * `magic`: Wrapper around `importlib`
 * `maths`: Various small mathematical utilities
-* `misc`: 
+* `misc`:
   * `format_exception(e)` outputs the exception as it appears in the stacktrace.
   * `suppress_stdout_stderr` context manager to suppress all output of a block of code.
 * `multiproc`: Multiprocessing utilities
@@ -49,7 +49,7 @@ Collection of utilities used in other python projects.
 * `testing`: Import all modules from a package and other utilities
 * `tqdmext`: Wrapper `tqdm_max_ncols` that limits the width of a `tqdm` progressbar by default
 * `typext`: Type definitions
-* `web`: Download file and resume a partial download, disable web access 
+* `web`: Download file and resume a partial download, disable web access
 
 ## Install
 
