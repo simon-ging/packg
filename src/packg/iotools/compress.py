@@ -6,15 +6,37 @@ possible improvements:
 
 """
 
+from pathlib import Path
+
 import lzma
+import tarfile
 import time
+import zstandard
 from datetime import datetime
 from typing import Union
 
-import zstandard
-
 from packg.constclass import Const
 from packg.iotools.file_reader import read_bytes_from_file_or_io, open_file_or_io
+from packg.typext import PathType
+
+
+def extract_tar(
+    tar_file: PathType, target_dir: PathType = None, delete_after_extract: bool = False
+) -> None:
+    """
+    Args:
+        tar_file: tar file to extract.
+        target_dir: default None, extract into the parent folder of the tar file.
+        delete_after_extract: default False, delete the tar file after extraction.
+    """
+    tar_file = Path(tar_file)
+    if target_dir is None:
+        target_dir = tar_file.parent
+    target_dir = Path(target_dir)
+    with tarfile.open(tar_file.as_posix()) as tar:
+        tar.extractall(path=target_dir)
+    if delete_after_extract:
+        tar_file.unlink()
 
 
 def load_xz(file, mode: str = "rt", encoding: str = "utf-8"):
