@@ -12,6 +12,7 @@ from typing import Optional
 
 from attrs import define
 from loguru import logger
+from urllib3.exceptions import ProtocolError
 
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
 from packg.iotools import yield_lines_from_file
@@ -92,6 +93,14 @@ def main():
     proc.close()
 
 
+def _delete_ignore_errors(file):
+    file = Path(file)
+    try:
+        file.unlink()
+    except Exception as e2:
+        logger.error(f"Error deleting file {file}: {e2}")
+
+
 def download_fn(file, url, sleep_time, min_size_mb, n_retries):
     n_tries = 0
     while True:
@@ -101,20 +110,20 @@ def download_fn(file, url, sleep_time, min_size_mb, n_retries):
             download_file(file, url, verbose=False, pbar=False)
         except KeyboardInterrupt as e:
             # delete file to avoid having half files leftover
-            try:
-                file.unlink()
-            except Exception as e2:
-                logger.error(f"Error deleting file {file}: {e2}")
+            _delete_ignore_errors(file)
             raise e
+        except ProtocolError as e:
+            logger.error(f"Error downloading {url} {file}: {e}")
+            success = False
         if min_size_mb > 0 and Path(file).stat().st_size < min_size_mb * 1024**2:
             logger.warning(
                 f"File {file} is too small, retrying after sleep. "
                 f"Got: {Path(file).read_text(encoding='utf-8')}"
             )
-            os.unlink(file)
             success = False
         if success:
             break
+        _delete_ignore_errors(file)
         if n_tries >= n_retries:
             logger.error(f"Too many retries for {url} {file}")
             break
