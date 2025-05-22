@@ -68,7 +68,7 @@ class WorkerMultiProcessor:
     q_in: Queue = field(init=False)
     q_out: Optional[Queue] = field(init=False)
     pbar: tqdm_max_ncols = field(init=False)
-    start_time: int = field(init=False)
+    start_time: float = field(init=False)
     processed: int = field(init=False)
     input_counter: int = field(init=False)
 
