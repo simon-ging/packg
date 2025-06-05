@@ -23,7 +23,6 @@ from packg.iotools.jsonext import (
     load_json_compressed,
     dump_jsonl_compressed,
     load_jsonl_compressed,
-    dump_json_safely,
 )
 from typedparser.objects import modify_nested_object
 
@@ -121,13 +120,12 @@ def test_json_encoder(json_data_fixture):
 
 
 def test_json_dump_load(json_data_fixture, tmp_path):
-    for dump_fn in dump_json, dump_json_safely:
-        data_python, data_json = json_data_fixture
-        tmp_file = tmp_path / "test.json"
-        dump_fn(data_python, tmp_file, indent=2)
-        _compare_json_strings(tmp_file.read_text(encoding="utf8"), data_json)
-        data_python_reloaded = load_json(tmp_file)
-        _compare_objects(data_python, data_python_reloaded)
+    data_python, data_json = json_data_fixture
+    tmp_file = tmp_path / "test.json"
+    dump_json(data_python, tmp_file, indent=2)
+    _compare_json_strings(tmp_file.read_text(encoding="utf8"), data_json)
+    data_python_reloaded = load_json(tmp_file)
+    _compare_objects(data_python, data_python_reloaded)
 
 
 def test_json_xz_dump_load(json_data_fixture, tmp_path):
@@ -210,6 +208,57 @@ def test_dump_with_float_precision():
     assert dumps_json(inp) == "{" f'"mydata":{num_inp}' "}"
     assert dumps_json(inp, float_precision=3) == "{" f'"mydata":{round(num_inp, 3)}' "}"
     assert dumps_json(inp, float_precision=0) == "{" f'"mydata":{round(num_inp)}' "}"
+
+
+def test_dump_with_custom_format_indent_lists():
+    """Test that custom_format_indent_lists controls whether lists are indented on new lines."""
+    test_data = {"key1": [1, 2, 3], "key2": {"nested": [4, 5, 6]}}
+
+    # With custom_format_indent_lists=True, lists should be indented
+    expected_with_indent = """{
+  "key1": [
+    1,
+    2,
+    3
+  ],
+  "key2": {
+    "nested": [
+      4,
+      5,
+      6
+    ]
+  }
+}"""
+    assert dumps_json(test_data, indent=2, custom_format_indent_lists=True) == expected_with_indent
+
+    # With custom_format_indent_lists=False, lists should be on the same line
+    expected_without_indent = """{
+  "key1": [1, 2, 3],
+  "key2": {
+    "nested": [4, 5, 6]
+  }
+}"""
+    assert (
+        dumps_json(test_data, indent=2, custom_format_indent_lists=False) == expected_without_indent
+    )
+
+
+def test_dump_nan_to_none_single_nan():
+    """Test that a single NaN value is converted to null in JSON."""
+    nan_data = {"mydata": float("nan")}
+    assert dumps_json(nan_data, custom_format_nan_to_none=True) == '{"mydata":null}'
+
+
+def test_dump_nan_to_none_regular_number():
+    """Test that regular numbers are left unchanged."""
+    regular_data = {"mydata": 1.0}
+    assert dumps_json(regular_data, custom_format_nan_to_none=True) == '{"mydata":1.0}'
+
+
+def test_dump_nan_to_none_mixed_data():
+    """Test handling of mixed data with both NaN and regular numbers."""
+    mixed_data = {"nan": float("nan"), "regular": 1.0}
+    assert dumps_json(mixed_data, custom_format_nan_to_none=True) == '{"nan":null,"regular":1.0}'
 
 
 def _compare_json_strings(candidate, reference):

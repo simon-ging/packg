@@ -12,6 +12,7 @@ Possible improvements:
 
 """
 
+import math
 import sys
 
 import io
@@ -138,18 +139,6 @@ def _check_can_write(file_or_io, overwrite, verbose):
     return True
 
 
-def dump_json_safely(obj: Any, f: PathType, **kwargs):
-    try:
-        dump_json(obj, f, **kwargs)
-    except KeyboardInterrupt as e:
-        print(f"Deleting {f} due to KeyboardInterrupt")
-        try:
-            os.remove(f)
-        except Exception as e2:
-            print(f"Exception while deleting {f}: {format_exception(e2)}")
-        raise e
-
-
 def dump_json(
     obj: Any,
     file_or_io: PathOrIO,
@@ -158,11 +147,14 @@ def dump_json(
     allow_nan=False,
     indent=None,
     separators=None,
+    default=None,
     sort_keys=False,
     verbose: bool = True,
     create_parent=False,
     float_precision=None,
     custom_format=True,
+    custom_format_nan_to_none=False,
+    custom_format_indent_lists=False,
     encoding="utf-8",
     overwrite=True,
 ) -> None:
@@ -183,6 +175,7 @@ def dump_json(
             allow_nan=allow_nan,
             indent=indent,
             separators=separators,
+            default=default,
             sort_keys=sort_keys,
         )
         if custom_format:
@@ -190,6 +183,8 @@ def dump_json(
                 dict(
                     cls=CustomJSONEncoder,
                     float_precision=float_precision,
+                    custom_format_nan_to_none=custom_format_nan_to_none,
+                    custom_format_indent_lists=custom_format_indent_lists,
                 )
             )
         try:
@@ -213,11 +208,14 @@ def dump_json_compressed(
     allow_nan=False,
     indent=None,
     separators=None,
+    default=None,
     sort_keys=False,
     verbose: bool = True,
     create_parent=False,
     float_precision=None,
     custom_format=True,
+    custom_format_nan_to_none=False,
+    custom_format_indent_lists=False,
     encoding="utf-8",
     overwrite=True,
     **compressor_kwargs,
@@ -233,9 +231,12 @@ def dump_json_compressed(
         allow_nan=allow_nan,
         indent=indent,
         separators=separators,
+        default=default,
         sort_keys=sort_keys,
         float_precision=float_precision,
         custom_format=custom_format,
+        custom_format_nan_to_none=custom_format_nan_to_none,
+        custom_format_indent_lists=custom_format_indent_lists,
     )
     compress_data_to_file(
         json_data,
@@ -257,9 +258,12 @@ def dumps_json(
     allow_nan=False,
     indent=None,
     separators=None,
+    default=None,
     sort_keys=False,
     float_precision=None,
     custom_format=True,
+    custom_format_indent_lists=False,
+    custom_format_nan_to_none=False,
 ) -> str:
     """Write data to json string using the custom json encoder"""
     if indent is None and separators is None:
@@ -271,6 +275,7 @@ def dumps_json(
         allow_nan=allow_nan,
         indent=indent,
         separators=separators,
+        default=default,
         sort_keys=sort_keys,
     )
     if custom_format:
@@ -278,6 +283,8 @@ def dumps_json(
             dict(
                 cls=CustomJSONEncoder,
                 float_precision=float_precision,
+                custom_format_nan_to_none=custom_format_nan_to_none,
+                custom_format_indent_lists=custom_format_indent_lists,
             )
         )
     return json.dumps(obj, **kwargs)
@@ -290,9 +297,17 @@ def dump_jsonl(
     create_parent=False,
     encoding="utf-8",
     overwrite=True,
+    ensure_ascii: bool = False,
+    check_circular: bool = False,
+    allow_nan=False,
+    separators=None,
+    default=None,
+    sort_keys=False,
+    float_precision=None,
+    custom_format=True,
+    custom_format_nan_to_none=False,
 ) -> None:
-    """Write lines of data to jsonl (list of json strings) file or file object
-    using the custom json encoder"""
+    """Write lines of data to jsonl (list of json strings) file or file object"""
     start_timer = timer()
     if not _check_can_write(file_or_io, overwrite, verbose):
         return
@@ -303,7 +318,19 @@ def dump_jsonl(
 
     with open_file_or_io(file_or_io, "wt", encoding=encoding, create_parent=create_parent) as fh:
         for d in data:
-            fh.write(f"{dumps_json(d)}\n")
+            json_line = dumps_json(
+                d,
+                ensure_ascii=ensure_ascii,
+                check_circular=check_circular,
+                allow_nan=allow_nan,
+                separators=separators,
+                default=default,
+                sort_keys=sort_keys,
+                float_precision=float_precision,
+                custom_format=custom_format,
+                custom_format_nan_to_none=custom_format_nan_to_none,
+            )
+            fh.write(f"{json_line}\n")
 
     if verbose:
         print(f"Wrote jsonl file {file_or_io} in {timer() - start_timer:.3f} seconds")
@@ -317,6 +344,15 @@ def dump_jsonl_compressed(
     create_parent=False,
     encoding="utf-8",
     overwrite=True,
+    ensure_ascii: bool = False,
+    check_circular: bool = False,
+    allow_nan=False,
+    separators=None,
+    default=None,
+    sort_keys=False,
+    float_precision=None,
+    custom_format=True,
+    custom_format_nan_to_none=False,
     **compressor_kwargs,
 ) -> None:
     """Write lines of data to jsonl (list of json strings) file or file object
@@ -326,7 +362,18 @@ def dump_jsonl_compressed(
         return
 
     try:
-        jsonl_data = dumps_jsonl(data)
+        jsonl_data = dumps_jsonl(
+            data,
+            ensure_ascii=ensure_ascii,
+            check_circular=check_circular,
+            allow_nan=allow_nan,
+            separators=separators,
+            default=default,
+            sort_keys=sort_keys,
+            float_precision=float_precision,
+            custom_format=custom_format,
+            custom_format_nan_to_none=custom_format_nan_to_none,
+        )
     except Exception as e:
         raise RuntimeError(f"Error dumping jsonl file {file_or_io}") from e
 
@@ -342,9 +389,9 @@ def dump_jsonl_compressed(
         print(f"Wrote jsonl file {file_or_io} in {timer() - start_timer:.3f} seconds")
 
 
-def dumps_jsonl(data: Iterable[Any]) -> str:
+def dumps_jsonl(data: Iterable[Any], **kwargs) -> str:
     sio = io.StringIO()
-    dump_jsonl(data, sio, verbose=False)
+    dump_jsonl(data, sio, verbose=False, **kwargs)
     return sio.getvalue()
 
 

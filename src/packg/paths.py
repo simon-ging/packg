@@ -19,14 +19,14 @@ from pathlib import Path
 
 class EnvKeys(Const):
     ENV_DATA_DIR = "ENV_DATA_DIR"
-    ENV_CACHE_DIR = "ENV_CACHE_DIR"
+    PACKG_CACHE_DIR = "PACKG_CACHE_DIR"
 
 
 home = Path.home()
 
 ENV_DEFAULTS = {
     EnvKeys.ENV_DATA_DIR: "data",  # datasets base directory, default is relative dir 'data'
-    EnvKeys.ENV_CACHE_DIR: (home / ".cache").as_posix(),
+    EnvKeys.PACKG_CACHE_DIR: (home / ".cache").as_posix(),
 }
 
 
@@ -35,7 +35,7 @@ def get_data_dir() -> Path:
 
 
 def get_cache_dir() -> Path:
-    return get_path_from_env(EnvKeys.ENV_CACHE_DIR)
+    return get_path_from_env(EnvKeys.PACKG_CACHE_DIR)
 
 
 def get_path_from_env(env_k: str) -> Path:

@@ -30,6 +30,8 @@ class CustomJSONEncoder(json.JSONEncoder):
         separators=None,
         default=None,
         float_precision=None,
+        custom_format_nan_to_none=False,
+        custom_format_indent_lists=False,
     ):
         self.skipkeys = skipkeys
         self.ensure_ascii = ensure_ascii
@@ -38,6 +40,8 @@ class CustomJSONEncoder(json.JSONEncoder):
         self.sort_keys = sort_keys
         self.indent = indent
         self.float_precision = float_precision
+        self.custom_format_nan_to_none = custom_format_nan_to_none
+        self.custom_format_indent_lists = custom_format_indent_lists
         if separators is not None:
             self.item_separator, self.key_separator = separators
         # change: do not modify indent here
@@ -46,7 +50,7 @@ class CustomJSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         # change: added more supported types.
-        # note: intentionally checks for jax/torch tensors without importing these packages
+        # note: checks for jax/torch tensors without importing the packages, avoids import overhead
         if isinstance(o, Path):
             return o.as_posix()
         full_name = f"{o.__class__.__module__}.{o.__class__.__name__}"
@@ -61,7 +65,7 @@ class CustomJSONEncoder(json.JSONEncoder):
             return o.tolist()
         if hasattr(o, "detach"):  # torch
             return o.detach().cpu().numpy().tolist()
-        # todo update below to use full name check once we have a jax example
+        # TODO update below to use full name check once we have a jax example
         class_name = o.__class__.__name__
         if class_name.lower() == "devicearray":  # jax
             return o.tolist()
@@ -98,6 +102,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             else:
                 return _repr(obj)  # noqa
             if not allow_nan:
+                if self.custom_format_nan_to_none:
+                    return "null"
                 raise ValueError("Out of range float values are not JSON compliant: " + repr(obj))
 
             return text
@@ -107,6 +113,8 @@ class CustomJSONEncoder(json.JSONEncoder):
             and c_make_encoder is not None
             and self.indent is None
             and self.float_precision is None
+            and not self.custom_format_nan_to_none
+            and not self.custom_format_indent_lists
         ):
             # only call the original c encoder if available and no custom iterencode logic is needed
             _iterencode = c_make_encoder(
@@ -131,6 +139,7 @@ class CustomJSONEncoder(json.JSONEncoder):
                 self.item_separator,
                 self.sort_keys,
                 self.skipkeys,
+                self.custom_format_indent_lists,
                 _one_shot,
             )
         return _iterencode(o, 0)
@@ -146,6 +155,7 @@ def _make_custom_iterencode(
     _item_separator,
     _sort_keys,
     _skipkeys,
+    custom_format_indent_lists: bool,
     _one_shot,
     # HACK: hand-optimized bytecode; turn globals into locals
     ValueError=ValueError,  # noqa
@@ -158,7 +168,6 @@ def _make_custom_iterencode(
     str=str,  # noqa
     tuple=tuple,  # noqa
     _intstr=int.__repr__,
-    indent_list: bool = False,
 ):
     if _indent is not None and not isinstance(_indent, str):
         _indent = " " * _indent
@@ -176,8 +185,8 @@ def _make_custom_iterencode(
                 raise ValueError("Circular reference detected")
             markers[markerid] = lst
         buf = "["
-        # # change: use indent_list flag, use eol separator
-        if _indent is not None and indent_list:
+        # # change: use custom_format_indent_lists flag, use eol separator
+        if _indent is not None and custom_format_indent_lists:
             _current_indent_level += 1
             newline_indent = "\n" + _indent * _current_indent_level
             separator = _item_separator_eol + newline_indent
