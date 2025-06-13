@@ -9,32 +9,35 @@ Usage in python:
     print(get_data_dir())
 
 Usage in yaml with omegaconf:
-    storage: ${oc.env:ENV_DATA_DIR}/datasetname
+    storage: datasetname
 """
 
 import os
+
+from platformdirs import user_cache_path
+
 from packg.constclass import Const
 from pathlib import Path
 
 
 class EnvKeys(Const):
-    ENV_DATA_DIR = "ENV_DATA_DIR"
+    PACKG_DATA_DIR = "PACKG_DATA_DIR"
     PACKG_CACHE_DIR = "PACKG_CACHE_DIR"
 
 
 home = Path.home()
 
 ENV_DEFAULTS = {
-    EnvKeys.ENV_DATA_DIR: "data",  # datasets base directory, default is relative dir 'data'
-    EnvKeys.PACKG_CACHE_DIR: (home / ".cache").as_posix(),
+    EnvKeys.PACKG_DATA_DIR: "data",  # datasets base directory, default is relative dir 'data'
+    EnvKeys.PACKG_CACHE_DIR: (user_cache_path("python_packg") / "cache").as_posix(),
 }
 
 
-def get_data_dir() -> Path:
-    return get_path_from_env(EnvKeys.ENV_DATA_DIR)
+def get_packg_data_dir() -> Path:
+    return get_path_from_env(EnvKeys.PACKG_DATA_DIR)
 
 
-def get_cache_dir() -> Path:
+def get_packg_cache_dir() -> Path:
     return get_path_from_env(EnvKeys.PACKG_CACHE_DIR)
 
 

@@ -7,7 +7,7 @@ from joblib import register_store_backend
 from joblib._store_backends import FileSystemStoreBackend  # noqa
 from joblib.logger import format_time
 
-from packg.paths import get_cache_dir
+from packg.paths import get_packg_cache_dir
 
 
 class StoreNoNumpy(FileSystemStoreBackend):
@@ -54,7 +54,7 @@ register_store_backend(StoreNoNumpy.NAME, StoreNoNumpy)
 
 
 def get_joblib_memory(
-    location=get_cache_dir() / "joblib", verbose=1, numpy_capable=False
+    location=get_packg_cache_dir() / "joblib", verbose=1, numpy_capable=False
 ) -> joblib.Memory:
     """
     Wrapper for joblib.Memory which uses the StoreNoNumpy backend by default.
