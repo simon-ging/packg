@@ -12,7 +12,7 @@ from typing import Optional
 
 from attrs import define
 from loguru import logger
-from urllib3.exceptions import ProtocolError
+from urllib3.exceptions import ProtocolError, SSLError
 
 from typedparser import VerboseQuietArgs, add_argument, TypedParser
 from packg.iotools import yield_lines_from_file
@@ -112,7 +112,7 @@ def download_fn(file, url, sleep_time, min_size_mb, n_retries):
             # delete file to avoid having half files leftover
             _delete_ignore_errors(file)
             raise e
-        except ProtocolError as e:
+        except (ProtocolError, SSLError) as e:
             logger.error(f"Error downloading {url} {file}: {e}")
             success = False
         if min_size_mb > 0 and Path(file).stat().st_size < min_size_mb * 1024**2:

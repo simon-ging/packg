@@ -31,7 +31,7 @@ class MultiProcessorProducerConsumer:
         - loop put(input_args) some tasks
         - outputs = run()  # list of length n_consumers with the return from complete()
 
-    todo
+    TODO
         Improve error handling with error queues if needed
         Improve passing dict of flags / config, instead of one bool for each config item
         Create another example in this file

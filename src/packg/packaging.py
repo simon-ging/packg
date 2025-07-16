@@ -1,7 +1,7 @@
 """
 Utilities for python packages.
 
-todo split this into multiple, make the get_module... thing faster and depend on less.
+TODO split this into multiple, make the get_module... thing faster and depend on less.
 thenr eenable the logger.
 """
 
@@ -26,7 +26,7 @@ from packg.testing.import_from_source import recurse_modules
 
 def run_package(main_file, run_dir="cli", recursive=True, run_dir_only=True, abbreviations=True):
     """
-    todo remove this. it is too slow and ineffective. solve the problem in bash,
+    TODO remove this. it is too slow and ineffective. solve the problem in bash,
          or use the way simpler approach to import the main function and run it.
 
     Create a command line interface for a package given a directory of scripts.
@@ -312,7 +312,7 @@ _filedir()  # source: ubuntu 2004 /usr/share/bash-completion/bash_completion
 
 
 def _get_raw_shields_io_output(package: str):
-    # todo wrap this request code into a separate function in packg.web
+    # TODO wrap this request code into a separate function in packg.web
     url = f"https://img.shields.io/pypi/v/{package}"
     print(f"Finding pypi version via {url}")
     counter = 0

@@ -3,8 +3,8 @@ utility to run a simple worker in multiple processes with a progress bar and err
 """
 
 # pylint: disable=duplicate-code
-# todo either fix duplicate-code or remove this todo comment
-# todo move the main() example outside of this file
+# TODO either fix duplicate-code or remove this TODO comment
+# TODO move the main() example outside of this file
 from __future__ import annotations
 
 from multiprocessing import Process, Queue

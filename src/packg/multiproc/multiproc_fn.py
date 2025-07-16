@@ -3,8 +3,8 @@ utility to run a function in multiple processes with a progress bar and error ha
 """
 
 # pylint: disable=duplicate-code
-# todo either fix duplicate-code or remove this todo comment
-# todo move the main() example outside of this file
+# TODO either fix duplicate-code or remove this TODO comment
+# TODO move the main() example outside of this file
 from __future__ import annotations
 
 import random

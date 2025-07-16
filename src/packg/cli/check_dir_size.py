@@ -33,7 +33,7 @@ class Args(VerboseQuietArgs):
         shortcut="-d", type=int, default=-1, help="Max nesting levels to show (-1=inf)."
     )
     reset_cache: bool = add_argument(shortcut="-r", action="store_true", help="Reset the cache.")
-    sort: str = add_argument(  # todo better error msg if this is set wrongly
+    sort: str = add_argument(  # TODO better error msg if this is set wrongly
         shortcut="-o",
         type=str,
         default=FileSortFieldsC.PATH,
@@ -50,7 +50,7 @@ class Args(VerboseQuietArgs):
 
 
 def main():
-    import pandas as pd  # todo either move to visiontext, or recreate without pandas.
+    import pandas as pd  # TODO either move to visiontext, or recreate without pandas.
 
     parser = TypedParser.create_parser(Args, description=__doc__)
     args: Args = parser.parse_args()

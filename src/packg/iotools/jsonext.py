@@ -53,12 +53,10 @@ def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-
     try:
         obj = loads_json(data_str)
     except Exception as e:
-        # # todo use a general way to reraise the same exception with added information.
-        print(
-            f"\nERROR: Got {format_exception(e)}, probably corrupt json file {file_or_io}\n",
-            file=sys.stderr,
-        )
-        raise
+        # # TODO use a general way to reraise the same exception with added information.
+        raise RuntimeError(
+            f"Probably corrupt json file {file_or_io}",
+        ) from e
 
     if verbose:
         print(f"Loaded json file {file_or_io} in {timer() - start_timer:.3f} seconds")
