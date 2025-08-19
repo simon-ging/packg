@@ -3,8 +3,8 @@ from datetime import datetime
 from packg import dtime
 from packg.dtime import (
     format_seconds_adaptive,
-    get_timestamp_for_filename,
     format_timestamp,
+    get_timestamp_for_filename,
     get_utc_timezone,
 )
 

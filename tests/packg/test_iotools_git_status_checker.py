@@ -1,7 +1,4 @@
-from packg.iotools.git_status_checker import (
-    get_gitadd_dryrun_output,
-    parse_gitadd_dryrun_output,
-)
+from packg.iotools.git_status_checker import get_gitadd_dryrun_output, parse_gitadd_dryrun_output
 from packg.testing.setup_tests import git_example_fixture, session_tmp_path
 
 _ = git_example_fixture, session_tmp_path  # remove the unused false positive

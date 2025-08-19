@@ -1,6 +1,6 @@
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, Tuple, Union, BinaryIO
+from typing import BinaryIO, Dict, Tuple, Union
 
 import urllib3
 from tqdm import tqdm

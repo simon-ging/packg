@@ -1,5 +1,7 @@
-import pytest
 from typing import List, Tuple
+
+import pytest
+
 from packg.constclass import Const, InstanceToClassDelegator
 
 

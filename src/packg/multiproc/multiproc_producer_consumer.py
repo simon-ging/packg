@@ -7,7 +7,7 @@ from collections import defaultdict
 from multiprocessing import Process, Queue
 from statistics import mean
 from timeit import default_timer
-from typing import Optional, Any
+from typing import Any, Optional
 
 from attr import define, field
 from loguru import logger

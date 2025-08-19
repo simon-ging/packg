@@ -1,6 +1,6 @@
 from collections import defaultdict
 from copy import deepcopy
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
 
 def create_unique_abbreviations(input_strings: List[str], seps=("_", ".")) -> Dict[str, str]:

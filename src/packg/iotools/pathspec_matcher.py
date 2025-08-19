@@ -8,13 +8,14 @@ https://pypi.org/project/pathspec/#description
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Union, List, Optional, Tuple, Dict, Any
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from attr import define
-from pathspec import PathSpec, patterns as p_patterns, RegexPattern, Pattern
+from pathspec import PathSpec, Pattern, RegexPattern
+from pathspec import patterns as p_patterns
 
-from typedparser import add_argument
 from packg.typext import PathType
+from typedparser import add_argument
 
 
 class PathSpecRepr(PathSpec):

@@ -4,16 +4,15 @@ Count lines per file endings in a directory.
 
 from __future__ import annotations
 
-from collections import defaultdict
-
 import json
+from collections import defaultdict
 from pathlib import Path
 from typing import Optional
+
 from attrs import define
 from loguru import logger
 
-from typedparser import VerboseQuietArgs, add_argument, TypedParser
-from packg import format_exception, Const
+from packg import Const, format_exception
 from packg.iotools import make_index
 from packg.iotools.encoding import (
     detect_encoding_and_read_file,
@@ -21,6 +20,7 @@ from packg.iotools.encoding import (
 )
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.tqdmext import tqdm_max_ncols
+from typedparser import TypedParser, VerboseQuietArgs, add_argument
 
 
 class SortC(Const):

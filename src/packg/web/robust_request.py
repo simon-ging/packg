@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import requests
 import time
 from typing import Optional
+
+import requests
 
 
 def send_robust_post_request(

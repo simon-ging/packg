@@ -1,9 +1,12 @@
 from __future__ import annotations
+
 import json
-from pathlib import Path
 from collections.abc import KeysView
+from pathlib import Path
 from typing import Any
+
 from loguru import logger
+
 from packg.tqdmext import tqdm_max_ncols
 
 

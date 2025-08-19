@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
+
 import joblib
 from attr import define
 from loguru import logger
@@ -11,7 +12,7 @@ from packg.caching import get_joblib_memory
 from packg.iotools.folder import Folder, get_subfolder_data
 from packg.iotools.misc import format_b_in_gb
 from packg.log import configure_logger, get_logger_level_from_args
-from typedparser import add_argument, TypedParser, VerboseQuietArgs
+from typedparser import TypedParser, VerboseQuietArgs, add_argument
 
 mem: joblib.Memory = get_joblib_memory(verbose=True)
 

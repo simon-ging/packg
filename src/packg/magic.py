@@ -1,4 +1,4 @@
-from importlib import reload, import_module
+from importlib import import_module, reload
 from types import ModuleType
 
 

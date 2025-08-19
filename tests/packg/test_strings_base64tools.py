@@ -3,12 +3,12 @@
 import pytest
 
 from packg.strings import (
-    b64_encode_from_str,
-    b64_encode_from_bytes,
-    b64_decode_to_str,
     b64_decode_to_bytes,
     b64_decode_to_int,
+    b64_decode_to_str,
+    b64_encode_from_bytes,
     b64_encode_from_int,
+    b64_encode_from_str,
 )
 
 

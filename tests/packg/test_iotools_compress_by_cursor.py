@@ -1,28 +1,30 @@
-import pytest
 import tarfile
-from pathlib import Path
 from io import BytesIO, StringIO
+from pathlib import Path
+
+import pytest
+
 from packg.iotools.compress import (
     CompressorC,
     CompressorInterface,
     DecompressorInterface,
     DummyCompressor,
     DummyDecompressor,
-    ZstdCompressorWrapper,
-    ZstdDecompressorWrapper,
     LzmaCompressorWrapper,
     LzmaDecompressorWrapper,
-    decompress_file_to_bytes,
-    decompress_bytes_to_bytes,
-    decompress_file_to_str,
-    decompress_bytes_to_str,
+    ZstdCompressorWrapper,
+    ZstdDecompressorWrapper,
     compress_data_to_bytes,
     compress_data_to_file,
+    decompress_bytes_to_bytes,
+    decompress_bytes_to_str,
+    decompress_file_to_bytes,
+    decompress_file_to_str,
+    dump_xz,
+    extract_tar,
     get_compressor,
     get_decompressor,
     load_xz,
-    dump_xz,
-    extract_tar,
     read_unzip_list_output,
 )
 

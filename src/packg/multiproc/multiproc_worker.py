@@ -7,15 +7,15 @@ utility to run a simple worker in multiple processes with a progress bar and err
 # TODO move the main() example outside of this file
 from __future__ import annotations
 
-from multiprocessing import Process, Queue
-
 import random
 import time
-from attr import define, field
-from loguru import logger
+from multiprocessing import Process, Queue
 from timeit import default_timer
 from traceback import format_exception
 from typing import Optional
+
+from attr import define, field
+from loguru import logger
 
 from packg.dtime import format_seconds_adaptive
 from packg.log import configure_logger

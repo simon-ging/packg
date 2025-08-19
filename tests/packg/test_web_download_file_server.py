@@ -6,7 +6,7 @@ from typing import Tuple
 
 import pytest
 
-from packg.testing.fixture_webserver import BIN_FILE, BIN_CONTENT, TXT_CONTENT, TXT_FILE, webserver
+from packg.testing.fixture_webserver import BIN_CONTENT, BIN_FILE, TXT_CONTENT, TXT_FILE, webserver
 from packg.web import download_file
 
 

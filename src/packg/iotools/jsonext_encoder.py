@@ -4,12 +4,10 @@
 # since this is mostly a reimplementation of the original json.encoder module
 # there is no point in fixing all the lint errors
 import json
-from json.encoder import (
-    c_make_encoder,  # noqa
-    encode_basestring_ascii,  # noqa
-    encode_basestring,  # noqa
-    INFINITY,
-)
+from json.encoder import c_make_encoder  # noqa
+from json.encoder import encode_basestring  # noqa
+from json.encoder import encode_basestring_ascii  # noqa
+from json.encoder import INFINITY
 from pathlib import Path
 
 import attrs

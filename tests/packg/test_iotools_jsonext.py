@@ -5,27 +5,26 @@ import numpy as np
 import pytest
 
 from packg.iotools import (
-    load_json,
-    loads_json,
-    load_jsonl,
     dump_json,
-    dumps_json,
-    dump_jsonl,
-    dumps_jsonl,
-    loads_jsonl,
-    load_json_xz,
     dump_json_xz,
+    dump_jsonl,
+    dumps_json,
+    dumps_jsonl,
+    load_json,
+    load_json_xz,
+    load_jsonl,
+    loads_json,
+    loads_jsonl,
 )
-from packg.iotools.compress import load_xz, CompressorC
+from packg.iotools.compress import CompressorC, load_xz
 from packg.iotools.jsonext import (
     CustomJSONEncoder,
     dump_json_compressed,
-    load_json_compressed,
     dump_jsonl_compressed,
+    load_json_compressed,
     load_jsonl_compressed,
 )
 from typedparser.objects import modify_nested_object
-
 
 # ---------- define input data for the tests
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-from typing import Tuple, Optional, Union
+from typing import Optional, Tuple, Union
 
 
 def systemcall(

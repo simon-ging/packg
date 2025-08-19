@@ -1,7 +1,9 @@
-import pytest
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+from pathlib import Path
+
+import pytest
+
 from packg.iotools.encoding import (
     detect_encoding,
     detect_encoding_and_read_file,

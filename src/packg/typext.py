@@ -2,8 +2,7 @@
 
 from io import IOBase
 from pathlib import Path
-from typing import Union, Any
-
+from typing import Any, Union
 
 TensorType = Any
 PathType = Union[str, Path]

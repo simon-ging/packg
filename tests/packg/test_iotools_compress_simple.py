@@ -3,15 +3,15 @@ import os
 
 from packg.iotools.compress import (
     CompressorC,
-    get_compressor,
-    get_decompressor,
     DecompressorInterface,
     compress_data_to_bytes,
-    decompress_bytes_to_bytes,
     compress_data_to_file,
-    decompress_file_to_bytes,
+    decompress_bytes_to_bytes,
     decompress_bytes_to_str,
+    decompress_file_to_bytes,
     decompress_file_to_str,
+    get_compressor,
+    get_decompressor,
 )
 
 

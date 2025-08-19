@@ -6,12 +6,12 @@ Count file endings in a directory.
 from collections import defaultdict
 from pathlib import Path
 
-from loguru import logger
 from attrs import define
+from loguru import logger
 
-from typedparser import VerboseQuietArgs, add_argument, TypedParser
 from packg.iotools import make_index
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
+from typedparser import TypedParser, VerboseQuietArgs, add_argument
 
 
 @define

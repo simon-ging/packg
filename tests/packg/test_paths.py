@@ -1,4 +1,4 @@
-from packg.paths import get_packg_data_dir, get_packg_cache_dir
+from packg.paths import get_packg_cache_dir, get_packg_data_dir
 
 
 def test_paths():

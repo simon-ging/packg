@@ -1,9 +1,11 @@
 import os
-import tempfile
 import pickle
+import tempfile
 from pathlib import Path
+
 import pytest
-from packg.caching import get_joblib_memory, SimpleMemoryCache, memory_cache
+
+from packg.caching import SimpleMemoryCache, get_joblib_memory, memory_cache
 
 
 def test_get_joblib_memory():

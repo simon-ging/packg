@@ -1,10 +1,6 @@
 import pytest
 
-from packg.testing import (
-    apply_visitor,
-    ImportFromSourceChecker,
-    recurse_modules,
-)
+from packg.testing import ImportFromSourceChecker, apply_visitor, recurse_modules
 
 module_list = list(recurse_modules("packg", ignore_tests=True, packages_only=False))
 

@@ -1,6 +1,7 @@
-import pytest
 import numpy as np
-from packg.stats import ensure_numpy, AvgMetric, describe_stats
+import pytest
+
+from packg.stats import AvgMetric, describe_stats, ensure_numpy
 
 
 def test_ensure_numpy():

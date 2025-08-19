@@ -15,6 +15,7 @@ from typing import List
 
 import numpy as np
 import tqdm
+
 from packg.tqdmext import TQDM_WID
 
 MAP_TYPES = {

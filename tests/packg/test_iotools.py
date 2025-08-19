@@ -4,12 +4,12 @@ from pathlib import Path
 import pytest
 
 from packg.iotools import (
-    read_text_from_file_or_io,
+    find_git_root,
     read_bytes_from_file_or_io,
+    read_text_from_file_or_io,
+    sort_file_paths_with_dirs_separated,
     yield_lines_from_file,
     yield_lines_from_object,
-    find_git_root,
-    sort_file_paths_with_dirs_separated,
 )
 
 _ref = ["a", "b", "c"]

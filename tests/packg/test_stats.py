@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from packg.stats import ensure_numpy, AvgMetric
+from packg.stats import AvgMetric, ensure_numpy
 
 
 def test_initial_state():

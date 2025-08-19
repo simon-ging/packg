@@ -6,17 +6,17 @@ possible improvements:
 
 """
 
-from pathlib import Path
-
 import lzma
 import tarfile
 import time
-import zstandard
 from datetime import datetime
+from pathlib import Path
 from typing import Union
 
+import zstandard
+
 from packg.constclass import Const
-from packg.iotools.file_reader import read_bytes_from_file_or_io, open_file_or_io
+from packg.iotools.file_reader import open_file_or_io, read_bytes_from_file_or_io
 from packg.typext import PathType
 
 

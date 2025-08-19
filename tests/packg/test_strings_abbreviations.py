@@ -1,4 +1,4 @@
-from packg.strings import create_unique_abbreviations, create_nested_abbreviations
+from packg.strings import create_nested_abbreviations, create_unique_abbreviations
 
 
 def test_create_unique_abbrevations():

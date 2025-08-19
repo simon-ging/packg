@@ -5,9 +5,9 @@ Utilities to read content of a single file.
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Union, Iterable
+from typing import Iterable, Union
 
-from packg.typext import PathOrIO, PathTypeCls, PathType
+from packg.typext import PathOrIO, PathType, PathTypeCls
 
 
 @contextmanager

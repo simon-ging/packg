@@ -4,7 +4,7 @@ from typing import Tuple
 import pytest
 
 from packg.testing.fixture_webserver import BIN_FILE, webserver
-from packg.web import download_file, disable_socket, enable_socket
+from packg.web import disable_socket, download_file, enable_socket
 
 
 def test_socket_disabler(webserver: Tuple[str, int], tmp_path: Path):

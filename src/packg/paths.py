@@ -13,11 +13,11 @@ Usage in yaml with omegaconf:
 """
 
 import os
+from pathlib import Path
 
 from platformdirs import user_cache_path
 
 from packg.constclass import Const
-from pathlib import Path
 
 
 class EnvKeys(Const):

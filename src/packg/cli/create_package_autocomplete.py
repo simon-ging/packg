@@ -13,9 +13,9 @@ from typing import Optional
 from attrs import define
 from loguru import logger
 
-from typedparser import VerboseQuietArgs, add_argument, TypedParser
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.packaging import FILEDIR_AUTOCOMPLETE, create_bash_autocomplete_script
+from typedparser import TypedParser, VerboseQuietArgs, add_argument
 
 
 @define

@@ -10,14 +10,14 @@ from typing import Any
 
 import yaml
 
-from typedparser.objects import (
-    is_any_mapping,
-    is_any_iterable,
-    compare_nested_objects,
-    modify_nested_object,
-)
 from packg.iotools.file_reader import read_text_from_file_or_io
 from packg.typext import PathOrIO, PathTypeCls
+from typedparser.objects import (
+    compare_nested_objects,
+    is_any_iterable,
+    is_any_mapping,
+    modify_nested_object,
+)
 
 
 def load_yaml(file_or_io: PathOrIO) -> Any:
@@ -55,6 +55,12 @@ def _path_to_str_if_path(x):
     return x
 
 
+def _tuple_to_list_if_tuple(x):
+    if isinstance(x, tuple):
+        return list(x)
+    return x
+
+
 def dumps_yaml(
     obj: Any, standard_format: bool = True, check_roundtrip: bool = True, **kwargs
 ) -> str:
@@ -80,10 +86,12 @@ def dumps_yaml(
     """
     if is_any_mapping(obj):
         # yaml does not understand pathlib.Path so first of all convert all paths to str
-        obj = modify_nested_object(obj, _path_to_str_if_path, return_copy=True)
+        # also convert tuples to lists since yaml would also do that, and we want to test roundtrip
+        obj = modify_nested_object(obj, _path_to_str_if_path, return_copy=True, tuple_to_list=True)
     if standard_format:
-        return yaml.dump(obj, Dumper=yaml.SafeDumper, **kwargs)
-    yaml_str = _dumps_yaml_recursive(obj, **kwargs)
+        yaml_str = yaml.dump(obj, Dumper=yaml.SafeDumper, **kwargs)
+    else:
+        yaml_str = _dumps_yaml_recursive(obj, **kwargs)
     if check_roundtrip:
         re_obj = loads_yaml(yaml_str)
 

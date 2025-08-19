@@ -12,29 +12,21 @@ Possible improvements:
 
 """
 
-import math
-import sys
-
 import io
 import json
+import math
 import os
+import sys
 from functools import partial
 from pathlib import Path
 from timeit import default_timer as timer
-from typing import Any, Iterable, Sequence, List
+from typing import Any, Iterable, List, Sequence
 
 from packg import format_exception
-from packg.iotools.compress import (
-    CompressorC,
-    decompress_file_to_str,
-    compress_data_to_file,
-)
-from packg.iotools.file_reader import (
-    open_file_or_io,
-    read_text_from_file_or_io,
-)
+from packg.iotools.compress import CompressorC, compress_data_to_file, decompress_file_to_str
+from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
-from packg.typext import PathOrIO, PathTypeCls, PathType
+from packg.typext import PathOrIO, PathType, PathTypeCls
 
 
 def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8") -> Any:

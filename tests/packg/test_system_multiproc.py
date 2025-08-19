@@ -7,8 +7,8 @@ from typing import Any
 import pytest
 
 from packg.multiproc.multiproc_producer_consumer import (
-    MultiProcessorProducerConsumer,
     Consumer,
+    MultiProcessorProducerConsumer,
     Producer,
 )
 

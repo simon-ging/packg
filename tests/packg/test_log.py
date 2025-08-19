@@ -1,7 +1,7 @@
 import io
 import logging
 
-from packg.log import silence_stdlib_loggers, configure_logger
+from packg.log import configure_logger, silence_stdlib_loggers
 
 
 def test_silence_stdlib_loggers():

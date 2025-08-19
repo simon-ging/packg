@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Iterable, Union, Optional
+from typing import Iterable, Optional, Union
 
 import numpy as np
 

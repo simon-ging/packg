@@ -9,23 +9,23 @@ import os
 import re
 from operator import itemgetter
 from pathlib import Path
-from typing import Iterator, Union, Optional
+from typing import Iterator, Optional, Union
 
 import natsort
 from attr import define
 from tqdm import tqdm
 
-from typedparser import NamedTupleMixin
 from packg import format_exception
 from packg.iotools.pathspec_matcher import (
-    PathSpecArgs,
-    make_pathspecs,
-    expand_pathspec_args,
     SPECLISTTYPE,
+    PathSpecArgs,
     apply_pathspecs,
+    expand_pathspec_args,
+    make_pathspecs,
 )
 from packg.log import logger
 from packg.typext import PathType
+from typedparser import NamedTupleMixin
 
 
 def regex_glob(

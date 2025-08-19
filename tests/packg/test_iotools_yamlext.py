@@ -1,6 +1,6 @@
 import pytest
 
-from packg.iotools.yamlext import dumps_yaml, loads_yaml, dump_yaml, load_yaml
+from packg.iotools.yamlext import dump_yaml, dumps_yaml, load_yaml, loads_yaml
 
 _python_obj = {
     "sub": {"str_val": "value"},

@@ -1,13 +1,15 @@
 import os
-import pytest
 from pathlib import Path
+
+import pytest
+
 from packg.iotools.misc import (
-    set_working_directory,
+    format_b_in_gb,
+    format_b_in_mb,
+    format_bytes_human_readable,
     get_file_size,
     get_file_size_in_mb,
-    format_b_in_mb,
-    format_b_in_gb,
-    format_bytes_human_readable,
+    set_working_directory,
 )
 
 

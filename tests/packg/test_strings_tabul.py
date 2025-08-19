@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from packg.strings.tabul import format_pseudo_table
 

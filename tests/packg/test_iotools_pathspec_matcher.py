@@ -6,14 +6,14 @@ import pytest
 from pathspec import Pattern
 
 from packg.iotools.pathspec_matcher import (
-    PathSpecWithConversion,
-    PathSpecRepr,
-    make_pathspecs,
-    apply_pathspecs,
-    make_and_apply_pathspecs,
     PathSpecArgs,
+    PathSpecRepr,
+    PathSpecWithConversion,
+    apply_pathspecs,
     expand_pathspec_args,
+    make_and_apply_pathspecs,
     make_pathspec,
+    make_pathspecs,
     repr_pathspec,
 )
 from packg.testing.setup_tests import git_example_fixture, session_tmp_path
