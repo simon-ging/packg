@@ -48,7 +48,9 @@ from importlib import util as import_util
 from importlib.machinery import ModuleSpec
 from os import path
 from pkgutil import iter_modules
-from typing import Any, Iterator, List, Optional
+from typing import Any, Iterator, List, Optional, Set, Tuple, Union
+
+from packg import format_exception
 
 
 def _is_test_module(module_name: str) -> bool:
@@ -91,7 +93,8 @@ def recurse_modules(
 
 
 class ImportFromSourceChecker(NodeVisitor):
-    def __init__(self, module: str, module_list_to_ignore_not_found: Optional[List] = None):
+    def __init__(self, module: str, ignore_modules: Optional[Union[List, Tuple]] = None):
+        ignore_modules = list(ignore_modules) if ignore_modules is not None else []
         module_spec = import_util.find_spec(module)
         is_pkg = (
             module_spec is not None
@@ -101,7 +104,7 @@ class ImportFromSourceChecker(NodeVisitor):
 
         self._module = module if is_pkg else ".".join(module.split(".")[:-1])
         self._top_level_module = self._module.split(".")[0]
-        self._module_list_to_ignore_not_found = module_list_to_ignore_not_found
+        self._ignore_modules = ignore_modules
 
     def visit_ImportFrom(self, node: ImportFrom) -> Any:
         # Check that there are no relative imports that attempt to read from a parent module.
@@ -132,12 +135,16 @@ class ImportFromSourceChecker(NodeVisitor):
         print(f"    Importing module: {module_to_import}")
         try:
             module = import_module(module_to_import)
-        except ModuleNotFoundError as e:
-            if self._module_list_to_ignore_not_found is not None:
-                for module_to_ignore_not_found in self._module_list_to_ignore_not_found:
-                    if module_to_import.startswith(module_to_ignore_not_found):
-                        print(f"        Ignore missing module: {module_to_import}")
-                        return
+        except Exception as e:
+            for ignore_module in self._ignore_modules:
+                if module_to_import == ignore_module or module_to_import.startswith(
+                    f"{ignore_module}."
+                ):
+                    print(
+                        f"packg.testing.import_from_source: Ignore exception in module "
+                        f"{module_to_import}\n{format_exception(e)}"
+                    )
+                    return
             raise e
         for alias in node.names:
             if not hasattr(module, alias.name):
