@@ -1,0 +1,11 @@
+name: Canary
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "It works: $GITHUB_WORKFLOW on $GITHUB_REF ($GITHUB_SHA)"
+
