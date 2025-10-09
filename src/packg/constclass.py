@@ -80,6 +80,17 @@ class Const(metaclass=InstanceToClassDelegator):
     _dict: Dict[str, Dict[str, Any]] = {"Const": {}}
 
     @classmethod
+    def verify_value(cls, value: str, case_sensitive: bool = False) -> str:
+        if not case_sensitive and isinstance(value, str):
+            value = str(value).lower()
+            test_values = list((v.lower() if isinstance(v, str) else v) for v in cls.values())
+        else:
+            test_values = list(cls.values())
+        if value not in test_values:
+            raise ValueError(f"Value '{value}' not in {test_values} defined in {cls.__name__}")
+        return value
+
+    @classmethod
     def values_list(cls) -> List[Any]:
         return list(cls.values())
 

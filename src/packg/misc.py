@@ -24,3 +24,7 @@ def suppress_stdout_stderr():
     with open(devnull, "w", encoding="utf-8") as fnull:
         with redirect_stderr(fnull) as err, redirect_stdout(fnull) as out:
             yield err, out
+
+def uncollate(batch):
+    assert len(batch) == 1, f"Expected batch size 1 but got {len(batch)}"
+    return batch[0]
