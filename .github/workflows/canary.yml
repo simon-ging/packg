@@ -5,7 +5,10 @@ on:
   workflow_dispatch:
 jobs:
   ping:
+    name: ping
     runs-on: ubuntu-latest
     steps:
-      - run: echo "It works: $GITHUB_WORKFLOW on $GITHUB_REF ($GITHUB_SHA)"
+      - name: echo info
+        run: |
+          echo "Running canary workflow AKA $GITHUB_WORKFLOW on REF $GITHUB_REF SHA $GITHUB_SHA"
 
