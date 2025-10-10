@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 
 
-def dict_to_str_comma_equals(in_dict: dict[str, any] | list[tuple[any, any]]):
+def dict_to_str_comma_equals(in_dict: dict[str, Any] | list[tuple[Any, Any]]):
     try:
         items = in_dict.items()
     except AttributeError:

@@ -5,7 +5,7 @@ import io
 from csv import Error as CsvError
 
 
-def format_to_tsv(data: list[list[any]]) -> str:
+def format_to_tsv(data: list[list[Any]]) -> str:
     """
     Args:
         data: 2d list of list that should be formatted to tsv

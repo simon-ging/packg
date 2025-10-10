@@ -66,10 +66,10 @@ def configure_logger(
     sink=sys.stderr,
     format=SHORTEST_FORMAT,  # noqa # pylint: disable=redefined-builtin
     colorize=True,
-    add_sinks: Union[list[any], list[dict[str, any]], None] = None,
-    kwargs_handler: Union[dict[str, any], None] = None,
-    **kwargs: any,
-) -> dict[str, any]:
+    add_sinks: Union[list[Any], list[dict[str, Any]], None] = None,
+    kwargs_handler: Union[dict[str, Any], None] = None,
+    **kwargs: Any,
+) -> dict[str, Any]:
     """
     Configure the loguru logger. For more complex usages, use logger.configure() directly.
 

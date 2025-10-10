@@ -8,8 +8,8 @@ import requests
 
 def send_robust_post_request(
     url: str,
-    data: Optional[any] = None,
-    json: Optional[any] = None,
+    data: Optional[Any] = None,
+    json: Optional[Any] = None,
     n_trials: int = 3,
     n_retry_sleep: int = 5,
     print_fn: callable = print,
