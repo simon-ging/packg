@@ -102,6 +102,10 @@ def test_make_index_basic(temp_file_structure: Path):
     # Check that all 12 files are indexed
     assert len(result) == 12
 
+    # No files or directories should be ignored
+    assert len(status["ignored_dirs"]) == 0
+    assert len(status["ignored_files"]) == 0
+
     # Check that expected files are present
     expected_files = [
         "file1.txt",
@@ -133,6 +137,10 @@ def test_make_index_non_recursive(temp_file_structure: Path):
     # Should only have 3 files from root directory
     assert len(result) == 3
 
+    # No files or directories should be ignored
+    assert len(status["ignored_dirs"]) == 0
+    assert len(status["ignored_files"]) == 0
+
     # Check that only root files are present
     assert "file1.txt" in result
     assert "file2.py" in result
@@ -155,6 +163,12 @@ def test_make_index_with_pathspec_exclude_git(temp_file_structure: Path):
 
     # Should have 8 files (excluded 4 .py files)
     assert len(result) == 8
+
+    # Check ignored files - 4 .py files should be ignored
+    assert len(status["ignored_files"]) == 4
+    assert set(status["ignored_files"]) == {"/file2.py", "/subdir1/file5.py", "/subdir1/nested/subdir_nested/file10.py", "/subdir2/subdir1/file12.py"}
+    # No directories should be ignored
+    assert len(status["ignored_dirs"]) == 0
 
     # Check that .py files are excluded
     assert "file2.py" not in result
@@ -187,6 +201,12 @@ def test_make_index_with_pathspec_exclude_directory_anywhere(temp_file_structure
 
     # Should have 5 files (excluded all files from both subdir1 directories)
     assert len(result) == 5
+
+    # Check ignored directories - both subdir1 directories should be ignored
+    assert len(status["ignored_dirs"]) == 2
+    assert set(status["ignored_dirs"]) == {"/subdir1/", "/subdir2/subdir1/"}
+    # No individual files should be ignored (they are in ignored directories)
+    assert len(status["ignored_files"]) == 0
 
     # Check that both subdir1 directories are excluded (and all their contents)
     assert "subdir1/file4.txt" not in result
