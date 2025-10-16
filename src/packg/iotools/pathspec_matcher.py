@@ -3,6 +3,7 @@ Shortcut to create a pathspec from a list of patterns with either .gitignore or 
 
 https://pypi.org/project/pathspec/#description
 
+TODO test if including can be removed, because existing gitignore syntax can do that already.
 """
 
 from __future__ import annotations
@@ -131,7 +132,23 @@ def make_pathspecs(
     return specs
 
 
-def apply_pathspecs(paths: List[PathType], specs: SPECLISTTYPE) -> Iterable[Path]:
+def apply_pathspecs(paths: List[str], specs: SPECLISTTYPE) -> Iterable[str]:
+    """
+    Apply pathspecs to a list of paths.
+
+    Args:
+        paths: List of file or directory paths as strings. Directories must have a trailing slash.
+            Paths that are relative to the root must have a leading slash.
+        specs: List of tuples with PathSpec and negate flag
+    """
+    for path in paths:
+        if not isinstance(path, str):
+            raise ValueError(
+            "Paths must be strings when applying pathspecs: Directories must have a trailing "
+            f"slash Otherwise, the spec matcher cannot determine if it's a file or directory. "
+            f"Paths that are relative to the root must have a leading slash. "
+            f"Got {type(path)}: {path}"
+        )
     for spec, negate in specs:
         paths = spec.match_files(paths, negate=negate)
     return paths

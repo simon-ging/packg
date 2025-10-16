@@ -1,5 +1,11 @@
 """
 Utilities to index and sort file trees.
+
+# TODO turn index into class so it wouldn't break in parallelism
+# TODO figure out if excluding dirs properly stops scanning (i believe currently it scans
+# everything which is inefficient) 
+
+@Agent print for each test the input file and dir count, output file and dir count, and status.
 """
 
 from __future__ import annotations
@@ -115,7 +121,7 @@ class FileProperties(NamedTupleMixin):
 
 
 _total_counter, _ignored_dirs_counter, _ignored_files_counter = 0, 0, 0
-_pbar: tqdm = None
+_pbar: tqdm | None = None
 _spinner = itertools.cycle("|/-\\")
 _max_print = 40  # cut filenames when output is verbose
 _count_every = 500  # how often to update the spinner
@@ -130,7 +136,8 @@ def make_index(
     pathspec_args: Optional[PathSpecArgs] = None,
     follow_symlinks: bool = False,
     ignore_io_errors: bool = False,
-) -> dict[str, FileProperties]:
+    return_status: bool = False,
+) -> dict[str, FileProperties] | tuple[dict[str, FileProperties], dict[str, int]]:
     """Create file index dictionary of some path
 
     Args:
@@ -176,6 +183,11 @@ def make_index(
     )
     _pbar.clear()
     _pbar.close()
+    if return_status:
+        return file_dict, {
+            "ignored_dirs": _ignored_dirs_counter,
+            "ignored_files": _ignored_files_counter,
+        }
     return file_dict
 
 
@@ -187,7 +199,7 @@ def _recursive_index(
     verbose: bool = True,
     reverse: bool = False,
     show_file_if_verbose: bool = False,
-    specs: Optional[SPECLISTTYPE, None] = None,
+    specs: Optional[SPECLISTTYPE] = None,
     follow_symlinks: bool = False,
     ignore_io_errors: bool = False,
 ) -> list[tuple[str, int, float]]:
@@ -234,12 +246,16 @@ def _recursive_index(
         if not follow_symlinks:
             abs_dirs = [d for d in abs_dirs if not d.is_symlink()]
         if len(specs) > 0:
-            # convert to relative directories and filter with the pathspecs, then convert back
-            rel_dirs = [d.relative_to(base_root) for d in abs_dirs]
-            n_before = len(rel_dirs)
-            rel_dirs = list(apply_pathspecs(rel_dirs, specs))
+            # for gitignore to work properly it needs a leading slash to know where the root is,
+            # and a trailing slash to know it's a dir.
+            rel_dirs_for_pathspec = [f"/{d.relative_to(base_root).as_posix()}/" for d in abs_dirs]
+            n_before = len(rel_dirs_for_pathspec)
+            rel_dirs_after_filtering = list(apply_pathspecs(rel_dirs_for_pathspec, specs))
+            rel_dirs = [Path(d).relative_to("/") for d in rel_dirs_after_filtering]
             _ignored_dirs_counter += n_before - len(rel_dirs)
+            # convert back to absolute dirs
             abs_dirs = [base_root / d for d in rel_dirs]
+        # print(f"Directory candidates: {abs_dirs} in {root}")
         for root_new in abs_dirs:
             entries += _recursive_index(
                 root_new,
@@ -279,11 +295,14 @@ def _recursive_index(
                 logger.error(f"IO error: {format_exception(e)}")
                 continue
     rel_files = [f.relative_to(base_root) for f in abs_files]
+    # again the files need a leading slash for gitignore to work properly
+    rel_files_leading_slash = [f"/{f}" for f in rel_files]
     if len(specs) > 0:
         # filter with pathspecs on relative file level
         n_before = len(rel_files)
-        rel_files = list(apply_pathspecs(rel_files, specs))
-        _ignored_files_counter += n_before - len(rel_files)
+        rel_files_after_filtering = list(apply_pathspecs(rel_files_leading_slash, specs))
+        _ignored_files_counter += n_before - len(rel_files_after_filtering)
+        rel_files = [Path(f).relative_to("/") for f in rel_files_after_filtering]
         abs_files = [base_root / ff for ff in rel_files]
 
     for abs_file, rel_file in zip(abs_files, rel_files):

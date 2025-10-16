@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 import pytest
-from pathspec import Pattern
+from pathspec import PathSpec, Pattern
 
 from packg.iotools.pathspec_matcher import (
     PathSpecArgs,
@@ -163,17 +163,17 @@ def test_apply_pathspecs(tmp_path):
     for f in files:
         f.touch()
 
-    # Test include patterns
+    # Test include patterns - convert Path objects to strings
     specs = make_pathspecs(include_git=["*.txt", "*.py"])
-    matched = list(apply_pathspecs(files, specs))
+    matched = list(apply_pathspecs([f.as_posix() for f in files], specs))
     assert len(matched) == 2
-    assert all(f.suffix in [".txt", ".py"] for f in matched)
+    assert all(Path(f).suffix in [".txt", ".py"] for f in matched)
 
-    # Test exclude patterns
+    # Test exclude patterns - convert Path objects to strings
     specs = make_pathspecs(exclude_git=["*.log", "*.tmp"])
-    matched = list(apply_pathspecs(files, specs))
+    matched = list(apply_pathspecs([f.as_posix() for f in files], specs))
     assert len(matched) == 2
-    assert all(f.suffix in [".txt", ".py"] for f in matched)
+    assert all(Path(f).suffix in [".txt", ".py"] for f in matched)
 
 
 def test_make_and_apply_pathspecs(tmp_path):
@@ -187,14 +187,14 @@ def test_make_and_apply_pathspecs(tmp_path):
     for f in files:
         f.touch()
 
-    # Test with include and exclude patterns
+    # Test with include and exclude patterns - convert Path objects to strings
     matched = list(
         make_and_apply_pathspecs(
-            files, include_git=["*.txt", "*.py"], exclude_git=["*.log", "*.tmp"]
+            [f.as_posix() for f in files], include_git=["*.txt", "*.py"], exclude_git=["*.log", "*.tmp"]
         )
     )
     assert len(matched) == 2
-    assert all(f.suffix in [".txt", ".py"] for f in matched)
+    assert all(Path(f).suffix in [".txt", ".py"] for f in matched)
 
 
 def test_pathspec_args():
@@ -250,3 +250,24 @@ def test_pathspec_with_conversion(tmp_path):
     assert isinstance(matched_str[0], str)
     assert isinstance(matched_posix[0], str)
     assert matched_posix[0] == str(files[0].as_posix())
+
+
+def test_pathspec_with_dirs():
+    specs = ["/subdir1"]
+    rel_dirs = ["/subdir1", "/subdir2", "/subdir2/subdir1"]
+    pathspecs = make_pathspecs(exclude_git=specs)
+    print(f"Specs : {pathspecs}")
+    remaining_dirs = list(apply_pathspecs(rel_dirs, pathspecs))
+    remaining_dirs_str_sorted = sorted(remaining_dirs)
+    assert remaining_dirs_str_sorted == ["/subdir2", "/subdir2/subdir1"]
+
+
+def test_pathspec_with_dirs_no_leading_slash():
+    # Note that without a trailing slash in the input directories, gitignore does not know they are
+    # directories and does not exclude them.
+    out = list(
+        apply_pathspecs(
+            ["/subdir1", "/subdir2"], make_pathspecs(exclude_git=["/subdir1/"])
+        )
+    )
+    assert out == ["/subdir1", "/subdir2"]
