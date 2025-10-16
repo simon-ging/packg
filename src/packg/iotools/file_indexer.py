@@ -120,7 +120,9 @@ class FileProperties(NamedTupleMixin):
     mtime: float
 
 
-_total_counter, _ignored_dirs_counter, _ignored_files_counter = 0, 0, 0
+_total_counter = 0
+_ignored_dirs: list[str] = []
+_ignored_files: list[str] = []
 _pbar: tqdm | None = None
 _spinner = itertools.cycle("|/-\\")
 _max_print = 40  # cut filenames when output is verbose
@@ -137,7 +139,7 @@ def make_index(
     follow_symlinks: bool = False,
     ignore_io_errors: bool = False,
     return_status: bool = False,
-) -> dict[str, FileProperties] | tuple[dict[str, FileProperties], dict[str, int]]:
+) -> dict[str, FileProperties] | tuple[dict[str, FileProperties], dict[str, list[str]]]:
     """Create file index dictionary of some path
 
     Args:
@@ -155,8 +157,10 @@ def make_index(
         file dict {filename str : (file_size int, time_last_modified float) }
     """
     base_root = Path(base_root).resolve().absolute()
-    global _total_counter, _pbar
+    global _total_counter, _pbar, _ignored_dirs, _ignored_files
     _total_counter = 0
+    _ignored_dirs = []
+    _ignored_files = []
     _pbar = tqdm(total=0, disable=not verbose, desc="Indexing files")
     specs = []
     if pathspec_args is not None:
@@ -178,15 +182,15 @@ def make_index(
         file_dict[filename] = FileProperties(size, modtime)
     assert len(file_dict) == len(file_list)
     _pbar.set_description(
-        f"Indexed {len(file_dict)} files. Ignored {_ignored_dirs_counter} dirs and "
-        f"{_ignored_files_counter} files."
+        f"Indexed {len(file_dict)} files. Ignored {len(_ignored_dirs)} dirs and "
+        f"{len(_ignored_files)} files."
     )
     _pbar.clear()
     _pbar.close()
     if return_status:
         return file_dict, {
-            "ignored_dirs": _ignored_dirs_counter,
-            "ignored_files": _ignored_files_counter,
+            "ignored_dirs": _ignored_dirs,
+            "ignored_files": _ignored_files,
         }
     return file_dict
 
@@ -215,7 +219,7 @@ def _recursive_index(
     """
     if specs is None:
         specs = []
-    global _total_counter, _ignored_dirs_counter, _ignored_files_counter
+    global _total_counter, _ignored_dirs, _ignored_files
     entries = []
     dirs, files = None, None
     for _, dirs, files in os.walk(root, followlinks=follow_symlinks):
@@ -251,8 +255,10 @@ def _recursive_index(
             rel_dirs_for_pathspec = [f"/{d.relative_to(base_root).as_posix()}/" for d in abs_dirs]
             n_before = len(rel_dirs_for_pathspec)
             rel_dirs_after_filtering = list(apply_pathspecs(rel_dirs_for_pathspec, specs))
+            # Store the ignored directories in the proper format
+            ignored_this_round = set(rel_dirs_for_pathspec) - set(rel_dirs_after_filtering)
+            _ignored_dirs.extend(sorted(ignored_this_round))
             rel_dirs = [Path(d).relative_to("/") for d in rel_dirs_after_filtering]
-            _ignored_dirs_counter += n_before - len(rel_dirs)
             # convert back to absolute dirs
             abs_dirs = [base_root / d for d in rel_dirs]
         # print(f"Directory candidates: {abs_dirs} in {root}")
@@ -296,12 +302,14 @@ def _recursive_index(
                 continue
     rel_files = [f.relative_to(base_root) for f in abs_files]
     # again the files need a leading slash for gitignore to work properly
-    rel_files_leading_slash = [f"/{f}" for f in rel_files]
+    rel_files_leading_slash = [f"/{f.as_posix()}" for f in rel_files]
     if len(specs) > 0:
         # filter with pathspecs on relative file level
         n_before = len(rel_files)
         rel_files_after_filtering = list(apply_pathspecs(rel_files_leading_slash, specs))
-        _ignored_files_counter += n_before - len(rel_files_after_filtering)
+        # Store the ignored files in the proper format
+        ignored_this_round = set(rel_files_leading_slash) - set(rel_files_after_filtering)
+        _ignored_files.extend(sorted(ignored_this_round))
         rel_files = [Path(f).relative_to("/") for f in rel_files_after_filtering]
         abs_files = [base_root / ff for ff in rel_files]
 
