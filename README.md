@@ -1,12 +1,6 @@
 # packg
 
 <p align="center">
-<a href="https://github.com/simon-ging/packg/actions/workflows/build-py38.yml">
-  <img alt="build 3.8 status" title="build 3.8 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py38.yml?branch=main&label=python%203.8" />
-</a>
-<a href="https://github.com/simon-ging/packg/actions/workflows/build-py39.yml">
-  <img alt="build 3.9 status" title="build 3.9 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py39.yml?branch=main&label=python%203.9" />
-</a>
 <a href="https://github.com/simon-ging/packg/actions/workflows/build-py310.yml">
   <img alt="build 3.10 status" title="build 3.10 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py310.yml?branch=main&label=python%203.10" />
 </a>
@@ -18,6 +12,9 @@
 </a>
 <a href="https://github.com/simon-ging/packg/actions/workflows/build-py313.yml">
   <img alt="build 3.13 status" title="build 3.13 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py313.yml?branch=main&label=python%203.13" />
+</a>
+<a href="https://github.com/simon-ging/packg/actions/workflows/build-py314.yml">
+  <img alt="build 3.14 status" title="build 3.14 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py314.yml?branch=main&label=python%203.14" />
 </a>
 <img alt="coverage" title="coverage" src="https://raw.githubusercontent.com/simon-ging/packg/main/docs/coverage.svg" />
 <a href="https://pypi.org/project/packg/">
