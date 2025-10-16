@@ -6,7 +6,7 @@ import pytest
 from packg.system.timeout import run_function_with_timeout
 
 
-def test_func(x, y, a=1, b=2):
+def sum_func(x, y, a=1, b=2):
     time.sleep(0.1)  # Simulate some work
     return x + y + a + b
 
@@ -34,7 +34,7 @@ def quick_func():
 
 def test_run_function_with_timeout_success():
 
-    result = run_function_with_timeout(1.0, test_func, 1, 2, a=3, b=4)
+    result = run_function_with_timeout(1.0, sum_func, 1, 2, a=3, b=4)
     assert result == 10
 
 
