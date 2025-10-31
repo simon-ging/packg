@@ -1,9 +1,7 @@
 """
 Utilities to index and sort file trees.
 
-# TODO turn index into class so it wouldn't break in parallelism
-# TODO figure out if excluding dirs properly stops scanning (i believe currently it scans
-# everything which is inefficient) 
+# TODO turn index into class, current global variables may break in multi-threaded scenarios
 
 @Agent print for each test the input file and dir count, output file and dir count, and status.
 """
@@ -135,7 +133,7 @@ def make_index(
     verbose: bool = True,
     reverse: bool = False,
     show_file_if_verbose: bool = False,
-    pathspec_args: Optional[PathSpecArgs] = None,
+    pathspec_args: PathSpecArgs | dict | None = None,
     follow_symlinks: bool = False,
     ignore_io_errors: bool = False,
     return_status: bool = False,
@@ -164,7 +162,13 @@ def make_index(
     _pbar = tqdm(total=0, disable=not verbose, desc="Indexing files")
     specs = []
     if pathspec_args is not None:
-        specs = make_pathspecs(**expand_pathspec_args(pathspec_args))
+        if isinstance(pathspec_args, PathSpecArgs):
+            pathspec_args_dict = expand_pathspec_args(pathspec_args)
+        elif isinstance(pathspec_args, dict):
+            pathspec_args_dict = pathspec_args
+        else:
+            raise ValueError(f"Invalid pathspec_args: {pathspec_args}")
+        specs = make_pathspecs(**pathspec_args_dict)
     file_list = _recursive_index(
         base_root,
         base_root,
