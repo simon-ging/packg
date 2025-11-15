@@ -1,6 +1,9 @@
 # packg
 
 <p align="center">
+<a href="https://github.com/simon-ging/packg/actions/workflows/build-py39.yml">
+  <img alt="build 3.9 status" title="build 3.9 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py39.yml?branch=main&label=python%203.9" />
+</a>
 <a href="https://github.com/simon-ging/packg/actions/workflows/build-py310.yml">
   <img alt="build 3.10 status" title="build 3.10 status" src="https://img.shields.io/github/actions/workflow/status/simon-ging/packg/build-py310.yml?branch=main&label=python%203.10" />
 </a>
