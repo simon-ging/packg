@@ -48,7 +48,7 @@ from importlib import util as import_util
 from importlib.machinery import ModuleSpec
 from os import path
 from pkgutil import iter_modules
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Set, Tuple, Union
 import sysconfig
 import site
 from importlib.metadata import distributions
@@ -56,12 +56,12 @@ from importlib.metadata import distributions
 from packg import format_exception
 
 
-def get_installed_top_level_packages() -> list[str]:
+def get_installed_top_level_packages() -> List[str]:
     """
     Return a sorted list of top-level import names provided by all
     installed distributions in the current environment.
     """
-    names: set[str] = set()
+    names: Set[str] = set()
 
     for dist in distributions():
         # Most wheels/eggs ship a top_level.txt listing the import roots
@@ -121,7 +121,7 @@ def is_stdlib(module_name: str, verbose: bool = False) -> Optional[bool]:
     return origin.startswith(stdlib_path)
 
 
-def get_site_dirs() -> set[str]:
+def get_site_dirs() -> Set[str]:
     dirs = set()
 
     # purelib & platlib (where Python installs packages)
