@@ -48,9 +48,97 @@ from importlib import util as import_util
 from importlib.machinery import ModuleSpec
 from os import path
 from pkgutil import iter_modules
-from typing import Any, Iterator, List, Optional, Set, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union
+import sysconfig
+import site
+from importlib.metadata import distributions
 
 from packg import format_exception
+
+
+def get_installed_top_level_packages() -> list[str]:
+    """
+    Return a sorted list of top-level import names provided by all
+    installed distributions in the current environment.
+    """
+    names: set[str] = set()
+
+    for dist in distributions():
+        # Most wheels/eggs ship a top_level.txt listing the import roots
+        top_level = dist.read_text("top_level.txt")
+        if not top_level:
+            continue
+
+        for line in top_level.splitlines():
+            name = line.strip()
+            if not name:
+                continue
+            # optional: skip private/internal names
+            if name.startswith("_"):
+                continue
+            names.add(name)
+
+    return sorted(names)
+
+
+def is_stdlib(module_name: str, verbose: bool = False) -> Optional[bool]:
+    if verbose:
+        print(f"---------- Checking if {module_name} is stdlib")
+
+    # if hasattr(sys, "stdlib_module_names"):
+    #     # python 3.10 check
+    #     if module_name in sys.stdlib_module_names:
+    #         return True
+    #     return False
+
+    spec = import_util.find_spec(module_name)
+    if spec is None or spec.origin is None:
+        if verbose:
+            print(f"Could not find spec for module {module_name}. {spec=}")
+        return None
+
+    origin = spec.origin
+    if verbose:
+        print(f"Module {module_name} has {origin=}")
+
+    # Built-in modules have origin == 'built-in'
+    if origin == "built-in" or origin == "frozen":
+        return True
+
+    # Standard library modules live inside sys.base_prefix / sys.exec_prefix
+    stdlib_path = sysconfig.get_paths()["stdlib"]
+    site_dirs = get_site_dirs()
+    if verbose:
+        print(f"Standard library path: {stdlib_path}")
+        print(f"Site dirs: {site_dirs}")
+
+    # If inside site-packages → not stdlib
+    for d in site_dirs:
+        if origin.startswith(d):
+            return False
+
+    # If inside stdlib directory → stdlib
+    return origin.startswith(stdlib_path)
+
+
+def get_site_dirs() -> set[str]:
+    dirs = set()
+
+    # purelib & platlib (where Python installs packages)
+    purelib = sysconfig.get_paths().get("purelib")
+    platlib = sysconfig.get_paths().get("platlib")
+
+    if purelib:
+        dirs.add(purelib)
+    if platlib:
+        dirs.add(platlib)
+
+    # site-packages from site.getsitepackages(), if available
+    if hasattr(site, "getsitepackages"):
+        for d in site.getsitepackages():
+            dirs.add(d)
+
+    return dirs
 
 
 def _is_test_module(module_name: str) -> bool:
@@ -93,7 +181,22 @@ def recurse_modules(
 
 
 class ImportFromSourceChecker(NodeVisitor):
-    def __init__(self, module: str, ignore_modules: Optional[Union[List, Tuple]] = None):
+    def __init__(
+        self,
+        module: str,
+        ignore_modules: Optional[Union[List, Tuple]] = None,
+        this_package_only: bool = False,
+    ):
+        """
+        Visitor that checks all import statements in the given module and runs the imports.
+
+        Args:
+            module: The module to check imports for.
+            ignore_modules: A list of modules to ignore import errors for.
+            this_package_only: If true, only check imports within the same top-level package.
+                This will speed up the imports because it will never import things like numpy,
+                however if you have a bad import like "import doesnotexist" it will not be caught.
+        """
         ignore_modules = list(ignore_modules) if ignore_modules is not None else []
         module_spec = import_util.find_spec(module)
         is_pkg = (
@@ -105,6 +208,7 @@ class ImportFromSourceChecker(NodeVisitor):
         self._module = module if is_pkg else ".".join(module.split(".")[:-1])
         self._top_level_module = self._module.split(".")[0]
         self._ignore_modules = ignore_modules
+        self._this_package_only = this_package_only
 
     def visit_ImportFrom(self, node: ImportFrom) -> Any:
         # Check that there are no relative imports that attempt to read from a parent module.
@@ -127,8 +231,13 @@ class ImportFromSourceChecker(NodeVisitor):
             # (3) relative import where a submodule is specified (ie: "from .bar import foo")
             module_to_import = f"{self._module}.{node.module}"
 
-        # We're only looking at imports of objects defined inside this top-level package
-        if not module_to_import.startswith(self._top_level_module):
+        if self._this_package_only:
+            # We're only looking at imports of objects defined inside this top-level package
+            # However this can mask import problems
+            if not module_to_import.startswith(self._top_level_module):
+                return
+        if is_stdlib(module_to_import):
+            # Skip testing stdlib imports because they will break one way or another
             return
 
         # Actually import the module and iterate through all the objects potentially exported by it.
