@@ -282,6 +282,7 @@ def _make_custom_iterencode(
                 yield item_separator
             yield _encoder(key)
             yield _key_separator
+            value = _handle_pandas_nan(value)
             if isinstance(value, str):
                 yield _encoder(value)
             elif value is None:
@@ -312,6 +313,7 @@ def _make_custom_iterencode(
             del markers[markerid]  # noqa
 
     def _iterencode(o, _current_indent_level):
+        o = _handle_pandas_nan(o)
         if isinstance(o, str):
             yield _encoder(o)
         elif o is None:
@@ -342,3 +344,9 @@ def _make_custom_iterencode(
                 del markers[markerid]  # noqa
 
     return _iterencode
+
+def _handle_pandas_nan(o):
+    if type(o).__name__ == "NAType" and str(type(o)).startswith("<class 'pandas."):
+        # convert pandas nan to python nan, so it can be handled by the float encoder
+        return float("nan")    
+    return o

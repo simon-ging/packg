@@ -119,6 +119,7 @@ class FileProperties(NamedTupleMixin):
 
 
 _total_counter = 0
+_total_size = 0
 _ignored_dirs: list[str] = []
 _ignored_files: list[str] = []
 _pbar: tqdm | None = None
@@ -155,8 +156,9 @@ def make_index(
         file dict {filename str : (file_size int, time_last_modified float) }
     """
     base_root = Path(base_root).resolve().absolute()
-    global _total_counter, _pbar, _ignored_dirs, _ignored_files
+    global _total_counter, _total_size, _pbar, _ignored_dirs, _ignored_files
     _total_counter = 0
+    _total_size = 0
     _ignored_dirs = []
     _ignored_files = []
     _pbar = tqdm(total=0, disable=not verbose, desc="Indexing files")
@@ -223,7 +225,7 @@ def _recursive_index(
     """
     if specs is None:
         specs = []
-    global _total_counter, _ignored_dirs, _ignored_files
+    global _total_counter, _total_size, _ignored_dirs, _ignored_files
     entries = []
     dirs, files = None, None
     for _, dirs, files in os.walk(root, followlinks=follow_symlinks):

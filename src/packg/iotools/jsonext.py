@@ -14,15 +14,12 @@ Possible improvements:
 
 import io
 import json
-import math
 import os
-import sys
 from functools import partial
 from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, List, Sequence
-
-from packg import format_exception
+import tempfile
 from packg.iotools.compress import CompressorC, compress_data_to_file, decompress_file_to_str
 from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
@@ -394,3 +391,15 @@ load_json_zst = partial(load_json_compressed, compressor_name=CompressorC.ZSTD)
 dump_json_zst = partial(dump_json_compressed, compressor_name=CompressorC.ZSTD)
 load_jsonl_zst = partial(load_jsonl_compressed, compressor_name=CompressorC.ZSTD)
 dump_jsonl_zst = partial(dump_jsonl_compressed, compressor_name=CompressorC.ZSTD)
+
+
+def redump_json(file: PathType, **kwargs) -> None:
+    """Load and immediately dump a json file to fix formatting issues."""
+    data = load_json(file)
+    # for safety dump to a temporary file first and then dump again
+    tmpfile = tempfile.NamedTemporaryFile(delete=False)
+    dump_json(data, tmpfile.name, overwrite=True, **kwargs)
+    tmpfile.close()
+    os.unlink(tmpfile.name)
+    # the real dump here
+    dump_json(data, file, overwrite=True, **kwargs)

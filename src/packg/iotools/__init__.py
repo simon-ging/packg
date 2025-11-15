@@ -25,6 +25,7 @@ from .jsonext import (
     load_jsonl,
     loads_json,
     loads_jsonl,
+    redump_json,
 )
 from .misc import (
     format_b_in_gb,
@@ -87,4 +88,5 @@ __all__ = [
     "format_b_in_gb",
     "format_bytes_human_readable",
     "PathSpecRepr",
+    "redump_json",
 ]
