@@ -48,6 +48,7 @@ from importlib import util as import_util
 from importlib.machinery import ModuleSpec
 from os import path
 from pkgutil import iter_modules
+import sys
 from typing import Any, Iterator, List, Optional, Set, Tuple, Union
 import sysconfig
 import site
@@ -85,11 +86,11 @@ def is_stdlib(module_name: str, verbose: bool = False) -> Optional[bool]:
     if verbose:
         print(f"---------- Checking if {module_name} is stdlib")
 
-    # if hasattr(sys, "stdlib_module_names"):
-    #     # python 3.10 check
-    #     if module_name in sys.stdlib_module_names:
-    #         return True
-    #     return False
+    if hasattr(sys, "stdlib_module_names"):
+        # python 3.10 check
+        if module_name in sys.stdlib_module_names:
+            return True
+        return False
 
     spec = import_util.find_spec(module_name)
     if spec is None or spec.origin is None:
