@@ -5,6 +5,8 @@ from pathlib import Path
 from timeit import default_timer
 import pandas as pd
 
+from packg.iotools.jsonext import load_json
+
 
 def load_parquet(file, dtype_backend="pyarrow", verbose: bool = False, **kwargs):
     file = Path(file)
@@ -20,3 +22,16 @@ def load_parquet(file, dtype_backend="pyarrow", verbose: bool = False, **kwargs)
 
 def dump_parquet(df, file, engine="pyarrow", compression="snappy", **kwargs):
     df.to_parquet(file, engine=engine, compression=compression, **kwargs)
+
+def load_json_to_df(file):
+    """Load JSON file into a pandas DataFrame.
+
+    Args:
+        file: Path to JSON file. The file must be a dict like {index1: {column1_key: column1_value, ...}, ...}
+
+    Returns:
+        pd.DataFrame: DataFrame created from JSON data
+    """
+    dct = load_json(file)
+    df = pd.DataFrame.from_dict(dct, orient="index")
+    return df
