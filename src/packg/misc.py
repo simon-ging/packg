@@ -16,42 +16,6 @@ def uncollate(batch):
     return batch[0]
 
 
-def format_exception(e, with_traceback=False) -> str:
-    error_str, error_name = str(e), type(e).__name__
-    if error_str == "":
-        out_str = error_name
-    else:
-        out_str = f"{error_name}: {error_str}"
-
-    if not with_traceback:
-        return out_str
-
-    tb_list = traceback.format_tb(e.__traceback__)
-    tb_str = "".join(tb_list)
-    return f"{tb_str}{out_str}"
-
-
-def format_exception_with_chain(e: BaseException, with_traceback: bool = False) -> str:
-    """
-    Format an exception chain using format_exception(), numbered by cause depth.
-    cause[0] = root cause
-    cause[n] = top-level exception
-    """
-    chain = []
-    cur = e
-    while cur is not None:
-        chain.append(cur)
-        cur = cur.__cause__ or cur.__context__
-
-    chain = list(reversed(chain))  # root -> top
-
-    parts = []
-    for i, exc in enumerate(chain):
-        parts.append(f"cause[{i}]: {format_exception(exc, with_traceback)}")
-
-    return " | ".join(parts)
-
-
 def format_exception(
     e: BaseException, with_traceback: bool = False, with_source: bool = False
 ) -> str:
