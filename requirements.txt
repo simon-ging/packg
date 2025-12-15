@@ -15,6 +15,3 @@ deprecated
 tomlkit
 chardet
 
-pandas
-pyarrow
-
