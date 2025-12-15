@@ -46,6 +46,7 @@ from .pathspec_matcher import (
     make_regex_pathspec,
 )
 from .yamlext import dump_yaml, dumps_yaml, load_yaml, loads_yaml
+from .pandaext import load_parquet, load_json_to_df
 
 __all__ = [
     "set_working_directory",
@@ -89,4 +90,6 @@ __all__ = [
     "format_bytes_human_readable",
     "PathSpecRepr",
     "redump_json",
+    "load_parquet",
+    "load_json_to_df",
 ]
