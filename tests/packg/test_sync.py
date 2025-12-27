@@ -5,7 +5,6 @@ import pytest
 from packg.cli.keep_remote_synced import SyncCollector
 from packg.testing.setup_tests import git_example_fixture, session_tmp_path
 
-
 _ = session_tmp_path  # stops it from being unused, it is used in the other fixture and required.
 
 

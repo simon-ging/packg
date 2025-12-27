@@ -1,4 +1,5 @@
 import json
+import json5
 from pathlib import Path
 
 import numpy as np
@@ -281,3 +282,61 @@ def _compare_objects(obj_1, obj_2):
     obj_1 = modify_nested_object(obj_1, modifier_fn, return_copy=True)
     obj_2 = modify_nested_object(obj_2, modifier_fn, return_copy=True)
     assert obj_1 == obj_2
+
+
+def test_dumps_json_with_json_parser():
+    """Test that dumps_json works with standard json parser (backward compatibility)."""
+    data = {"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}
+    result_json = dumps_json(data, indent=2, parser=json)
+    expected = """{
+  "key": "value",
+  "number": 42,
+  "nested": {
+    "list": [1, 2, 3]
+  }
+}"""
+    _compare_json_strings(result_json, expected)
+
+
+def test_dumps_json_with_json5_parser():
+    """Test that dumps_json works with json5 parser for regular json data."""
+    data = {"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}
+    
+    # Both parsers should produce compatible output for regular data
+    result_json = dumps_json(data, indent=2, parser=json)
+    result_json5 = dumps_json(data, indent=2, parser=json5, custom_format=False)
+    
+    # Parse both back and compare
+    parsed_json = loads_json(result_json, parser=json)
+    parsed_json5 = loads_json(result_json5, parser=json5)
+    _compare_objects(parsed_json, parsed_json5)
+
+
+def test_loads_json_with_json_parser():
+    """Test that loads_json works with standard json parser (backward compatibility)."""
+    json_str = '{"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}'
+    result = loads_json(json_str, parser=json)
+    expected = {"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}
+    assert result == expected
+
+
+def test_loads_json_with_json5_features():
+    """Test that loads_json with json5 parser supports trailing commas and comments."""
+
+    # JSON5 string with trailing commas and comments
+    json5_str = """{
+  "key": "value",  // inline comment
+  "number": 42,
+  "nested": {
+    /* block comment */
+    "list": [1, 2, 3,],  // trailing comma in list
+  },  // trailing comma in object
+}"""
+    
+    result = loads_json(json5_str, parser=json5)
+    expected = {"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}
+    assert result == expected
+    
+    # Verify that standard json parser would fail on this
+    with pytest.raises(json.JSONDecodeError):
+        loads_json(json5_str, parser=json)

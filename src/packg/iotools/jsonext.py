@@ -15,18 +15,19 @@ Possible improvements:
 import io
 import json
 import os
+import tempfile
 from functools import partial
 from pathlib import Path
 from timeit import default_timer as timer
 from typing import Any, Iterable, List, Sequence
-import tempfile
+
 from packg.iotools.compress import CompressorC, compress_data_to_file, decompress_file_to_str
 from packg.iotools.file_reader import open_file_or_io, read_text_from_file_or_io
 from packg.iotools.jsonext_encoder import CustomJSONEncoder
 from packg.typext import PathOrIO, PathType, PathTypeCls
 
 
-def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8") -> Any:
+def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8", parser=json) -> Any:
     """Load data from json file or file object"""
     start_timer = timer()
     if verbose:
@@ -40,7 +41,7 @@ def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-
         print(f"Load json file {file_or_io} with size {file_len}.")
     data_str = read_text_from_file_or_io(file_or_io, encoding=encoding)
     try:
-        obj = loads_json(data_str)
+        obj = loads_json(data_str, parser=parser)
     except Exception as e:
         # # TODO use a general way to reraise the same exception with added information.
         raise RuntimeError(
@@ -57,12 +58,13 @@ def load_json_compressed(
     compressor_name: CompressorC,
     verbose: bool = False,
     encoding: str = "utf-8",
+    parser=json,
     **compressor_kwargs,
 ) -> Any:
     start_timer = timer()
     data_text = decompress_file_to_str(file_or_io, compressor_name, encoding, **compressor_kwargs)
     try:
-        obj = loads_json(data_text)
+        obj = loads_json(data_text, parser=parser)
     except Exception as e:
         raise RuntimeError(f"Error loading compressed json file {file_or_io}") from e
     if verbose:
@@ -70,12 +72,12 @@ def load_json_compressed(
     return obj
 
 
-def loads_json(s: str) -> Any:
+def loads_json(s: str, parser=json) -> Any:
     """Load data from json string"""
-    return json.loads(s)
+    return parser.loads(s)
 
 
-def load_jsonl(file_or_io: PathOrIO, encoding: str = "utf-8") -> List[Any]:
+def load_jsonl(file_or_io: PathOrIO, encoding: str = "utf-8", parser=json) -> List[Any]:
     """Load data from jsonl (list of json strings) file or file object.
 
     Notes:
@@ -84,7 +86,7 @@ def load_jsonl(file_or_io: PathOrIO, encoding: str = "utf-8") -> List[Any]:
     """
     data_str = read_text_from_file_or_io(file_or_io, encoding=encoding)
     try:
-        data = loads_jsonl(data_str)
+        data = loads_jsonl(data_str, parser=parser)
     except Exception as e:
         raise RuntimeError(f"Error loading jsonl file {file_or_io}") from e
     return data
@@ -95,12 +97,13 @@ def load_jsonl_compressed(
     compressor_name: CompressorC,
     verbose: bool = False,
     encoding: str = "utf-8",
+    parser=json,
     **compressor_kwargs,
 ) -> Any:
     start_timer = timer()
     data_text = decompress_file_to_str(file_or_io, compressor_name, encoding, **compressor_kwargs)
     try:
-        obj = loads_jsonl(data_text)
+        obj = loads_jsonl(data_text, parser=parser)
     except Exception as e:
         raise RuntimeError(f"Error loading compressed jsonl file {file_or_io}") from e
     if verbose:
@@ -108,11 +111,11 @@ def load_jsonl_compressed(
     return obj
 
 
-def loads_jsonl(s: str) -> List[Any]:
+def loads_jsonl(s: str, parser=json) -> List[Any]:
     data = []
     for i, line in enumerate(s.splitlines()):
         try:
-            data.append(loads_json(line))
+            data.append(loads_json(line, parser=parser))
         except Exception as e:
             raise RuntimeError(f"Error loading json line {i}: {line}") from e
     return data
@@ -144,6 +147,7 @@ def dump_json(
     custom_format_indent_lists=False,
     encoding="utf-8",
     overwrite=True,
+    parser=json,
 ) -> None:
     """Write data to json file or file object using the custom json encoder"""
     start_timer = timer()
@@ -174,8 +178,9 @@ def dump_json(
                     custom_format_indent_lists=custom_format_indent_lists,
                 )
             )
+            assert parser is json, f"{custom_format=} requires standard json parser, got {parser=}"
         try:
-            json.dump(obj, fh, **kwargs)
+            parser.dump(obj, fh, **kwargs)
         except KeyboardInterrupt as e:
             if isinstance(fh, (Path, str)):
                 print(f"KeyboardInterrupt, removing potentially corrupt json: {fh}")
@@ -205,6 +210,7 @@ def dump_json_compressed(
     custom_format_indent_lists=False,
     encoding="utf-8",
     overwrite=True,
+    parser=json,
     **compressor_kwargs,
 ):
     start_timer = timer()
@@ -224,6 +230,7 @@ def dump_json_compressed(
         custom_format=custom_format,
         custom_format_nan_to_none=custom_format_nan_to_none,
         custom_format_indent_lists=custom_format_indent_lists,
+        parser=parser,
     )
     compress_data_to_file(
         json_data,
@@ -251,6 +258,7 @@ def dumps_json(
     custom_format=True,
     custom_format_indent_lists=False,
     custom_format_nan_to_none=False,
+    parser=json,
 ) -> str:
     """Write data to json string using the custom json encoder"""
     if indent is None and separators is None:
@@ -274,7 +282,8 @@ def dumps_json(
                 custom_format_indent_lists=custom_format_indent_lists,
             )
         )
-    return json.dumps(obj, **kwargs)
+        assert parser is json, f"{custom_format=} requires standard json parser, got {parser=}"
+    return parser.dumps(obj, **kwargs)
 
 
 def dump_jsonl(
@@ -293,6 +302,7 @@ def dump_jsonl(
     float_precision=None,
     custom_format=True,
     custom_format_nan_to_none=False,
+    parser=json,
 ) -> None:
     """Write lines of data to jsonl (list of json strings) file or file object"""
     start_timer = timer()
@@ -316,6 +326,7 @@ def dump_jsonl(
                 float_precision=float_precision,
                 custom_format=custom_format,
                 custom_format_nan_to_none=custom_format_nan_to_none,
+                parser=parser,
             )
             fh.write(f"{json_line}\n")
 
@@ -340,6 +351,7 @@ def dump_jsonl_compressed(
     float_precision=None,
     custom_format=True,
     custom_format_nan_to_none=False,
+    parser=json,
     **compressor_kwargs,
 ) -> None:
     """Write lines of data to jsonl (list of json strings) file or file object
@@ -360,6 +372,7 @@ def dump_jsonl_compressed(
             float_precision=float_precision,
             custom_format=custom_format,
             custom_format_nan_to_none=custom_format_nan_to_none,
+            parser=parser,
         )
     except Exception as e:
         raise RuntimeError(f"Error dumping jsonl file {file_or_io}") from e
@@ -376,9 +389,9 @@ def dump_jsonl_compressed(
         print(f"Wrote jsonl file {file_or_io} in {timer() - start_timer:.3f} seconds")
 
 
-def dumps_jsonl(data: Iterable[Any], **kwargs) -> str:
+def dumps_jsonl(data: Iterable[Any], parser=json, **kwargs) -> str:
     sio = io.StringIO()
-    dump_jsonl(data, sio, verbose=False, **kwargs)
+    dump_jsonl(data, sio, verbose=False, parser=parser, **kwargs)
     return sio.getvalue()
 
 
@@ -393,13 +406,13 @@ load_jsonl_zst = partial(load_jsonl_compressed, compressor_name=CompressorC.ZSTD
 dump_jsonl_zst = partial(dump_jsonl_compressed, compressor_name=CompressorC.ZSTD)
 
 
-def redump_json(file: PathType, **kwargs) -> None:
+def redump_json(file: PathType, parser=json, **kwargs) -> None:
     """Load and immediately dump a json file to fix formatting issues."""
     data = load_json(file)
     # for safety dump to a temporary file first and then dump again
     tmpfile = tempfile.NamedTemporaryFile(delete=False)
-    dump_json(data, tmpfile.name, overwrite=True, **kwargs)
+    dump_json(data, tmpfile.name, overwrite=True, parser=parser, **kwargs)
     tmpfile.close()
     os.unlink(tmpfile.name)
     # the real dump here
-    dump_json(data, file, overwrite=True, **kwargs)
+    dump_json(data, file, overwrite=True, parser=parser, **kwargs)

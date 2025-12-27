@@ -14,4 +14,4 @@ requests
 deprecated
 tomlkit
 chardet
-
+json5

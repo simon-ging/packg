@@ -42,17 +42,17 @@ Notes:
 """
 
 import logging
+import site
+import sys
+import sysconfig
 from ast import ImportFrom, NodeVisitor, parse
 from importlib import import_module
 from importlib import util as import_util
 from importlib.machinery import ModuleSpec
+from importlib.metadata import distributions
 from os import path
 from pkgutil import iter_modules
-import sys
 from typing import Any, Iterator, List, Optional, Set, Tuple, Union
-import sysconfig
-import site
-from importlib.metadata import distributions
 
 from packg import format_exception
 

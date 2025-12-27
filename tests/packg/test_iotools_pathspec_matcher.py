@@ -190,7 +190,9 @@ def test_make_and_apply_pathspecs(tmp_path):
     # Test with include and exclude patterns - convert Path objects to strings
     matched = list(
         make_and_apply_pathspecs(
-            [f.as_posix() for f in files], include_git=["*.txt", "*.py"], exclude_git=["*.log", "*.tmp"]
+            [f.as_posix() for f in files],
+            include_git=["*.txt", "*.py"],
+            exclude_git=["*.log", "*.tmp"],
         )
     )
     assert len(matched) == 2
@@ -265,9 +267,5 @@ def test_pathspec_with_dirs():
 def test_pathspec_with_dirs_no_leading_slash():
     # Note that without a trailing slash in the input directories, gitignore does not know they are
     # directories and does not exclude them.
-    out = list(
-        apply_pathspecs(
-            ["/subdir1", "/subdir2"], make_pathspecs(exclude_git=["/subdir1/"])
-        )
-    )
+    out = list(apply_pathspecs(["/subdir1", "/subdir2"], make_pathspecs(exclude_git=["/subdir1/"])))
     assert out == ["/subdir1", "/subdir2"]
