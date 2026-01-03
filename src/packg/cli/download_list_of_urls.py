@@ -12,6 +12,7 @@ from typing import Optional
 
 from attrs import define
 from loguru import logger
+from packg.web.file_downloader import download_file_with_retries
 from urllib3.exceptions import ProtocolError, SSLError
 
 from packg.iotools import yield_lines_from_file
@@ -80,7 +81,7 @@ def main():
 
     os.makedirs(args.target_dir, exist_ok=True)
     proc = FnMultiProcessor(
-        args.cpus, download_fn, total=len(url_to_file_here), desc="Downloading URLs"
+        args.cpus, download_file_with_retries, total=len(url_to_file_here), desc="Downloading URLs"
     )
     for url, file in url_to_file_here.items():
         if file.is_file():
@@ -93,44 +94,6 @@ def main():
     proc.close()
 
 
-def _delete_ignore_errors(file):
-    file = Path(file)
-    try:
-        file.unlink()
-    except Exception as e2:
-        logger.error(f"Error deleting file {file}: {e2}")
-
-
-def download_fn(file, url, sleep_time, min_size_mb, n_retries):
-    n_tries = 0
-    while True:
-        success = True
-        n_tries += 1
-        try:
-            download_file(file, url, verbose=False, pbar=False)
-        except KeyboardInterrupt as e:
-            # delete file to avoid having half files leftover
-            _delete_ignore_errors(file)
-            raise e
-        except (ProtocolError, SSLError) as e:
-            logger.error(f"Error downloading {url} {file}: {e}")
-            success = False
-        if min_size_mb > 0 and Path(file).stat().st_size < min_size_mb * 1024**2:
-            logger.warning(
-                f"File {file} is too small, retrying after sleep. "
-                f"Got: {Path(file).read_text(encoding='utf-8')}"
-            )
-            success = False
-        if success:
-            break
-        _delete_ignore_errors(file)
-        if n_tries >= n_retries:
-            logger.error(f"Too many retries for {url} {file}")
-            break
-        time.sleep(sleep_time)
-
-    time.sleep(sleep_time)
-    return True
 
 
 if __name__ == "__main__":

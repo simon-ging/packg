@@ -1,9 +1,16 @@
 from pathlib import Path
 from pprint import pprint
-from typing import BinaryIO, Dict, Tuple, Union
+from typing import BinaryIO, Dict, Optional, Tuple, Union
 
 import urllib3
 from tqdm import tqdm
+
+import time
+from pathlib import Path
+
+from loguru import logger
+from urllib3.exceptions import ProtocolError, SSLError
+
 
 
 def _open_file_for_download(file: Union[str, Path]) -> Tuple[Dict[str, str], BinaryIO]:
@@ -86,3 +93,45 @@ def download_file(
     if verbose:
         print(f"Downloaded {num_bytes / 1024 ** 2:.3f}MB from", url)
     return num_bytes
+
+
+def download_file_with_retries(file, url, sleep_time=1., min_size_mb=0, n_retries=3, raise_on_fail=False) -> Optional[int]:
+    n_tries = 0
+    while True:
+        success = True
+        n_tries += 1
+        try:
+            download_file(file, url, verbose=False, pbar=False)
+        except KeyboardInterrupt as e:
+            # delete file to avoid having half files leftover
+            _delete_ignore_errors(file)
+            raise e
+        except (ProtocolError, SSLError) as e:
+            logger.error(f"Error downloading {url} {file}: {e}")
+            success = False
+        num_bytes = Path(file).stat().st_size
+        if min_size_mb > 0 and num_bytes < min_size_mb * 1024**2:
+            logger.warning(
+                f"File {file} is too small, retrying after sleep. "
+                f"Got: {Path(file).read_text(encoding='utf-8')}"
+            )
+            success = False
+        if success:
+            break
+        _delete_ignore_errors(file)
+        if n_tries >= n_retries:
+            logger.error(f"Too many retries for {url} {file}")
+            break
+        time.sleep(sleep_time)
+    if not success:
+        if raise_on_fail:
+            raise RuntimeError(f"Failed downloading {url} to {file} after {n_retries} tries")
+        return None
+    return num_bytes
+
+def _delete_ignore_errors(file):
+    file = Path(file)
+    try:
+        file.unlink()
+    except Exception as e2:
+        logger.error(f"Error deleting file {file}: {e2}")
