@@ -122,7 +122,7 @@ def test_pathspec_repr():
 
 def test_regex_pathspec():
     # Test regex pathspec creation
-    patterns = [r"test\.txt$", r"test\.py$"]  # More specific patterns
+    patterns = [r"^test\.txt$", r"^test\.py$"]  # More specific patterns
     spec = make_pathspec(patterns, regex_mode=True)
 
     # Test matching
