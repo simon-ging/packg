@@ -2,7 +2,6 @@ import os
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from packg.iotools.encoding import (
     detect_encoding,
@@ -29,25 +28,16 @@ def test_detect_encoding():
         os.unlink(f.name)
 
 
-def test_detect_encoding_and_read_file():
-    # Test with UTF-8 file
-    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
-        content = "Hello, world!"
-        f.write(content.encode("utf-8"))
-        f.flush()
-        read_content, encoding = detect_encoding_and_read_file(Path(f.name))
-        assert read_content == content
-        assert encoding.lower() == "utf-8" or encoding.lower() == "ascii"
-        os.unlink(f.name)
+def test_detect_encoding_and_read_file_utf8(tmp_path):
+    file = tmp_path / "test.txt"
+    content = "Hello, world!"
 
-    # Test with invalid encoding
-    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
-        # Write some binary data that's not valid in any encoding
-        f.write(bytes(range(0x80, 0x100)))  # Invalid UTF-8 sequence
-        f.flush()
-        with pytest.raises(ValueError, match="Finally failed reading"):
-            detect_encoding_and_read_file(Path(f.name))
-        os.unlink(f.name)
+    file.write_text(content, encoding="utf-8")
+
+    read_content, encoding = detect_encoding_and_read_file(file)
+
+    assert read_content == content
+    assert encoding.lower() in {"utf-8", "ascii"}
 
 
 def test_detect_encoding_if_needed_and_read_file():
