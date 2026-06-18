@@ -1,7 +1,7 @@
 import json
-import json5
 from pathlib import Path
 
+import json5
 import numpy as np
 import pytest
 
@@ -301,11 +301,11 @@ def test_dumps_json_with_json_parser():
 def test_dumps_json_with_json5_parser():
     """Test that dumps_json works with json5 parser for regular json data."""
     data = {"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}
-    
+
     # Both parsers should produce compatible output for regular data
     result_json = dumps_json(data, indent=2, parser=json)
     result_json5 = dumps_json(data, indent=2, parser=json5, custom_format=False)
-    
+
     # Parse both back and compare
     parsed_json = loads_json(result_json, parser=json)
     parsed_json5 = loads_json(result_json5, parser=json5)
@@ -332,11 +332,11 @@ def test_loads_json_with_json5_features():
     "list": [1, 2, 3,],  // trailing comma in list
   },  // trailing comma in object
 }"""
-    
+
     result = loads_json(json5_str, parser=json5)
     expected = {"key": "value", "number": 42, "nested": {"list": [1, 2, 3]}}
     assert result == expected
-    
+
     # Verify that standard json parser would fail on this
     with pytest.raises(json.JSONDecodeError):
         loads_json(json5_str, parser=json)

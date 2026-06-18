@@ -144,11 +144,11 @@ def apply_pathspecs(paths: List[str], specs: SPECLISTTYPE) -> Iterable[str]:
     for path in paths:
         if not isinstance(path, str):
             raise ValueError(
-            "Paths must be strings when applying pathspecs: Directories must have a trailing "
-            f"slash Otherwise, the spec matcher cannot determine if it's a file or directory. "
-            f"Paths that are relative to the root must have a leading slash. "
-            f"Got {type(path)}: {path}"
-        )
+                "Paths must be strings when applying pathspecs: Directories must have a trailing "
+                f"slash Otherwise, the spec matcher cannot determine if it's a file or directory. "
+                f"Paths that are relative to the root must have a leading slash. "
+                f"Got {type(path)}: {path}"
+            )
     for spec, negate in specs:
         paths = spec.match_files(paths, negate=negate)
     return paths

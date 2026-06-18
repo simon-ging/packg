@@ -100,3 +100,17 @@ def make_timed_log_fn(t1, print_fn=print):
         print_fn(f"{default_timer() - t1:.3f}s {mesg}", **kwargs)
 
     return timed_log_fn
+
+
+def format_timedelta(td: datetime.timedelta) -> str:
+    """
+    Formats timedelta to (-)DD-HH:MM
+    """
+    total_minutes = int(td.total_seconds() // 60)
+    sign = "-" if total_minutes < 0 else ""
+    total_minutes = abs(total_minutes)
+
+    days, rem_minutes = divmod(total_minutes, 24 * 60)
+    hours, minutes = divmod(rem_minutes, 60)
+
+    return f"{sign}{days:02d}-{hours:02d}:{minutes:02d}"

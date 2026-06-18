@@ -1,16 +1,12 @@
+import time
 from pathlib import Path
 from pprint import pprint
 from typing import BinaryIO, Dict, Optional, Tuple, Union
 
 import urllib3
-from tqdm import tqdm
-
-import time
-from pathlib import Path
-
 from loguru import logger
+from tqdm import tqdm
 from urllib3.exceptions import ProtocolError, SSLError
-
 
 
 def _open_file_for_download(file: Union[str, Path]) -> Tuple[Dict[str, str], BinaryIO]:
@@ -95,7 +91,9 @@ def download_file(
     return num_bytes
 
 
-def download_file_with_retries(file, url, sleep_time=1., min_size_mb=0, n_retries=3, raise_on_fail=False) -> Optional[int]:
+def download_file_with_retries(
+    file, url, sleep_time=1.0, min_size_mb=0, n_retries=3, raise_on_fail=False
+) -> Optional[int]:
     n_tries = 0
     while True:
         success = True
@@ -128,6 +126,7 @@ def download_file_with_retries(file, url, sleep_time=1., min_size_mb=0, n_retrie
             raise RuntimeError(f"Failed downloading {url} to {file} after {n_retries} tries")
         return None
     return num_bytes
+
 
 def _delete_ignore_errors(file):
     file = Path(file)

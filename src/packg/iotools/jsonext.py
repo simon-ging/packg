@@ -27,7 +27,9 @@ from packg.iotools.jsonext_encoder import CustomJSONEncoder
 from packg.typext import PathOrIO, PathType, PathTypeCls
 
 
-def load_json(file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8", parser=json) -> Any:
+def load_json(
+    file_or_io: PathOrIO, verbose: bool = False, encoding: str = "utf-8", parser=json
+) -> Any:
     """Load data from json file or file object"""
     start_timer = timer()
     if verbose:

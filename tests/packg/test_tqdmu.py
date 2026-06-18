@@ -1,54 +1,30 @@
-import sys
-
 import pytest
 
 from packg.tqdmext import tqdm_max_ncols
 
 
 @pytest.mark.parametrize(
-    "os_detected",
+    "ncols, max_ncols, expected",
     [
-        pytest.param(True, id="true"),
-        pytest.param(False, id="false"),
+        (200, 50, 50),  # terminal wider than max_ncols: clamp to max_ncols
+        (200, 300, 200),  # terminal narrower than max_ncols: keep terminal width
+        (200, None, 200),  # max_ncols=None disables clamping
     ],
 )
-def test_max_ncols(os_detected, monkeypatch):
-    """Test that ncols is set to max_ncols."""
-    max_columns = 50
-    expected_max_columns = max_columns
+def test_max_ncols_clamps_width(ncols, max_ncols, expected):
+    """tqdm_max_ncols clamps the bar width to max_ncols. The terminal width is set via tqdm's
+    public ``ncols`` kwarg."""
+    pbar = tqdm_max_ncols(range(10), ncols=ncols, max_ncols=max_ncols, disable=False)
+    assert pbar.ncols == expected
+    pbar.close()
 
-    # must patch the screen shape because that isnt available when running as test in background
-    with monkeypatch.context() as m:
-        for fn_name in [
-            "_screen_shape_windows",
-            "_screen_shape_tput",
-            "_screen_shape_linux",
-        ]:
-            if os_detected:
-                m.setattr(f"tqdm.utils.{fn_name}", lambda x: (80, 200))
-            else:
-                m.setattr(f"tqdm.utils.{fn_name}", None)  # would happen if OS is not detected
-        from tqdm.utils import _screen_shape_wrapper  # noqa
 
-        screen_shape_fn = _screen_shape_wrapper()
-        if screen_shape_fn is not None:
-            screen_shape = screen_shape_fn(sys.stderr)
-            assert screen_shape == (80, 200), (
-                f"screen shape fn was not properly mocked: "
-                f"Got {screen_shape} from {screen_shape_fn}"
-            )
-        else:
-            # OS was not detected by tqdm so ncols will be none
-            expected_max_columns = None
-
-        pbar = tqdm_max_ncols(range(10), max_ncols=max_columns, disable=False)
-        assert pbar.ncols == expected_max_columns
-        pbar.close()
-
-        # max_ncols=none enables default behaviour of tqdm
-        pbar = tqdm_max_ncols(range(10), max_ncols=None)
-        assert (expected_max_columns is None and pbar.ncols is None) or pbar.ncols == 80
-        pbar.close()
+def test_max_ncols_undetected_terminal():
+    """When tqdm cannot detect the terminal width (output is not a tty) it sets ncols to None.
+    tqdm_max_ncols leaves ncols as None and does not crash on the clamp."""
+    pbar = tqdm_max_ncols(range(10), max_ncols=50, disable=False)
+    assert pbar.ncols is None
+    pbar.close()
 
 
 def test_initialization():

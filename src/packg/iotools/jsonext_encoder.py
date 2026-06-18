@@ -345,8 +345,9 @@ def _make_custom_iterencode(
 
     return _iterencode
 
+
 def _handle_pandas_nan(o):
     if type(o).__name__ == "NAType" and str(type(o)).startswith("<class 'pandas."):
         # convert pandas nan to python nan, so it can be handled by the float encoder
-        return float("nan")    
+        return float("nan")
     return o

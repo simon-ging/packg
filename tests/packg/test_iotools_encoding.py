@@ -2,7 +2,6 @@ import os
 import tempfile
 from pathlib import Path
 
-
 from packg.iotools.encoding import (
     detect_encoding,
     detect_encoding_and_read_file,

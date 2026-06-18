@@ -131,7 +131,9 @@ def test_make_index_basic(temp_file_structure: Path):
 
 def test_make_index_non_recursive(temp_file_structure: Path):
     """Test make_index without recursion."""
-    result, status = make_index(temp_file_structure, recursive=False, verbose=False, return_status=True)
+    result, status = make_index(
+        temp_file_structure, recursive=False, verbose=False, return_status=True
+    )
     print_test_status("test_make_index_non_recursive", temp_file_structure, result, status)
 
     # Should only have 3 files from root directory
@@ -152,21 +154,31 @@ def test_make_index_non_recursive(temp_file_structure: Path):
     assert "subdir2/file6.md" not in result
     assert "subdir2/file7.txt" not in result
 
+
 def test_make_index_with_pathspec_exclude_git(temp_file_structure: Path):
     """Test make_index with pathspec args to exclude files using git patterns."""
     pathspec_args = PathSpecArgs(
         exclude_git=["*.py"],  # Exclude all Python files
     )
 
-    result, status = make_index(temp_file_structure, verbose=False, pathspec_args=pathspec_args, return_status=True)
-    print_test_status("test_make_index_with_pathspec_exclude_git", temp_file_structure, result, status)
+    result, status = make_index(
+        temp_file_structure, verbose=False, pathspec_args=pathspec_args, return_status=True
+    )
+    print_test_status(
+        "test_make_index_with_pathspec_exclude_git", temp_file_structure, result, status
+    )
 
     # Should have 8 files (excluded 4 .py files)
     assert len(result) == 8
 
     # Check ignored files - 4 .py files should be ignored
     assert len(status["ignored_files"]) == 4
-    assert set(status["ignored_files"]) == {"/file2.py", "/subdir1/file5.py", "/subdir1/nested/subdir_nested/file10.py", "/subdir2/subdir1/file12.py"}
+    assert set(status["ignored_files"]) == {
+        "/file2.py",
+        "/subdir1/file5.py",
+        "/subdir1/nested/subdir_nested/file10.py",
+        "/subdir2/subdir1/file12.py",
+    }
     # No directories should be ignored
     assert len(status["ignored_dirs"]) == 0
 
@@ -196,8 +208,15 @@ def test_make_index_with_pathspec_exclude_directory_anywhere(temp_file_structure
         exclude_git=["subdir1/"],  # Exclude subdir1 anywhere in the tree
     )
 
-    result, status = make_index(temp_file_structure, verbose=False, pathspec_args=pathspec_args, return_status=True)
-    print_test_status("test_make_index_with_pathspec_exclude_directory_anywhere", temp_file_structure, result, status)
+    result, status = make_index(
+        temp_file_structure, verbose=False, pathspec_args=pathspec_args, return_status=True
+    )
+    print_test_status(
+        "test_make_index_with_pathspec_exclude_directory_anywhere",
+        temp_file_structure,
+        result,
+        status,
+    )
 
     # Should have 5 files (excluded all files from both subdir1 directories)
     assert len(result) == 5
@@ -233,7 +252,14 @@ def test_make_index_with_pathspec_exclude_directory_root_only(temp_file_structur
     """
     print()
     print(f"Temporary test directory: {temp_file_structure}")
-    print('\n'.join(sorted(p.relative_to(temp_file_structure).as_posix() for p in temp_file_structure.rglob('*'))))
+    print(
+        "\n".join(
+            sorted(
+                p.relative_to(temp_file_structure).as_posix()
+                for p in temp_file_structure.rglob("*")
+            )
+        )
+    )
     pathspec_args = PathSpecArgs(
         exclude_git=["/subdir1/"],  # Exclude subdir1 only at root (not subdir2/subdir1/)
     )

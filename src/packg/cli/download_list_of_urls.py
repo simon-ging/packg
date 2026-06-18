@@ -12,13 +12,13 @@ from typing import Optional
 
 from attrs import define
 from loguru import logger
-from packg.web.file_downloader import download_file_with_retries
 from urllib3.exceptions import ProtocolError, SSLError
 
 from packg.iotools import yield_lines_from_file
 from packg.log import SHORTEST_FORMAT, configure_logger, get_logger_level_from_args
 from packg.multiproc import FnMultiProcessor
 from packg.web import download_file
+from packg.web.file_downloader import download_file_with_retries
 from typedparser import TypedParser, VerboseQuietArgs, add_argument
 
 
@@ -92,8 +92,6 @@ def main():
     for _ in range(len(url_to_file_here)):
         outputs.append(proc.get())
     proc.close()
-
-
 
 
 if __name__ == "__main__":
