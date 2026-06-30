@@ -49,6 +49,9 @@ TIMELESS_FORMAT = "<level>{level: <4.4}</level> <level>{message}</level>"
 SPINNER_STR = "|/-\\"
 SPINNER_CYCLE = itertools.cycle("|/-\\")
 LOG_LEVEL_NAMES = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]  # logging._nameToLevel
+# verbosity ladder from quietest to loudest. each -q steps down, each -v steps up. TRACE is loguru-only.
+VERBOSITY_LADDER = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "TRACE"]
+DEFAULT_VERBOSITY_INDEX = VERBOSITY_LADDER.index("INFO")
 
 
 def get_stdlib_logging_formatter():
@@ -181,12 +184,13 @@ def get_level_as_int(level: LevelType):
 
 
 def get_logger_level_from_args(args: VerboseQuietArgs) -> str:
-    if args.verbose:
-        assert args.loglevel is None, "Cannot set both -v/--verbose and --log_level LEVEL"
-        return "DEBUG"
-    if args.quiet:
-        assert args.loglevel is None, "Cannot set both -q/--quiet and --log_level LEVEL"
-        return "WARNING"
+    verbose = args.verbose or 0
+    quiet = args.quiet or 0
+    if verbose or quiet:
+        assert args.loglevel is None, "Cannot set both -v/-q and --log_level LEVEL"
+        index = DEFAULT_VERBOSITY_INDEX + verbose - quiet
+        index = max(0, min(len(VERBOSITY_LADDER) - 1, index))
+        return VERBOSITY_LADDER[index]
     loglevel = args.loglevel
     if loglevel == "WARN":
         print("Deprecation: log level WARN is deprecated, use WARNING instead", file=sys.stderr)

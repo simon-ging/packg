@@ -1,7 +1,10 @@
 import io
 import logging
 
-from packg.log import configure_logger, silence_stdlib_loggers
+import pytest
+
+from packg.log import configure_logger, get_logger_level_from_args, silence_stdlib_loggers
+from typedparser import TypedParser, VerboseQuietArgs
 
 
 def test_silence_stdlib_loggers():
@@ -38,3 +41,48 @@ def test_silence_stdlib_loggers():
 def test_configure_logger():
     config = configure_logger(level="INFO")
     assert config["handlers"][0]["level"] == "INFO"
+
+
+def _parse_verbose_quiet_args(argv):
+    return TypedParser.create_parser(VerboseQuietArgs, strict=True).parse_args(argv)
+
+
+@pytest.mark.parametrize(
+    "argv, expected_level",
+    [
+        ([], "INFO"),
+        # each -v steps the level up (more verbose), clamped at the loudest end
+        (["-v"], "DEBUG"),
+        (["-vv"], "TRACE"),
+        (["-vvv"], "TRACE"),
+        # each -q steps the level down (quieter), clamped at the quietest end
+        (["-q"], "WARNING"),
+        (["-qq"], "ERROR"),
+        (["-qqq"], "CRITICAL"),
+        (["-qqqq"], "CRITICAL"),
+        # -v and -q net out against each other
+        (["-vv", "-q"], "DEBUG"),
+        (["-v", "-qq"], "WARNING"),
+        # explicit loglevel
+        (["--loglevel", "ERROR"], "ERROR"),
+    ],
+)
+def test_get_logger_level_from_args(argv, expected_level):
+    args = _parse_verbose_quiet_args(argv)
+    assert get_logger_level_from_args(args) == expected_level
+
+
+def test_get_logger_level_from_args_counts_accumulate():
+    args = _parse_verbose_quiet_args(["-vvv"])
+    assert args.verbose == 3
+    assert args.quiet == 0
+    args = _parse_verbose_quiet_args(["-qq"])
+    assert args.quiet == 2
+    assert args.verbose == 0
+
+
+@pytest.mark.parametrize("argv", [["-v", "--loglevel", "DEBUG"], ["-q", "--loglevel", "WARNING"]])
+def test_get_logger_level_from_args_conflicting_loglevel(argv):
+    args = _parse_verbose_quiet_args(argv)
+    with pytest.raises(AssertionError):
+        get_logger_level_from_args(args)
