@@ -1,9 +1,9 @@
 """
 Global path definitions for projects.
 
-Resolution is as follows:
-1. Load from environment variables if defined
-2. Use the defaults defined here
+The data dir is read from the environment variable PACKG_DATA_DIR if it is defined, else the
+default defined here is used. The cache dir is the cache dir of the user for this package, e.g.
+~/.cache/packg on Linux.
 
 Usage in python:
     print(get_data_dir())
@@ -22,14 +22,12 @@ from packg.constclass import Const
 
 class EnvKeys(Const):
     PACKG_DATA_DIR = "PACKG_DATA_DIR"
-    PACKG_CACHE_DIR = "PACKG_CACHE_DIR"
 
 
 home = Path.home()
 
 ENV_DEFAULTS = {
     EnvKeys.PACKG_DATA_DIR: "data",  # datasets base directory, default is relative dir 'data'
-    EnvKeys.PACKG_CACHE_DIR: (user_cache_path("python_packg") / "cache").as_posix(),
 }
 
 
@@ -38,7 +36,7 @@ def get_packg_data_dir() -> Path:
 
 
 def get_packg_cache_dir() -> Path:
-    return get_path_from_env(EnvKeys.PACKG_CACHE_DIR)
+    return user_cache_path("packg")
 
 
 def get_path_from_env(env_k: str) -> Path:

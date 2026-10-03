@@ -19,7 +19,7 @@ needs_pdftotext = pytest.mark.skipif(shutil.which("pdftotext") is None, reason="
 @pytest.fixture(autouse=True)
 def cache_dir(tmp_path, monkeypatch):
     # the folder index and the hashes are cached, keep that out of the real cache dir
-    monkeypatch.setenv("PACKG_CACHE_DIR", (tmp_path / "cache").as_posix())
+    monkeypatch.setenv("XDG_CACHE_HOME", (tmp_path / "cache").as_posix())
 
 
 def make_pdf(path, text: str, producer: str) -> None:
