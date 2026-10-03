@@ -216,57 +216,6 @@ complete -F {function_name} {command_name}
     return autocomplete_script
 
 
-def create_new_bash_autocomplete_script(
-    packages: list[str],
-    command_name: str = "py",
-    function_name: Optional[str] = None,
-    run_dir: Optional[str] = None,
-) -> str:
-    """
-    New version: allinone e.g. alias py and then complete for all installed packages.
-
-    Args:
-        packages: packages to create the autocomplete for
-        function_name: default _{package}
-        command_name: default {package}
-        run_dir: only create autocompletion for this directory
-
-    Returns:
-
-    """
-    all_output_modules = []
-    for package in packages:
-        output_modules = get_modules_for_autocomplete(package, run_dir=run_dir)
-        output_modules = [f"{package}.{m}" for m in output_modules]
-        # logger.debug(f"package={package} output_modules={output_modules}")
-        if len(output_modules) == 0:
-            print(f"WARN: Nothing found for package {package} in {run_dir}, is it installed?")
-        all_output_modules.extend(output_modules)
-    if function_name is None:
-        function_name = f"_{command_name}"
-
-    ob, cb = "{", "}"
-    autocomplete_script = f"""
-{function_name}() {ob}
-    local cur prev opts
-    _init_completion || return
-    # complete second argument with script, iff first argument is -m
-    if [[ $COMP_CWORD -eq 2 && $prev == "-m" ]]; then
-        opts="{' '.join(all_output_modules)}"
-        COMPREPLY=( $( compgen -W "${ob}opts{cb}" -- "${ob}cur{cb}") )
-        return 0
-    fi
-    # # otherwise complete with filesystem
-    # COMPREPLY=( $(compgen -f -- "${ob}cur{cb}") )
-    _filedir
-    return 0
-{cb}
-
-complete -F {function_name} {command_name}
-"""
-    return autocomplete_script
-
-
 FILEDIR_AUTOCOMPLETE = r"""
 _filedir()  # source: ubuntu 2004 /usr/share/bash-completion/bash_completion
 {

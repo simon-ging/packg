@@ -115,6 +115,61 @@ class Folder:
         return dir_index
 
 
+def print_graph(
+    root: Folder,
+    level: int = 0,
+    max_level: int = -1,
+    min_size_mb: float = 100,
+    print_fn=print,
+    full_path_to_here="",
+):
+    """
+    Print the files and folders of at least min_size_mb with their size, deepest first, so a
+    folder comes after everything inside it.
+
+    Args:
+        root: folder to start from, must be populated
+        level: current recursion level
+        max_level: maximum recursion level, -1 for no limit
+        min_size_mb: minimum size in MB to print
+        print_fn: called with one line per file or folder
+        full_path_to_here: path to the current folder
+    """
+    min_size_b = min_size_mb * 1024**2
+    if max_level == 0:
+        return
+    size_b_other_files = 0
+    for file, file_stat in root.files_and_stat.items():
+        file_size = file_stat.st_size
+        if file_size >= min_size_b:
+            print_fn(f"{format_b_in_gb(file_size):>10s} F {full_path_to_here}{file} ")
+            continue
+        size_b_other_files += file_size
+    # if size_b_other_files > 0:
+    #     print_fn(f"{indent}(other files){format_b_in_mb(size_b_other_files)}")
+    size_b_other_dirs = 0
+    for folder_name, folder in root.dir_refs.items():
+        folder_size = folder.total_size
+        if folder_size > min_size_b:
+            if level <= max_level or max_level < 0:
+                print_graph(
+                    folder,
+                    level=level + 1,
+                    max_level=max_level,
+                    min_size_mb=min_size_mb,
+                    print_fn=print_fn,
+                    full_path_to_here=f"{full_path_to_here}{folder_name}/",
+                )
+                continue
+            # print_fn(f"{format_b_in_gb(folder_size)} {full_path_to_here}{folder_name}/")
+            continue
+        size_b_other_dirs += folder_size
+    # if size_b_other_dirs > 0:
+    #     print_fn(f"{indent}(other dirs){format_b_in_mb(size_b_other_dirs)}")
+    if root.total_size >= min_size_b:
+        print_fn(f"{format_b_in_gb(root.total_size):>10s} D {full_path_to_here}")
+
+
 def get_subfolder_data(
     root: Folder,
     level: int = 0,

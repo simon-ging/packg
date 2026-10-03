@@ -15,3 +15,5 @@ deprecated
 tomlkit
 chardet
 json5
+colorama
+PyPDF2
